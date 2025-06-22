@@ -1,37 +1,114 @@
 services:
-  invox-transcribe:
+  frontend:
     build:
-      context: ../invox-transcribe
+      context: ../invox-client
       dockerfile: Dockerfile
-    ports:
-      - "9000:9000"
-    environment:
-      - WHISPER_MODEL=${WHISPER_MODEL:-small}
-      - PYTHONUNBUFFERED=1
-      - PYTHONDONTWRITEBYTECODE=1
+      target: development
     volumes:
-      - transcribe_logs:/app/logs
-      - transcribe_models:/app/models
-    restart: unless-stopped
+      - ../invox-client:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    depends_on:
+      - backend
     networks:
-      - transcribe
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
-    deploy:
-      resources:
-        limits:
-          memory: 4G
-        reservations:
-          memory: 2G
-    security_opt:
-      - no-new-privileges:true
-    labels:
-      - "com.docker.compose.service=transcription"
-      - "com.docker.compose.project=invox"
+      - backend
+      - frontend
+  
+  backend:
+    build:
+      context: ../invox-backend
+      dockerfile: Dockerfile
+      target: npm_dev_install
+    ports:
+      - "3000:3000"
+    volumes:
+      - ../invox-backend:/usr/src/app
+      - ../invox-backend/src/data:/usr/src/app/dist/data:ro
+      - /usr/src/app/node_modules
+    env_file:
+      - .env
+    command: npm run start:dev
+    depends_on:
+      - db
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - DB_HOST=${INVOX_DB_HOST}
+      - DB_PORT=${INVOX_DB_PORT}
+      - DB_NAME=${INVOX_DB_NAME}
+      - DB_USER=${INVOX_DB_USER}
+      - DB_PASSWORD=${INVOX_DB_PASSWORD}
+    networks:
+      - backend
+      - frontend
+
+  db:
+    image: postgres:17-alpine
+    restart: always
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_DB=${INVOX_DB_NAME}
+      - POSTGRES_USER=${INVOX_DB_USER}
+      - POSTGRES_PASSWORD=${INVOX_DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./volumes/database:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  webserver:
+    image: nginx:1-alpine
+    ports:
+      - "4200:4200"
+    restart: always
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - frontend
+      - backend
+    volumes:
+      - ./config/webserver/nginx/templates/server-variables.conf.template:/etc/nginx/templates/server-variables.conf.template:ro
+      - ./config/webserver/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    cap_add:
+      - NET_ADMIN
+
+  # invox-transcribe:
+  #   build:
+  #     context: ../invox-transcribe
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "9000:9000"
+  #   environment:
+  #     - WHISPER_MODEL=${WHISPER_MODEL:-small}
+  #     - PYTHONUNBUFFERED=1
+  #     - PYTHONDONTWRITEBYTECODE=1
+  #   volumes:
+  #     - transcribe_logs:/app/logs
+  #     - transcribe_models:/app/models
+  #   restart: unless-stopped
+  #   networks:
+  #     - transcribe
+  #   healthcheck:
+  #     test: ["CMD-SHELL", "curl -f http://localhost:9000/health || exit 1"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         memory: 4G
+  #       reservations:
+  #         memory: 2G
+  #   security_opt:
+  #     - no-new-privileges:true
+  #   labels:
+  #     - "com.docker.compose.service=transcription"
+  #     - "com.docker.compose.project=invox"
 
 networks:
   transcribe:
@@ -39,6 +116,12 @@ networks:
     ipam:
       config:
         - subnet: 172.23.0.0/16
+  frontend:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "true"
+  backend:
+    name: backend
 
 volumes:
   transcribe_logs:
