@@ -1,0 +1,31 @@
+# Python virtual environment
+.venv/
+env/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+
+# Jupyter notebooks (if used)
+.ipynb_checkpoints/
+
+# Dataset cache (from Hugging Face or other sources)
+~/.cache/huggingface/
+~/.datasets/
+datasets_cache/
+*.arrow
+
+# Output and logs
+muc4_results.json
+*.log
+*.tmp
+
+# VS Code
+.vscode/
+
+# Mac/Unix
+.DS_Store

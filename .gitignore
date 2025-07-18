@@ -134,3 +134,7 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# muc4-eval specific ignores
+
+.muc4-eval/.gitignore
