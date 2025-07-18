@@ -5,7 +5,7 @@ from utils import load_local_muc4_documents, call_fill_template_api
 
 def main():
     print("📥 Loading MUC-4 test documents...")
-    docs = load_local_muc4_documents("data/muc4/muc34/TASK/CORPORA/tst2-muc4", limit=5)
+    docs = load_local_muc4_documents("data/muc4/muc34/TASK/CORPORA/tst2-muc4", limit=100)
     print(f"📂 Loaded {len(docs)} SGML docs from tst2-muc4\n")
 
     results = []
