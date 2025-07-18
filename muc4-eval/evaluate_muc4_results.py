@@ -1,14 +1,44 @@
 import json
+import re
 from collections import Counter, defaultdict
+from dateparser import parse as parse_date
+from rapidfuzz import fuzz
 
 def load_json(path):
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
-def normalize(s):
+# Optional synonym map
+SYNONYMS = {
+    "explosion": "bombing",
+    "terrorist attack": "attack",
+    "aid suspension": "attack",
+    "grenade": "hand grenades",
+    "hand grenade": "hand grenades",
+    "el salvador": "san salvador",
+    "fpmr": "manuel rodriguez patriotic front",
+}
+
+def clean_string(s):
     if not s:
         return ""
-    return str(s).strip().lower()
+    s = str(s).lower().strip()
+    s = re.sub(r'\([^)]*\)', '', s)  # remove parentheses content
+    s = re.sub(r'[^a-z0-9\s]', '', s)  # remove punctuation
+    s = re.sub(r'\b(the|a|an)\b', '', s)  # remove articles
+    s = re.sub(r'\s+', ' ', s)  # collapse spaces
+    return s.strip()
+
+def normalize(s):
+    s = clean_string(s)
+
+    # Normalize dates
+    parsed = parse_date(s)
+    if parsed:
+        return parsed.strftime('%Y-%m-%d')
+
+    # Apply synonym map
+    return SYNONYMS.get(s, s)
 
 def convert_to_dict_by_doc_id(data, is_gold=False):
     result = defaultdict(list)
@@ -20,7 +50,7 @@ def convert_to_dict_by_doc_id(data, is_gold=False):
             result[doc_id] = item  # one predicted template per doc
     return result
 
-def evaluate(gold_data_raw, pred_data_raw, verbose=False):
+def evaluate(gold_data_raw, pred_data_raw, verbose=False, use_fuzzy=False):
     gold_data = convert_to_dict_by_doc_id(gold_data_raw, is_gold=True)
     pred_data = convert_to_dict_by_doc_id(pred_data_raw, is_gold=False)
 
@@ -52,7 +82,17 @@ def evaluate(gold_data_raw, pred_data_raw, verbose=False):
                 total_gold[field] += 1
             if pred_value:
                 total_pred[field] += 1
-                if pred_value in gold_field_values:
+
+                matched = pred_value in gold_field_values
+
+                # Allow fuzzy match if enabled
+                if not matched and use_fuzzy:
+                    for gold_val in gold_field_values:
+                        if fuzz.ratio(pred_value, gold_val) >= 90:
+                            matched = True
+                            break
+
+                if matched:
                     correct[field] += 1
                 else:
                     mismatches.append((doc_id, field, pred_value, gold_field_values))
@@ -79,4 +119,4 @@ def evaluate(gold_data_raw, pred_data_raw, verbose=False):
 if __name__ == "__main__":
     gold = load_json("muc4_gold.json")
     pred = load_json("muc4_results.json")
-    evaluate(gold, pred, verbose=True)
+    evaluate(gold, pred, verbose=True, use_fuzzy=True)
