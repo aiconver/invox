@@ -1,0 +1,1262 @@
+[
+  {
+    "doc_id": "TST2-MUC4-0001",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "JESUITS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0002",
+    "incident_type": "bombing",
+    "perpetrator": "MANUEL RODRIGUEZ PATRIOTIC FRONT",
+    "victim": null,
+    "weapon": "-",
+    "location": "Chile",
+    "date": "12"
+  },
+  {
+    "doc_id": "TST2-MUC4-0003",
+    "incident_type": "attack",
+    "perpetrator": "RUTH ESPERANZA AGUILAR MARROQUIN",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(09"
+  },
+  {
+    "doc_id": "TST2-MUC4-0003",
+    "incident_type": "kidnapping",
+    "perpetrator": "RUTH ESPERANZA AGUILAR MARROQUIN",
+    "victim": "STUDENTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(09"
+  },
+  {
+    "doc_id": "TST2-MUC4-0003",
+    "incident_type": "attack",
+    "perpetrator": "RUTH ESPERANA AGUILAR MARROQUIN",
+    "victim": "STUDENTS",
+    "weapon": "HAND GRENADES",
+    "location": "El Salvador",
+    "date": "(09"
+  },
+  {
+    "doc_id": "TST2-MUC4-0004",
+    "incident_type": "bombing",
+    "perpetrator": "UNIDENTIFIED PERSON",
+    "victim": null,
+    "weapon": "DYNAMITE CHARGE",
+    "location": "Bolivia",
+    "date": "20"
+  },
+  {
+    "doc_id": "TST2-MUC4-0005",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0006",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0007",
+    "incident_type": "bombing",
+    "perpetrator": "TERRORISTS ON THE DRUG CARTEL'S PAYROLL",
+    "victim": "PERSONS",
+    "weapon": "CAR BOMB",
+    "location": "Colombia",
+    "date": "11"
+  },
+  {
+    "doc_id": "TST2-MUC4-0007",
+    "incident_type": "attack",
+    "perpetrator": "ADOLFO MESA MENESES",
+    "victim": "LEFTIST PRESIDENTIAL CANDIDATE",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0008",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": "DEATHS",
+    "weapon": "-",
+    "location": "El Salvador",
+    "date": "17"
+  },
+  {
+    "doc_id": "TST2-MUC4-0009",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0010",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": "-",
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0011",
+    "incident_type": "attack",
+    "perpetrator": "COLONEL GUILLERMO ALFREDO BENAVIDES MORENO",
+    "victim": "JESUIT PRIESTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0012",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "SPOKESMAN OF THE MIR",
+    "weapon": null,
+    "location": "Chile",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0013",
+    "incident_type": "attack",
+    "perpetrator": "ATTACKERS",
+    "victim": "MR.",
+    "weapon": "AUTOMATIC WEAPONS",
+    "location": "Ecuador",
+    "date": "30"
+  },
+  {
+    "doc_id": "TST2-MUC4-0013",
+    "incident_type": "kidnapping",
+    "perpetrator": "ATTACKERS",
+    "victim": null,
+    "weapon": null,
+    "location": "Ecuador",
+    "date": "30"
+  },
+  {
+    "doc_id": "TST2-MUC4-0014",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0015",
+    "incident_type": "bombing",
+    "perpetrator": "TERRORIST",
+    "victim": null,
+    "weapon": "OVER 55 KG OF DYNAMITE",
+    "location": "Colombia",
+    "date": "27"
+  },
+  {
+    "doc_id": "TST2-MUC4-0016",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0017",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": "PEOPLE",
+    "weapon": "TRUCK-BOMB",
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0018",
+    "incident_type": "attack",
+    "perpetrator": "ASSASSINS",
+    "victim": "MSGR",
+    "weapon": null,
+    "location": "(El Salvador) / (El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0019",
+    "incident_type": "attack",
+    "perpetrator": "FARABUNDO MARTI NATIONAL LIBERATION FRONT",
+    "victim": "NATIONAL FIRE DEPARTMENT DIRECTOR",
+    "weapon": "MACHINEGUN",
+    "location": "El Salvador",
+    "date": "26"
+  },
+  {
+    "doc_id": "TST2-MUC4-0020",
+    "incident_type": "bombing",
+    "perpetrator": "COLOMBIAN DRUG KINGPINS",
+    "victim": "DISFIGURED BODIES",
+    "weapon": "-",
+    "location": "(Colombia",
+    "date": "27"
+  },
+  {
+    "doc_id": "TST2-MUC4-0021",
+    "incident_type": "bombing",
+    "perpetrator": "REBELS",
+    "victim": null,
+    "weapon": "DYNAMITE",
+    "location": "El Salvador",
+    "date": "(08"
+  },
+  {
+    "doc_id": "TST2-MUC4-0021",
+    "incident_type": "bombing",
+    "perpetrator": "REBELS",
+    "victim": null,
+    "weapon": "DYNAMITE",
+    "location": "El Salvador",
+    "date": "(08"
+  },
+  {
+    "doc_id": "TST2-MUC4-0021",
+    "incident_type": "bombing",
+    "perpetrator": "REBELS",
+    "victim": null,
+    "weapon": "DYNAMITE",
+    "location": "El Salvador",
+    "date": "(08"
+  },
+  {
+    "doc_id": "TST2-MUC4-0021",
+    "incident_type": "bombing",
+    "perpetrator": "REBELS",
+    "victim": null,
+    "weapon": "DYNAMITE",
+    "location": "El Salvador",
+    "date": "(08"
+  },
+  {
+    "doc_id": "TST2-MUC4-0022",
+    "incident_type": "attack",
+    "perpetrator": "NARCOTRAFFICKING MAFIAS",
+    "victim": null,
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0023",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "MSGR",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": "(21"
+  },
+  {
+    "doc_id": "TST2-MUC4-0023",
+    "incident_type": "attack",
+    "perpetrator": "SOLDIERS",
+    "victim": "JESUITS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0024",
+    "incident_type": "bombing",
+    "perpetrator": "FMLN",
+    "victim": null,
+    "weapon": "BOMB",
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0024",
+    "incident_type": "attack",
+    "perpetrator": "FMLN",
+    "victim": "RELATIVE OF COLONEL LOPEZ HUILA",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0025",
+    "incident_type": "attack",
+    "perpetrator": "UNIFORMED MEN",
+    "victim": "CENTRAL AMERICAN UNIVERSITY RECTOR",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": "16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0026",
+    "incident_type": "attack",
+    "perpetrator": "SECTORS WHO SEEK TO DESTABILIZE THE COUNTRY",
+    "victim": "POLITICAL LEADER",
+    "weapon": "-",
+    "location": "(Colombia",
+    "date": "26"
+  },
+  {
+    "doc_id": "TST2-MUC4-0026",
+    "incident_type": "attack",
+    "perpetrator": "FIDEL CASTANO",
+    "victim": "PRESIDENTIAL CANDIDATE",
+    "weapon": null,
+    "location": "Colombia",
+    "date": "22"
+  },
+  {
+    "doc_id": "TST2-MUC4-0027",
+    "incident_type": "kidnapping",
+    "perpetrator": "FMLN",
+    "victim": "YOUTHS",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0027",
+    "incident_type": "kidnapping",
+    "perpetrator": "FMLN",
+    "victim": "YOUTHS",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0027",
+    "incident_type": "kidnapping",
+    "perpetrator": "FMLN",
+    "victim": "YOUTHS",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0028",
+    "incident_type": "bombing",
+    "perpetrator": "NATIONALIST REPUBLICAN ALLIANCE [ARENA] GOVERNMENT",
+    "victim": null,
+    "weapon": "BOMB",
+    "location": "(El Salvador",
+    "date": "22"
+  },
+  {
+    "doc_id": "TST2-MUC4-0029",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0030",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0031",
+    "incident_type": "attack",
+    "perpetrator": "HONDURAN ARMY TROOPS",
+    "victim": "CIVILIANS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0031",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": "MACHINEGUNS",
+    "location": "Honduras",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0032",
+    "incident_type": "attack",
+    "perpetrator": "MEDELLIN CARTEL BOSS PABLO ESCOBAR GAVIRIA",
+    "victim": "PRESIDENTIAL CANDIDATE OF PATRIOTIC UNION",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0032",
+    "incident_type": "attack",
+    "perpetrator": "CALLERS",
+    "victim": "LIBERAL PARTY CANDIDATE",
+    "weapon": null,
+    "location": "(Colombia) / (Colombia",
+    "date": "22"
+  },
+  {
+    "doc_id": "TST2-MUC4-0033",
+    "incident_type": "attack",
+    "perpetrator": "TERRORISTS",
+    "victim": "FORMER SUPREME COURT PRESIDENT",
+    "weapon": "-",
+    "location": "(El Salvador",
+    "date": "(28"
+  },
+  {
+    "doc_id": "TST2-MUC4-0034",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "UNIVERSITY LEADERS",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0034",
+    "incident_type": "kidnapping",
+    "perpetrator": null,
+    "victim": "UNIVERSITY STUDENTS",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0034",
+    "incident_type": "kidnapping",
+    "perpetrator": null,
+    "victim": "STUDENT",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": "15"
+  },
+  {
+    "doc_id": "TST2-MUC4-0035",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "attack",
+    "perpetrator": "NATIONAL GUARD",
+    "victim": "UNIVERSITY STUDENT",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "NATIONAL POLICE MEMBERS WHO WERE DRESSED IN CIVILIAN CLOTHES",
+    "victim": "UNIVERSITY STUDENTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": null,
+    "victim": "MEMBER OF THE BREAD, LAND, WORK, AND FREEDOM MOVEMENT",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "attack",
+    "perpetrator": "OROMONTIQUE BATTALION TROOPS OF THE 6TH INFANTRY BRIGADE COMMANDED BY LIEUTENANT PACHECHO",
+    "victim": "PEASANTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "31"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "ARMY TROOPS COMMANDED BY MURDERER COLONEL CANAS",
+    "victim": "MINOR",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "04"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "TROOPS OF COLONAL ORLANDO MONTANO OF THE 6TH INFANTRY BRIGADE",
+    "victim": "PEASANTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "27"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "TROOPS OF COLONAL ORLANDO MONTANO OF THE 6TH INFANTRY BRIGADE",
+    "victim": "PEASANTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "02"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "MILITARY DETACHMENT NO 4 TROOPS",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "04"
+  },
+  {
+    "doc_id": "TST2-MUC4-0036",
+    "incident_type": "kidnapping",
+    "perpetrator": "ATONAL BATTALION TROOPS",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "05"
+  },
+  {
+    "doc_id": "TST2-MUC4-0037",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0038",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0039",
+    "incident_type": "kidnapping",
+    "perpetrator": "NELSON MANDELA CELL OF THE ELN",
+    "victim": "DIRECTOR OF THE COLUMBUS SCHOOL",
+    "weapon": null,
+    "location": "Colombia",
+    "date": "(13"
+  },
+  {
+    "doc_id": "TST2-MUC4-0039",
+    "incident_type": "kidnapping",
+    "perpetrator": "NELSON MANDELA CELL OF THE ELN",
+    "victim": "PROFESSOR OF THE COLUMBUS SCHOOL IN MEDELLIN",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0040",
+    "incident_type": "kidnapping",
+    "perpetrator": "THE EXTRADITABLES",
+    "victim": "MRS",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0041",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0042",
+    "incident_type": "attack",
+    "perpetrator": "SPECIAL GROUPS",
+    "victim": "CRIMINAL",
+    "weapon": null,
+    "location": "Colombia",
+    "date": "(15"
+  },
+  {
+    "doc_id": "TST2-MUC4-0043",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0044",
+    "incident_type": "bombing",
+    "perpetrator": "COLOMBIAN GUERRILLAS",
+    "victim": "SOLDIERS",
+    "weapon": "VERY POWERFUL EXPLOSIVES",
+    "location": "Venezuela",
+    "date": "26"
+  },
+  {
+    "doc_id": "TST2-MUC4-0045",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0046",
+    "incident_type": "bombing",
+    "perpetrator": "TERRORIST",
+    "victim": "PASSENGERS",
+    "weapon": "-",
+    "location": "(Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0047",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0048",
+    "incident_type": "bombing",
+    "perpetrator": "URBAN GUERRILLAS",
+    "victim": "ATTORNEY GENERAL",
+    "weapon": "BOMB",
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0048",
+    "incident_type": "bombing",
+    "perpetrator": "GUERRILLAS",
+    "victim": "CHILDREN",
+    "weapon": "EXPLOSIVES",
+    "location": "El Salvador",
+    "date": "14"
+  },
+  {
+    "doc_id": "TST2-MUC4-0049",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": "PRESIDENTIAL GUARDS",
+    "weapon": "CAR BOMB",
+    "location": "Peru",
+    "date": "03"
+  },
+  {
+    "doc_id": "TST2-MUC4-0050",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "SECOND SECRETARY OF THE NICARAGUAN EMBASSY IN GUATEMALA",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": "21"
+  },
+  {
+    "doc_id": "TST2-MUC4-0051",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "SENATOR",
+    "weapon": null,
+    "location": "Colombia",
+    "date": "18"
+  },
+  {
+    "doc_id": "TST2-MUC4-0052",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0053",
+    "incident_type": "kidnapping",
+    "perpetrator": "UNIDENTIFIED ASSAILANTS",
+    "victim": "VENEZUELAN PRESIDENT CARLOS ANDRES PEREZ' BROTHER-IN-LAW",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0054",
+    "incident_type": "attack",
+    "perpetrator": "ARMED FORCES ELEMENTS",
+    "victim": "UCA PRIESTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0055",
+    "incident_type": "attack",
+    "perpetrator": "COMMANDO OF THE PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA)",
+    "victim": "LOCAL TELEVISION IMPRESARIO",
+    "weapon": null,
+    "location": "Peru",
+    "date": "04"
+  },
+  {
+    "doc_id": "TST2-MUC4-0055",
+    "incident_type": "kidnapping",
+    "perpetrator": "COMMANDO OF THE PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA)",
+    "victim": "LOCAL TELEVISION IMPRESARIO",
+    "weapon": null,
+    "location": "Peru",
+    "date": "04"
+  },
+  {
+    "doc_id": "TST2-MUC4-0056",
+    "incident_type": "attack",
+    "perpetrator": "GUARDS",
+    "victim": "SALVADORANS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(19"
+  },
+  {
+    "doc_id": "TST2-MUC4-0057",
+    "incident_type": "attack",
+    "perpetrator": "COLONEL RENE EMILIO PONCE",
+    "victim": "JESUIT PRIESTS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0058",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0059",
+    "incident_type": "bombing",
+    "perpetrator": "DRUG TRAFFICKERS",
+    "victim": "PEOPLE",
+    "weapon": "BOMB",
+    "location": "Colombia",
+    "date": "(25"
+  },
+  {
+    "doc_id": "TST2-MUC4-0059",
+    "incident_type": "bombing",
+    "perpetrator": "TWO INDIVIDUALS WHO WERE PASSING BY THE BUILDING",
+    "victim": "GUARD",
+    "weapon": "BOMB",
+    "location": "Colombia",
+    "date": "(25"
+  },
+  {
+    "doc_id": "TST2-MUC4-0060",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0061",
+    "incident_type": "attack",
+    "perpetrator": "ARMED INDIVIDUALS",
+    "victim": "EL SIGLO EDITOR",
+    "weapon": "-",
+    "location": "Colombia",
+    "date": "(16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0062",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0063",
+    "incident_type": "attack",
+    "perpetrator": "URBAN GUERRILLAS",
+    "victim": "POLICEMAN",
+    "weapon": "-",
+    "location": "El Salvador",
+    "date": "02"
+  },
+  {
+    "doc_id": "TST2-MUC4-0063",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "UNION LEADERS",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": "31"
+  },
+  {
+    "doc_id": "TST2-MUC4-0064",
+    "incident_type": "attack",
+    "perpetrator": "DRUG TRAFFICKERS",
+    "victim": "JUSTICE MINISTER",
+    "weapon": null,
+    "location": "Colombia",
+    "date": "(-"
+  },
+  {
+    "doc_id": "TST2-MUC4-0065",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0066",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0067",
+    "incident_type": "forced",
+    "perpetrator": "SALVADORAN REBELS",
+    "victim": "GAS STATION OWNERS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0067",
+    "incident_type": "attack",
+    "perpetrator": "SALVADORAN REBELS",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0067",
+    "incident_type": "attack",
+    "perpetrator": "SALVADORAN REBELS",
+    "victim": "ELECTION OFFICIALS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0068",
+    "incident_type": "attack",
+    "perpetrator": "GUATEMALAN ARMY TROOPS",
+    "victim": "PEASANTS",
+    "weapon": "-",
+    "location": "(Guatemala",
+    "date": "17"
+  },
+  {
+    "doc_id": "TST2-MUC4-0069",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "Colombia",
+    "date": "(06"
+  },
+  {
+    "doc_id": "TST2-MUC4-0069",
+    "incident_type": "bombing",
+    "perpetrator": "TWO MEN",
+    "victim": "PEOPLE",
+    "weapon": "BOMB",
+    "location": "Colombia",
+    "date": "07"
+  },
+  {
+    "doc_id": "TST2-MUC4-0070",
+    "incident_type": "kidnapping",
+    "perpetrator": "MEMBERS AND SYMPATHIZERS OF THE MSGR OSCAR ARNULFO ROMERO FEDERATION OF COMMITTEES OF MOTHERS AND RELATIVES (FECMAFAM) OF POLITICAL PRISONERS AND MURDERED AND MISSING PEOPLE",
+    "victim": "AMBASSADOR",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(05"
+  },
+  {
+    "doc_id": "TST2-MUC4-0071",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "JESUIT PRIESTS",
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": "16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0072",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0073",
+    "incident_type": "attack",
+    "perpetrator": "MILITARY",
+    "victim": "JESUITS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0074",
+    "incident_type": "attack",
+    "perpetrator": "MID-LEVEL MILITARY OFFICERS",
+    "victim": "JESUITS",
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0074",
+    "incident_type": "robbery",
+    "perpetrator": "GENERAL STAFF OF THE ARMED FORCES",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0075",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": "PERSONS",
+    "weapon": "CAR BOMB",
+    "location": "El Salvador",
+    "date": "31"
+  },
+  {
+    "doc_id": "TST2-MUC4-0076",
+    "incident_type": "bombing",
+    "perpetrator": "UNIDENTIFIED PERSONS",
+    "victim": null,
+    "weapon": "INCENDIARY BOMB",
+    "location": "Colombia",
+    "date": "03"
+  },
+  {
+    "doc_id": "TST2-MUC4-0077",
+    "incident_type": "kidnapping",
+    "perpetrator": "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+    "victim": "PEOPLE",
+    "weapon": null,
+    "location": "Peru",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0077",
+    "incident_type": "kidnapping",
+    "perpetrator": "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+    "victim": "BUSINESSMEN",
+    "weapon": null,
+    "location": "Peru",
+    "date": "02"
+  },
+  {
+    "doc_id": "TST2-MUC4-0078",
+    "incident_type": "attack",
+    "perpetrator": "FMLN [FARABUNDO MARTI NATIONAL LIBERATION FRONT] FORCES",
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "28"
+  },
+  {
+    "doc_id": "TST2-MUC4-0079",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0080",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(11"
+  },
+  {
+    "doc_id": "TST2-MUC4-0080",
+    "incident_type": "arson",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "(El Salvador",
+    "date": "(11"
+  },
+  {
+    "doc_id": "TST2-MUC4-0080",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "El Salvador",
+    "date": "(11"
+  },
+  {
+    "doc_id": "TST2-MUC4-0081",
+    "incident_type": "bombing",
+    "perpetrator": "UNIDENTIFIED PERSONS",
+    "victim": null,
+    "weapon": "BOMBS",
+    "location": "(Colombia",
+    "date": "27"
+  },
+  {
+    "doc_id": "TST2-MUC4-0082",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0083",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0084",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0085",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0086",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "JUDGES",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0086",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": "PRESIDENTIAL CANDIDATES",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0087",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0088",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0089",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0090",
+    "incident_type": "bombing",
+    "perpetrator": null,
+    "victim": "PERSONS",
+    "weapon": "BOMB",
+    "location": "(El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0090",
+    "incident_type": "attack",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "Honduras / El Salvador",
+    "date": null
+  },
+  {
+    "doc_id": "TST2-MUC4-0091",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0092",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0093",
+    "incident_type": "bombing",
+    "perpetrator": "AIR FORCE",
+    "victim": "CIVILIANS",
+    "weapon": "-",
+    "location": "El Salvador",
+    "date": "(14"
+  },
+  {
+    "doc_id": "TST2-MUC4-0094",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0095",
+    "incident_type": "bombing",
+    "perpetrator": "TERRORIST",
+    "victim": null,
+    "weapon": "EXPLOSIVE DEVICES",
+    "location": "Guatemala",
+    "date": "17"
+  },
+  {
+    "doc_id": "TST2-MUC4-0096",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0097",
+    "incident_type": "*",
+    "perpetrator": null,
+    "victim": null,
+    "weapon": null,
+    "location": "*",
+    "date": "*"
+  },
+  {
+    "doc_id": "TST2-MUC4-0098",
+    "incident_type": "kidnapping",
+    "perpetrator": "GUATEMALAN ARMY",
+    "victim": "STUDENT LEADERS",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": "21"
+  },
+  {
+    "doc_id": "TST2-MUC4-0098",
+    "incident_type": "kidnapping",
+    "perpetrator": "GUATEMALAN ARMY",
+    "victim": "ONE OF THE EXILED",
+    "weapon": null,
+    "location": "Guatemala",
+    "date": "21"
+  },
+  {
+    "doc_id": "TST2-MUC4-0099",
+    "incident_type": "bombing",
+    "perpetrator": "GUERRILLAS",
+    "victim": null,
+    "weapon": "-",
+    "location": "Colombia",
+    "date": "07"
+  },
+  {
+    "doc_id": "TST2-MUC4-0099",
+    "incident_type": "attack",
+    "perpetrator": "ELN",
+    "victim": null,
+    "weapon": null,
+    "location": "Colombia",
+    "date": "16"
+  },
+  {
+    "doc_id": "TST2-MUC4-0100",
+    "incident_type": "kidnapping",
+    "perpetrator": "COLOMBIAN ARMY OF NATIONAL LIBERATION GUERRILLAS",
+    "victim": "REDE GLOBO JOURNALIST",
+    "weapon": null,
+    "location": "Colombia",
+    "date": null
+  }
+]
