@@ -1,6 +1,3 @@
-[submodule "invox-transcribe"]
-	path = invox-transcribe
-	url = git@github.com:Huzefa-Jadliwala/invox-transcribe.git
 [submodule "invox-client"]
 	path = invox-client
 	url = git@github.com:Huzefa-Jadliwala/invox-client.git
