@@ -1,0 +1,262 @@
+{
+	"navigation": {
+		"questionsAnswers": "Fragen & Antworten",
+		"artifacts": "Artifacts",
+		"recordings": "Aufnahmen",
+		"settings": "Einstellungen",
+		"settingsCredentialsList": "Anmeldedaten",
+		"settingsCredentialsNewSelect": "Anmeldedaten auswählen",
+		"settingsCredentialsNewForm": "Anmeldedaten hinzufügen",
+		"settingsCredentialsMsAuth": "Microsoft Authentifizierung"
+	},
+	"pages": {
+		"notFound": {
+			"title": "Seite nicht gefunden",
+			"description": "Wir konnten die Seite nicht finden, die Sie suchen. Bitte überprüfen Sie die URL oder kehren Sie zur Startseite zurück.",
+			"returnHome": "Zur Startseite"
+		},
+		"questionsAnswers": {
+			"title": "Fragen & Antworten"
+		},
+		"documents": {
+			"title": "Dokumente"
+		}
+	},
+	"components": {
+		"fileExplorer": {
+			"title": "Datei-Explorer",
+			"empty": "Keine Dateien gefunden",
+			"currentPathLabel": "Pfad"
+		},
+		"fetchPdfButton": {
+			"retrievingDocument": "Dokument wird abgerufen..."
+		},
+		"toolInvocation": {
+			"search": {
+				"result": {
+					"title": "Inhalt suchen"
+				},
+				"call": {
+					"title": "Inhalt suchen"
+				}
+			},
+			"toolAnnotation": {
+				"plan": {
+					"running": "Suchplan erstellen",
+					"completed": "Suchplan erstellt",
+					"failed": "Suchplan erstellung fehlgeschlagen"
+				},
+				"search": {
+					"running": "Inhalt suchen",
+					"completed": "Inhalt gefunden",
+					"failed": "Inhalt suchen fehlgeschlagen"
+				},
+				"synthesis": {
+					"running": "Inhalt synthetisieren",
+					"completed": "Inhalt synthetisiert",
+					"failed": "Inhalt synthetisierung fehlgeschlagen"
+				}
+			}
+		},
+		"chatInput": {
+			"deepContentSearch": "Deepsearch"
+		},
+		"selectedFilesLabel": "Dateien und Ordner, die zur Beantwortung Ihrer Frage verwendet werden",
+		"documents": {
+			"searchPlaceholder": "Dokumente suchen...",
+			"loading": "Dokumente werden geladen...",
+			"loadingMore": "Weitere werden geladen...",
+			"loadMore": "Weitere laden",
+			"allLoaded": "Alle Dokumente geladen",
+			"noDocuments": "Keine Dokumente gefunden",
+			"noDocumentsDescription": "Verbinden Sie zunächst Ihre Datenquellen, um Ihre Dokumente hier zu sehen.",
+			"noResults": "Keine Suchergebnisse",
+			"noResultsDescription": "Versuchen Sie, Ihre Suchbegriffe anzupassen oder durchsuchen Sie alle Dokumente.",
+			"resultsCount": "{{count}} Dokument gefunden",
+			"resultsCount_plural": "{{count}} Dokumente gefunden",
+			"preview": "Vorschau",
+			"previewImage": "Vorschau von {{name}}",
+			"error": "Fehler beim Laden der Dokumente"
+		},
+		"settings": {
+			"title": "Einstellungen",
+			"description": "Passen Sie hier Ihre Einstellungen an.",
+			"credentials": {
+				"title": "Anmeldedaten",
+				"noCredentials": "Noch keine Anmeldedaten gespeichert.",
+				"host": "Host",
+				"username": "Benutzername",
+				"password": "Passwort",
+				"share": "Freigabe",
+				"workgroup": "Arbeitsgruppe",
+				"delete": {
+					"title": "Anmeldedaten löschen",
+					"description": "Sind Sie sicher, dass Sie diese Anmeldedaten löschen möchten?",
+					"success": "Anmeldedaten erfolgreich gelöscht",
+					"error": "Fehler beim Löschen der Anmeldedaten"
+				},
+				"add": {
+					"title": "Anmeldedaten hinzufügen",
+					"success": "Anmeldedaten erfolgreich hinzugefügt",
+					"error": "Fehler beim Hinzufügen der Anmeldedaten",
+					"fields": {
+						"alias": {
+							"label": "Alias",
+							"placeholder": "e.g., My NAS",
+							"description": "Ein beschreibender Name für diese Anmeldedaten."
+						},
+						"service": {
+							"label": "Service",
+							"placeholder": "e.g., Samba",
+							"description": "Der Service-Typ der Anmeldedaten."
+						},
+						"host": {
+							"label": "Host / URL",
+							"placeholder": "z.B. 192.168.1.100 oder mydomain.com/webdav",
+							"description": "Die Host-Adresse oder URL des Services."
+						},
+						"user": {
+							"label": "Benutzername",
+							"placeholder": "Benutzername eingeben",
+							"description": "Der Benutzername für die Authentifizierung."
+						},
+						"pass": {
+							"label": "Passwort",
+							"placeholder": "Passwort eingeben",
+							"description": "Das Passwort für die Authentifizierung."
+						},
+						"settings": {
+							"label": "Freigabepfad / Einstellungen",
+							"placeholder": "z.B. /share oder workgroup=WORKGROUP",
+							"description": "Für Samba kann dies der Freigabename (z.B. 'documents') oder zusätzliche smbclient-Parameter sein."
+						}
+					}
+				},
+				"select": {
+					"title": "Service-Typ auswählen",
+					"description": "Wählen Sie den Typ des Services aus, zu dem Sie sich verbinden möchten"
+				},
+				"microsoft": {
+					"title": "Microsoft 365 Authentifizierung",
+					"subtitle": "Verbinden Sie Ihr Microsoft 365 Konto",
+					"description": "Klicken Sie auf die Schaltfläche unten, um den OAuth-Authentifizierungsablauf zu starten.",
+					"start_auth": "Microsoft-Authentifizierung starten",
+					"note": "Sie werden zur Microsoft-Anmeldeseite weitergeleitet, um den Authentifizierungsprozess abzuschließen."
+				},
+				"error": "Fehler beim Laden der Anmeldedaten",
+				"msGraphSelect": {
+					"authSuccessTitle": "Authentifizierung erfolgreich",
+					"authSuccessMessage": "Ihre Microsoft 365-Authentifizierung war erfolgreich.",
+					"title": "Microsoft 365-Ressourcen auswählen",
+					"description": "Wählen Sie die Ressourcen aus, auf die Sie zugreifen möchten.",
+					"noResourcesFound": "Keine Ressourcen gefunden"
+				}
+			}
+		},
+		"artifacts": {
+			"searchPlaceholder": "Artefakte suchen...",
+			"loading": "Artefakte werden geladen...",
+			"loadingMore": "Weitere werden geladen...",
+			"loadMore": "Weitere laden",
+			"allLoaded": "Alle Artefakte geladen",
+			"noArtifacts": "Keine Artefakte gefunden",
+			"noArtifactsDescription": "Verbinden Sie zunächst Ihre Datenquellen, um Ihre Artefakte hier zu sehen.",
+			"noResults": "Keine Suchergebnisse",
+			"noResultsDescription": "Versuchen Sie, Ihre Suchbegriffe anzupassen oder durchsuchen Sie alle Artefakte.",
+			"resultsCount": "{{count}} Artefakt gefunden",
+			"resultsCount_plural": "{{count}} Artefakte gefunden",
+			"preview": "Vorschau",
+			"previewImage": "Vorschau von {{name}}",
+			"shortSummary": "Zusammenfassung",
+			"detailedSummary": "Detaillierte Zusammenfassung",
+			"technicalDetails": "Technische Details",
+			"error": "Fehler beim Laden der Artefakte",
+			"noSummary": "Keine Zusammenfassung verfügbar",
+			"clientSideFiltering": "Client-seitige Filterung aktiviert",
+			"filters": {
+				"fileType": "Typ",
+				"mimeType": "MIME-Typ",
+				"clearAll": "Alle löschen"
+			}
+		}
+	},
+	"auth": {
+		"error": {
+			"signinTrouble": {
+				"title": "Wir haben Schwierigkeiten, Sie einzuloggen",
+				"description": "Bitte versuchen Sie es später erneut."
+			},
+			"notAuthenticated": {
+				"title": "Sie sind nicht authentifiziert",
+				"description": "Bitte melden Sie sich an, um fortzufahren."
+			},
+			"notAuthorized": {
+				"title": "Sie sind nicht autorisiert",
+				"description": "Sie haben keine Berechtigung, auf diese Ressource zuzugreifen."
+			}
+		}
+	},
+	"common": {
+		"sources": "Quellen",
+		"page": "Seite",
+		"pages": "Seiten",
+		"collapse": "Einklappen",
+		"expand": "Ausklappen",
+		"submit": "Übernehmen",
+		"save": "Speichern",
+		"cancel": "Abbrechen",
+		"select": "Auswählen",
+		"selected": "Ausgewählt",
+		"open": "Öffnen",
+		"delete": "Löschen",
+		"close": "Schließen",
+		"signOut": "Abmelden",
+		"list": "Liste",
+		"back": "Zurück",
+		"next": "Weiter",
+		"update": "Aktualisieren",
+		"updating": "Aktualisierung...",
+		"create": "Erstellen",
+		"edit": "Bearbeiten",
+		"id": "ID",
+		"hours": "Stunden",
+		"reject": "Ablehnen",
+		"yes": "Ja",
+		"no": "Nein",
+		"call": "Anrufen",
+		"download": "Herunterladen",
+		"downloading": "Wird heruntergeladen...",
+		"retry": "Wiederholen",
+		"more": "weitere",
+		"daysOfWeek": {
+			"monday": "Montag",
+			"tuesday": "Dienstag",
+			"wednesday": "Mittwoch",
+			"thursday": "Donnerstag",
+			"friday": "Freitag",
+			"saturday": "Samstag",
+			"sunday": "Sonntag"
+		},
+		"error": "Fehler",
+		"noResultsFound": "Keine Ergebnisse gefunden",
+		"success": "Erfolgreich",
+		"view": "Ansehen",
+		"viewDetails": "Details ansehen",
+		"authors": "Autoren",
+		"owners": "Eigentümer",
+		"summary": "Zusammenfassung",
+		"overview": "Übersicht",
+		"metadata": "Metadaten",
+		"details": "Details",
+		"qa": "Q&A",
+		"askQuestions": "Stellen Sie Fragen zu diesem Dokument",
+		"language": "Sprache",
+		"type": "Typ",
+		"service": "Service",
+		"modified": "Geändert",
+		"tokens": "Tokens",
+		"readingTime": "Lesezeit",
+		"statistics": "Statistiken",
+		"minutes": "Minuten"
+	}
+}

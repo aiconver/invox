@@ -1,0 +1,262 @@
+{
+	"navigation": {
+		"questionsAnswers": "Questions & Answers",
+		"artifacts": "Artifacts",
+		"recordings": "Recordings",
+		"settings": "Settings",
+		"settingsCredentialsList": "Credentials",
+		"settingsCredentialsNewSelect": "Select Credential",
+		"settingsCredentialsNewForm": "Add Credential",
+		"settingsCredentialsMsAuth": "Microsoft Authentication"
+	},
+	"pages": {
+		"notFound": {
+			"title": "Page not found",
+			"description": "We couldn't find the page you're looking for. Please check the URL or return to the homepage.",
+			"returnHome": "Return Home"
+		},
+		"questionsAnswers": {
+			"title": "Questions & Answers"
+		},
+		"documents": {
+			"title": "Documents"
+		}	
+	},
+	"components": {
+		"fileExplorer": {
+			"title": "File Explorer",
+			"empty": "No files found",
+			"currentPathLabel": "Path"
+		},
+		"fetchPdfButton": {
+			"retrievingDocument": "Retrieving document..."
+		},
+		"toolInvocation": {
+			"search": {
+				"result": {
+					"title": "Searching content"
+				},
+				"call": {
+					"title": "Searched content"
+				}
+			},
+			"toolAnnotation": {
+				"plan": {
+					"running": "Creating search plan",
+					"completed": "Search plan created",
+					"failed": "Search plan creation failed"
+				},
+				"search": {
+					"running": "Searching content",
+					"completed": "Content search completed",
+					"failed": "Content search failed"
+				},
+				"synthesis": {
+					"running": "Synthesizing content",
+					"completed": "Content synthesis completed",
+					"failed": "Content synthesis failed"
+				}
+			}
+		},
+		"chatInput": {
+			"deepContentSearch": "Deepsearch"
+		},
+		"selectedFilesLabel": "Files and folders used to answer your question",
+		"documents": {
+			"searchPlaceholder": "Search documents...",
+			"loading": "Loading documents...",
+			"loadingMore": "Loading more...",
+			"loadMore": "Load more",
+			"allLoaded": "All documents loaded",
+			"noDocuments": "No documents found",
+			"noDocumentsDescription": "Start by connecting your data sources to see your documents here.",
+			"noResults": "No search results",
+			"noResultsDescription": "Try adjusting your search terms or browse all documents.",
+			"resultsCount": "{{count}} document found",
+			"resultsCount_plural": "{{count}} documents found",
+			"preview": "Preview",
+			"previewImage": "Preview of {{name}}",
+			"error": "Failed to load documents"
+		},
+		"artifacts": {
+			"searchPlaceholder": "Search artifacts...",
+			"loading": "Loading artifacts...",
+			"loadingMore": "Loading more...",
+			"loadMore": "Load more",
+			"allLoaded": "All artifacts loaded",
+			"noArtifacts": "No artifacts found",
+			"noArtifactsDescription": "Start by connecting your data sources to see your artifacts here.",
+			"noResults": "No search results",
+			"noResultsDescription": "Try adjusting your search terms or browse all artifacts.",
+			"resultsCount": "{{count}} artifact found",
+			"resultsCount_plural": "{{count}} artifacts found",
+			"preview": "Preview",
+			"previewImage": "Preview of {{name}}",
+			"shortSummary": "Summary",
+			"detailedSummary": "Detailed Summary",
+			"technicalDetails": "Technical Details",
+			"error": "Failed to load artifacts",
+			"noSummary": "No summary available",
+			"clientSideFiltering": "Results filtered locally - showing all matching items",
+			"filters": {
+				"fileType": "Type",
+				"mimeType": "File Format",
+				"clearAll": "Clear all"
+			}
+		},
+		"settings": {
+			"title": "Settings",
+			"description": "Customize your settings here.",
+			"credentials": {
+				"title": "Credentials",
+				"noCredentials": "No credentials saved yet.",
+				"host": "Host",
+				"username": "Username",
+				"password": "Password",
+				"share": "Share",
+				"workgroup": "Workgroup",
+				"delete": {
+					"title": "Delete credential",
+					"description": "Are you sure you want to delete this credential?",
+					"success": "Credential deleted successfully",
+					"error": "Failed to delete credential"
+				},
+				"add": {
+					"title": "Add service credential",
+					"success": "Credential added successfully",
+					"error": "Failed to add credential",
+					"fields": {
+						"alias": {
+							"label": "Alias",
+							"placeholder": "e.g., My NAS",
+							"description": "A friendly name for this credential."
+						},
+						"service": {
+							"label": "Service",
+							"placeholder": "e.g., Samba",
+							"description": "The service type of the credential."
+						},
+						"host": {
+							"label": "Host / URL",
+							"placeholder": "e.g., 192.168.1.100 or mydomain.com/webdav",
+							"description": "The host or URL of the service."
+						},
+						"user": {
+							"label": "Username",
+							"placeholder": "Enter username",
+							"description": "The username for authentication."
+						},
+						"pass": {
+							"label": "Password",
+							"placeholder": "Enter password",
+							"description": "The password for authentication."
+						},
+						"settings": {
+							"label": "Share Path / Settings",
+							"placeholder": "e.g., /share or workgroup=WORKGROUP",
+							"description": "For Samba, this can be the share name (e.g., 'documents') or additional smbclient parameters."
+						}
+					}
+				},
+				"select": {
+					"title": "Select Service Type",
+					"description": "Choose the type of service you want to connect to"
+				},
+				"microsoft": {
+					"title": "Microsoft 365 Authentication",
+					"subtitle": "Connect your Microsoft 365 account",
+					"description": "Click the button below to start the OAuth authentication flow.",
+					"start_auth": "Start Microsoft Authentication",
+					"note": "You will be redirected to Microsoft's login page to complete the authentication process."
+				},
+				"error": "Failed to load credentials",
+				"msGraphSelect": {
+					"authSuccessTitle": "Authentication successful",
+					"authSuccessMessage": "Your Microsoft 365 authentication was successful.",
+					"title": "Select Microsoft 365 resources",
+					"description": "Select the resources you want to access.",
+					"noResourcesFound": "No resources found"
+				}
+			}
+		}
+	},
+	"auth": {
+		"error": {
+			"signinTrouble": {
+				"title": "We are having trouble signing you in",
+				"description": "Please try again later."
+			},
+			"notAuthenticated": {
+				"title": "You are not authenticated",
+				"description": "Please sign in to continue."
+			},
+			"notAuthorized": {
+				"title": "You are not authorized",
+				"description": "You do not have permission to access this resource."
+			}
+		}
+	},
+	"common": {
+		"sources": "Sources",
+		"page": "Page",
+		"pages": "pages",
+		"collapse": "Collapse",
+		"expand": "Expand",
+		"submit": "Submit",
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"select": "Select",
+		"selected": "Selected",
+		"open": "Open",
+		"close": "Close",
+		"signOut": "Sign Out",
+		"list": "List",
+		"back": "Back",
+		"next": "Next",
+		"update": "Update",
+		"updating": "Updating...",
+		"create": "Create",
+		"edit": "Edit",
+		"id": "ID",
+		"hours": "Hours",
+		"reject": "Reject",
+		"yes": "Yes",
+		"no": "No",
+		"call": "Call",
+		"download": "Download",
+		"downloading": "Downloading...",
+		"retry": "Retry",
+		"more": "more",
+		"daysOfWeek": {
+			"monday": "Monday",
+			"tuesday": "Tuesday",
+			"wednesday": "Wednesday",
+			"thursday": "Thursday",
+			"friday": "Friday",
+			"saturday": "Saturday",
+			"sunday": "Sunday"
+		},
+		"error": "Error",
+		"noResultsFound": "No results found",
+		"success": "Success",
+		"view": "View",
+		"viewDetails": "View Details",
+		"authors": "Authors",
+		"owners": "Owners",
+		"summary": "Summary",
+		"overview": "Overview",
+		"metadata": "Metadata",
+		"details": "Details",
+		"qa": "Q&A",
+		"askQuestions": "Ask questions about this document",
+		"language": "Language",
+		"type": "Type",
+		"service": "Service",
+		"modified": "Modified",
+		"tokens": "Tokens",
+		"readingTime": "Reading Time",
+		"statistics": "Statistics",
+		"minutes": "minutes"
+	}
+}
