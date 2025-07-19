@@ -11,7 +11,7 @@ import { ProtectedRoute } from "./components/auth/protected-route.tsx";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { About } from "./pages/about.tsx";
+import { Invox } from "./pages/invox.tsx";
 import { NotFound } from "./pages/not-found.tsx";
 
 const rootElement = document.getElementById("root");
@@ -34,8 +34,8 @@ root.render(
 							<Route element={<ProtectedRoute />}>
 								<Route element={<MainLayout />}>
 									<Route
-										path={APP_ROUTES["about"].to}
-										element={<About />}
+										path={APP_ROUTES["invox"].to}
+										element={<Invox />}
 									/>
 								</Route>
 							</Route>

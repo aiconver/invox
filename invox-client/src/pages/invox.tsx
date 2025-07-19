@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/layout/navbar";
 import { useTranslation } from "react-i18next";
 
-export function About() {
+export function Invox() {
 	const { t } = useTranslation();
 
 	return (

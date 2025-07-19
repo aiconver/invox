@@ -1,12 +1,11 @@
 import type { AppRoutes } from "@/types/routes";
-import { KeyRound, FileText, Video } from "lucide-react";
-import { MdQuestionAnswer, MdSettings } from "react-icons/md";
+import { Bot } from "lucide-react";
 
 export const APP_ROUTES: AppRoutes = {
-	"about": {
-		label: "navigation.about",
+	"invox": {
+		label: "navigation.invox",
 		to: "/qa/",
-		icon: FileText,
-		pathPattern: "^/qa/about/$",
+		icon: Bot,
+		pathPattern: "^/qa/$",
 	},
 } as const;

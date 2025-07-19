@@ -6,7 +6,7 @@ export type AppRoute = {
 };
 
 const routes = [
-	"about",
+	"invox",
 ] as const;
 
 type Route = (typeof routes)[number];
