@@ -1,6 +1,4 @@
-[submodule "invox-client"]
-	path = invox-client
-	url = git@github.com:Huzefa-Jadliwala/invox-client.git
+
 [submodule "invox-backend"]
 	path = invox-backend
 	url = git@github.com:Huzefa-Jadliwala/invox-backend.git
