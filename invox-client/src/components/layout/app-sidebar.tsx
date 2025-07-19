@@ -31,11 +31,7 @@ export function AppSidebar() {
 	const availableRoutes: AppRoute[] = [];
 
 	availableRoutes.push(
-		// APP_ROUTES["questions-answers"], 
-		APP_ROUTES["about"], 
-		APP_ROUTES["artifacts"], 
-		// APP_ROUTES["recordings"],
-		// APP_ROUTES.settings
+		APP_ROUTES["about"],
 	);
 
 	const isRouteActive = (route: AppRoute) => {
