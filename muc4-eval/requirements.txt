@@ -1,6 +1,7 @@
-datasets
 requests
 scikit-learn
 tqdm
 beautifulsoup4
 lxml
+dateparser 
+rapidfuzz
