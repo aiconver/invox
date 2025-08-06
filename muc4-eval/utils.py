@@ -63,7 +63,7 @@ def call_fill_template_api(text, mock=True):
     }
 
     try:
-        res = requests.post("http://localhost:3000/rpc", json=payload)
+        res = requests.post("http://localhost:3001/rpc", json=payload)
         res.raise_for_status()
         result = res.json()
         return result["result"]

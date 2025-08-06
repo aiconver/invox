@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
       target: npm_dev_install
     ports:
-      - "3000:3000"
+      - "3001:3001"
     volumes:
       - ../invox-backend:/usr/src/app
       - ../invox-backend/src/data:/usr/src/app/dist/data:ro
@@ -33,7 +33,7 @@ services:
       - db
     environment:
       - NODE_ENV=production
-      - PORT=3000
+      - PORT=3001
       - DB_HOST=${INVOX_DB_HOST}
       - DB_PORT=${INVOX_DB_PORT}
       - DB_NAME=${INVOX_DB_NAME}
@@ -53,7 +53,7 @@ services:
       - POSTGRES_USER=${INVOX_DB_USER}
       - POSTGRES_PASSWORD=${INVOX_DB_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - ./volumes/database:/var/lib/postgresql/data
     networks:
@@ -62,7 +62,7 @@ services:
   webserver:
     image: nginx:1-alpine
     ports:
-      - "4200:4200"
+      - "4201:4201"
     restart: always
     depends_on:
       - frontend
