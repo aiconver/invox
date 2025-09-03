@@ -39,6 +39,7 @@ services:
       - DB_NAME=${INVOX_DB_NAME}
       - DB_USER=${INVOX_DB_USER}
       - DB_PASSWORD=${INVOX_DB_PASSWORD}
+      - ENABLE_UNSAFE_EXTRACT=true
     networks:
       - backend
       - frontend
