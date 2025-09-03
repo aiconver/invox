@@ -1,19 +1,4 @@
 services:
-  frontend:
-    build:
-      context: ../invox-client
-      dockerfile: Dockerfile
-      target: development
-    volumes:
-      - ../invox-client:/app
-      - /app/node_modules
-    env_file:
-      - .env
-    depends_on:
-      - backend
-    networks:
-      - backend
-      - frontend
   
   backend:
     build:
@@ -29,8 +14,6 @@ services:
     env_file:
       - .env
     command: npm run start:dev
-    depends_on:
-      - db
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -42,34 +25,14 @@ services:
       - ENABLE_UNSAFE_EXTRACT=true
     networks:
       - backend
-      - frontend
-
-  db:
-    image: postgres:17-alpine
-    restart: always
-    env_file:
-      - .env
-    environment:
-      - POSTGRES_DB=${INVOX_DB_NAME}
-      - POSTGRES_USER=${INVOX_DB_USER}
-      - POSTGRES_PASSWORD=${INVOX_DB_PASSWORD}
-    ports:
-      - "5433:5432"
-    volumes:
-      - ./volumes/database:/var/lib/postgresql/data
-    networks:
-      - backend
-
   webserver:
     image: nginx:1-alpine
     ports:
       - "4201:4201"
     restart: always
     depends_on:
-      - frontend
       - backend
     networks:
-      - frontend
       - backend
     volumes:
       - ./config/webserver/nginx/templates/server-variables.conf.template:/etc/nginx/templates/server-variables.conf.template:ro
@@ -78,10 +41,6 @@ services:
       - NET_ADMIN
 
 networks:
-  frontend:
-    driver: bridge
-    driver_opts:
-      com.docker.network.enable_ipv6: "true"
   backend:
     name: backend
 
