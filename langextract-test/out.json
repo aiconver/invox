@@ -1,0 +1,80 @@
+[
+  {
+    "id": "TST3-MUC4-0001",
+    "meta": {
+      "model_id": "langextract",
+      "timing": {
+        "duration_ms": 17913.6
+      },
+      "error": null
+    },
+    "answers": {
+      "Victim": [
+        "the jesuit priests"
+      ]
+    }
+  },
+  {
+    "id": "TST3-MUC4-0002",
+    "meta": {
+      "model_id": "langextract",
+      "timing": {
+        "duration_ms": 74136.8
+      },
+      "error": null
+    },
+    "answers": {
+      "Victim": [
+        "six jesuits",
+        "their two maids"
+      ],
+      "PerpInd": [
+        "some military",
+        "armed forces members"
+      ]
+    }
+  },
+  {
+    "id": "TST3-MUC4-0003",
+    "meta": {
+      "model_id": "langextract",
+      "timing": {
+        "duration_ms": 95082.7
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "assassins of former defense minister enrique lopez albujar trint",
+        "assassins",
+        "members of the maoist terrorist organization shining path",
+        "criminals",
+        "one of the terrorists as gerardo olivos silva",
+        "olivos silva"
+      ],
+      "PerpOrg": [
+        "maoist terrorist organization shining path",
+        "shining path"
+      ]
+    }
+  },
+  {
+    "id": "TST3-MUC4-0005",
+    "meta": {
+      "model_id": "langextract",
+      "timing": {
+        "duration_ms": 73938.3
+      },
+      "error": null
+    },
+    "answers": {
+      "Victim": [
+        "hector oqueli colindres",
+        "gilda flores"
+      ],
+      "PerpInd": [
+        "heavily armed men"
+      ]
+    }
+  }
+]
