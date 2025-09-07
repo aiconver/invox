@@ -1,79 +1,153 @@
 [
   {
-    "id": "TST3-MUC4-0001",
+    "id": "TST2-MUC4-0068",
     "meta": {
-      "model_id": "langextract",
-      "timing": {
-        "duration_ms": 17913.6
-      },
-      "error": null
+      "model_id": "gemini-2.5-flash"
     },
     "answers": {
-      "Victim": [
-        "the jesuit priests"
-      ]
-    }
-  },
-  {
-    "id": "TST3-MUC4-0002",
-    "meta": {
-      "model_id": "langextract",
-      "timing": {
-        "duration_ms": 74136.8
-      },
-      "error": null
-    },
-    "answers": {
-      "Victim": [
-        "six jesuits",
-        "their two maids"
+      "PerpOrg": [
+        "GUATEMALAN ARMY",
+        "ARMY"
       ],
       "PerpInd": [
-        "some military",
-        "armed forces members"
+        "GUATEMALAN ARMY TROOPS",
+        "SOLDIERS",
+        "NORTHEASTERN COBAN BASE TROOPS",
+        "ARMY TROOPS",
+        "TROOPS"
+      ],
+      "Victim": [
+        "PEASANTS",
+        "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
+        "CIVILIAN PATROL",
+        "INDIAN PEASANTS",
+        "17-YEAR-OLD",
+        "CIVILIAN PATROL UNIT",
+        "CIVILIANS"
+      ],
+      "Weapon": [
+        "FIRED"
       ]
     }
   },
   {
-    "id": "TST3-MUC4-0003",
+    "id": "TST2-MUC4-0044",
     "meta": {
-      "model_id": "langextract",
-      "timing": {
-        "duration_ms": 95082.7
-      },
-      "error": null
+      "model_id": "gemini-2.5-flash"
     },
     "answers": {
+      "PerpOrg": [
+        "ARMY OF NATIONAL LIBERATION ARMY",
+        "NATIONAL LIBERATION ARMY",
+        "COLOMBIAN DRUG TRAFFICKING GANGS"
+      ],
+      "Target": [
+        "NATIONAL GUARD JEEP",
+        "JEEP",
+        "MILITARY VEHICLE"
+      ],
+      "Victim": [
+        "SOLDIERS",
+        "GUARDS",
+        "NATIONAL GUARD PATROL",
+        "FIVE SOLDIERS"
+      ],
       "PerpInd": [
-        "assassins of former defense minister enrique lopez albujar trint",
-        "assassins",
-        "members of the maoist terrorist organization shining path",
-        "criminals",
-        "one of the terrorists as gerardo olivos silva",
-        "olivos silva"
+        "COLOMBIAN GUERRILLAS",
+        "DRUG TRAFFICKING GANGS",
+        "COLOMBIAN GUERRILLAS"
+      ],
+      "Weapon": [
+        "VERY POWERFUL EXPLOSIVES",
+        "EXPLOSIVES",
+        "EXPLOSIVES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0055",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Victim": [
+        "HECTOR DELGADO PARKER",
+        "LOCAL TELEVISION IMPRESARIO",
+        "FORMER ADVISER TO PERUVIAN PRESIDENT ALAN GARCIA",
+        "KIDNAPPED BUSINESSMAN"
+      ],
+      "PerpInd": [
+        "COMMANDO",
+        "MRTA ACTIVISTS"
       ],
       "PerpOrg": [
-        "maoist terrorist organization shining path",
-        "shining path"
+        "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+        "MRTA"
       ]
     }
   },
   {
-    "id": "TST3-MUC4-0005",
+    "id": "TST2-MUC4-0061",
     "meta": {
-      "model_id": "langextract",
-      "timing": {
-        "duration_ms": 73938.3
-      },
-      "error": null
+      "model_id": "gemini-2.5-flash"
     },
     "answers": {
+      "PerpInd": [
+        "ORGANIZED CRIMINALS",
+        "CRIMINALS",
+        "PAID ASSASINS",
+        "PERPETRATORS",
+        "SEVERAL ARMED INDIVIDUALS",
+        "INDIVIDUALS IN A BLUE RENAULT 12"
+      ],
       "Victim": [
-        "hector oqueli colindres",
-        "gilda flores"
+        "TWO NATIONAL POLICE OFFICERS",
+        "SERGEANT CARLOS JULIO BONILLA",
+        "CORPORAL LUIS ALBERTO CHAVEZ",
+        "POLICEMEN",
+        "EL SIGLO EDITOR HIPOLITO HINCAPIE"
+      ],
+      "Weapon": [
+        "SHOT",
+        "SHOT"
+      ],
+      "Target": [
+        "NEWSPAPER EL SIGLO'S FACILITIES",
+        "THE MEDIA",
+        "THE FACILITIES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0020",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "PerpOrg": [
+        "THE EXTRADITABLES",
+        "EXTRADITABLES",
+        "EXTRADITABLES"
+      ],
+      "Target": [
+        "PLANE",
+        "AVIANCA'S BOEING 727",
+        "THE PLANE"
+      ],
+      "Victim": [
+        "DISFIGURED BODIES",
+        "DISFIGURED BODIES OF THE VICTIMS",
+        "DISFIGURED BODIES OF THE VICTIMS OF AVIANCA'S BOEING 727",
+        "five informers"
       ],
       "PerpInd": [
-        "heavily armed men"
+        "COLOMBIAN DRUG KINGPINS",
+        "MAN"
+      ],
+      "Weapon": [
+        "–",
+        "TWO POWERFUL EXPLOSION",
+        "EXPLOSIONS"
       ]
     }
   }
