@@ -12,6 +12,7 @@
       "PerpInd": [
         "GUATEMALAN ARMY TROOPS",
         "SOLDIERS",
+        "MILITARY OFFICIALS",
         "NORTHEASTERN COBAN BASE TROOPS",
         "ARMY TROOPS",
         "TROOPS"
@@ -21,12 +22,16 @@
         "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
         "CIVILIAN PATROL",
         "INDIAN PEASANTS",
-        "17-YEAR-OLD",
+        "PAC PATROL",
         "CIVILIAN PATROL UNIT",
-        "CIVILIANS"
+        "CIVILIANS",
+        "PAC UNITS",
+        "PAC"
       ],
-      "Weapon": [
-        "FIRED"
+      "Target": [
+        "REBEL COLUMN",
+        "REBEL GROUP",
+        "REBEL UNIT"
       ]
     }
   },
@@ -36,30 +41,26 @@
       "model_id": "gemini-2.5-flash"
     },
     "answers": {
-      "PerpOrg": [
-        "ARMY OF NATIONAL LIBERATION ARMY",
-        "NATIONAL LIBERATION ARMY",
-        "COLOMBIAN DRUG TRAFFICKING GANGS"
-      ],
-      "Target": [
-        "NATIONAL GUARD JEEP",
-        "JEEP",
-        "MILITARY VEHICLE"
-      ],
       "Victim": [
-        "SOLDIERS",
-        "GUARDS",
-        "NATIONAL GUARD PATROL",
+        "FIVE VENEZUELAN SOLDIERS",
+        "FIVE GUARDS",
         "FIVE SOLDIERS"
       ],
       "PerpInd": [
         "COLOMBIAN GUERRILLAS",
         "DRUG TRAFFICKING GANGS",
-        "COLOMBIAN GUERRILLAS"
+        "COLOMBIAN DRUG TRAFFICKING GANGS",
+        "MEMBERS OF THE COLOMBIAN GUERRILLAS",
+        "FIVE ALLEGED COLOMBIAN GUERRILLAS",
+        "THE ATTACKERS"
+      ],
+      "Target": [
+        "NATIONAL GUARD PATROL",
+        "NATIONAL GUARD JEEP",
+        "MILITARY VEHICLE"
       ],
       "Weapon": [
         "VERY POWERFUL EXPLOSIVES",
-        "EXPLOSIVES",
         "EXPLOSIVES"
       ]
     }
@@ -72,16 +73,17 @@
     "answers": {
       "Victim": [
         "HECTOR DELGADO PARKER",
-        "LOCAL TELEVISION IMPRESARIO",
-        "FORMER ADVISER TO PERUVIAN PRESIDENT ALAN GARCIA",
-        "KIDNAPPED BUSINESSMAN"
+        "DELGADO'S DRIVER",
+        "DELGADO'S BODYGUARD",
+        "THE KIDNAPPED BUSINESSMAN"
       ],
       "PerpInd": [
+        "HIS KIDNAPPERS",
         "COMMANDO",
         "MRTA ACTIVISTS"
       ],
       "PerpOrg": [
-        "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+        "PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT",
         "MRTA"
       ]
     }
@@ -92,24 +94,20 @@
       "model_id": "gemini-2.5-flash"
     },
     "answers": {
-      "PerpInd": [
-        "ORGANIZED CRIMINALS",
-        "CRIMINALS",
-        "PAID ASSASINS",
-        "PERPETRATORS",
-        "SEVERAL ARMED INDIVIDUALS",
-        "INDIVIDUALS IN A BLUE RENAULT 12"
+      "PerpOrg": [
+        "ORGANIZED CRIMINALS"
       ],
       "Victim": [
-        "TWO NATIONAL POLICE OFFICERS",
+        "NATIONAL POLICE OFFICERS",
         "SERGEANT CARLOS JULIO BONILLA",
         "CORPORAL LUIS ALBERTO CHAVEZ",
-        "POLICEMEN",
-        "EL SIGLO EDITOR HIPOLITO HINCAPIE"
+        "POLICEMEN"
       ],
-      "Weapon": [
-        "SHOT",
-        "SHOT"
+      "PerpInd": [
+        "CRIMINALS",
+        "PAID ASSASINS",
+        "ARMED INDIVIDUALS",
+        "INDIVIDUALS IN A BLUE RENAULT 12"
       ],
       "Target": [
         "NEWSPAPER EL SIGLO'S FACILITIES",
@@ -124,30 +122,23 @@
       "model_id": "gemini-2.5-flash"
     },
     "answers": {
-      "PerpOrg": [
-        "THE EXTRADITABLES",
-        "EXTRADITABLES",
-        "EXTRADITABLES"
+      "Victim": [
+        "107 DISFIGURED BODIES",
+        "FIVE INFORMERS",
+        "VICTIMS"
       ],
       "Target": [
-        "PLANE",
         "AVIANCA'S BOEING 727",
         "THE PLANE"
       ],
-      "Victim": [
-        "DISFIGURED BODIES",
-        "DISFIGURED BODIES OF THE VICTIMS",
-        "DISFIGURED BODIES OF THE VICTIMS OF AVIANCA'S BOEING 727",
-        "five informers"
+      "Weapon": [
+        "TWO POWERFUL EXPLOSION",
+        "THE EXPLOSIONS"
       ],
       "PerpInd": [
+        "THE EXTRADITABLES",
         "COLOMBIAN DRUG KINGPINS",
-        "MAN"
-      ],
-      "Weapon": [
-        "–",
-        "TWO POWERFUL EXPLOSION",
-        "EXPLOSIONS"
+        "THE MAN"
       ]
     }
   }

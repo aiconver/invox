@@ -37,26 +37,48 @@ class BleurtScorer:
 
 # -------- evaluation logic --------
 ENTITY_FIELDS = ["PerpInd", "PerpOrg", "Target", "Victim", "Weapon"]
+_norm_punct = re.compile(r'["\'“”‘’`]')
+_norm_space = re.compile(r"\s+")
 
 def normalize(s: str) -> str:
-    if not isinstance(s, str):
-        return ""
+    if not isinstance(s, str): return ""
     s = s.strip().lower()
-    s = s.strip("\"'“”‘’`")
-    s = re.sub(r"\s+", " ", s)
+    s = _norm_punct.sub("", s)
+    s = _norm_space.sub(" ", s)
     return s
 
+def _as_string_list(v) -> List[str]:
+    """
+    Accepts:
+      - list[str]
+      - list[list[str]] (take first string if present, else flatten strings)
+      - str
+    Returns a flat list[str].
+    """
+    if v is None: return []
+    if isinstance(v, str): return [v]
+    if isinstance(v, list):
+        out = []
+        for item in v:
+            if isinstance(item, str):
+                out.append(item)
+            elif isinstance(item, list) and item:
+                # prefer first string if available; else collect any strings within
+                if isinstance(item[0], str):
+                    out.append(item[0])
+                else:
+                    out.extend([x for x in item if isinstance(x, str)])
+        return out
+    return []
+
 def flatten_gold(doc: dict) -> Dict[str, List[str]]:
-    """From one gold doc, return {field: [span, ...]}."""
+    """From one gold doc, return {field: [span, ...]} (supports both new simple lists and old nested lists)."""
     out = {f: [] for f in ENTITY_FIELDS}
     for t in doc.get("templates", []):
         for field in ENTITY_FIELDS:
-            groups = t.get(field, [])
-            for group in groups:
-                for item in group:
-                    if isinstance(item, list) and item:
-                        out[field].append(item[0])
-    return {k: [normalize(x) for x in v if x] for k, v in out.items()}
+            out[field].extend(_as_string_list(t.get(field)))
+    # normalize and drop empties
+    return {k: [x for x in (normalize(s) for s in v) if x] for k, v in out.items()}
 
 def load_gold(path: Path) -> Dict[str, Dict[str, List[str]]]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -87,6 +109,7 @@ def match_with_hungarian(score_mat: np.ndarray, threshold: float) -> Tuple[int, 
     Count pairs with score >= threshold as TPs.
     """
     if score_mat.size == 0:
+        # no preds or no golds
         return 0, score_mat.shape[0], score_mat.shape[1], []
     cost = 1.0 - score_mat  # maximize score -> minimize cost
     row_ind, col_ind = linear_sum_assignment(cost)

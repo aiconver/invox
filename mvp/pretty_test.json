@@ -1,138 +1,163 @@
-[{
-    "docid": "TST3-MUC4-0001",
-    "doctext": "we are not demanding that they stop their operations as a precondition for negotiating.  however, it should be clear that we are facing the same situation as before, therefore, we have the same rights and will continue our operations until a cease-fire is agreed.    in caracas we committed ourselves to negotiating and holding talks in order to obtain a cease-fire and the necessary agreements for the benefit of the country and the entire nation.    that is the important issue right now.  we have been fighting without that goal, without having any commitment to negotiate anything.  however, that does not mean that the situation should remain the same.  now there is a new factor, a commitment to negotiate and reach agreements on all those topics.  it is very important that the salvadoran people know the contents of the agenda, that they are fully aware of all the topics to be discussed, and that they know the importance of the timetable agreement for discussions and negotiations.  you journalists can help the people understand problem.    (reporter) (words indistinct) commander, when do you expect the fmln to join the process?    (handal) look, deadlines are not the most important thing right now. what is important now is complying with the agreements to reach political agreements.  that is the main aspect of the geneva agreement.  it is possible that some deadlines will not be met. if deadlines are set and the time for implementing them expires, then this is tantamount to wasting time.  this then leads to steps being demanded that in reality depend on the political agreements that are reached and not the deadlines for reaching them.    therefore, according to the agenda and the timetable agreed to here in caracas, the accent is on the political agreements.  those agreements have to do with changes within the armed forces. everything related to the armed forces must be changed.  every factor concerning the armed forces must be reviewed from a certain point or perspective.  changes are necessary; changes must be made and those changes must be significant. these changes must completely transform the armed forces, beginning with its role and influence in determining the country's policies and guidelines.    we have been presenting proposals in this regard for some time. the topic of democratization is closely linked to the topic of the armed forces, to its purging, its reduction, and in sum, its end.  we believe that the country will not always need the armed forces.  as with any institution or historical factor, it emerges, it is maintained for a certain time, and then it tends to disappear.    the country must have the opportunity to develop. it cannot continue along the same path because this would only represent expenses and a heavy burden for the country.    for several decades, the armed forces have meant absence of liberty, real security, and the impossibility of the civilian society to decide the country's path.  elections have been turned into a mere formality, where those who were not elected run the country.    the country is now going through a drama that has also shocked the international public, the murder of the jesuit priests.  everyone is awaiting the results of the investigations and hoping that those who were responsible for this crime will be punished.  we believe that the case of jesuit priests is really grave; it is a drama that reflects the drama of the salvadoran people's history in the current century. (continued)",
+[
+  {
+    "docid": "TST2-MUC4-0068",
+    "doctext": "GUATEMALA CITY, 19 AUG 89 (ACAN-EFE) -- [TEXT] FIRE DEPARTMENT\nSOURCES REPORTED TODAY THAT GUATEMALAN ARMY TROOPS KILLED NINE\nPEASANTS BY MISTAKE ON 17 AUGUST.  THE SOLDIERS MISTOOK THE PEASANTS,\nWHO WERE CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS, WITH A REBEL COLUMN.\n\n   ACCORDING TO THE SAME SOURCE, MILITARY OFFICIALS HAVE STATED THAT\nTHE INCIDENT, WHERE THREE PEASANTS WERE ALSO WOUNDED, HAD BEEN A\n\"TRAGIC MISTAKE.\"\n\n   THE INCIDENT TOOK PLACE WHEN NORTHEASTERN COBAN BASE TROOPS MISTOOK\nTHE CIVILIAN PATROL FOR A REBEL COLUMN AND ATTACKED IT.  THE ATTACK\nRESULTED IN 9 INDIAN PEASANTS KILLED AND 3 WOUNDED, INCLUDING A\n17-YEAR-OLD.\n\n   ACCORDING TO THE INFORMATION SUPPLIED BY THE COBAN FIRE DEPARTMENT,\nTHE INCIDENT TOOK PLACE WHEN A PAC PATROL WAS COMBING THE AREA FOR A\nREBEL COLUMN THAT HAD BEEN SEEN IN \"LA PROVIDENCIA\" FARMING COMMUNITY\nAREA.\n\n   THE CIVILIAN PATROL WAS RETURNING TO ITS COMMUNITY ON 17 AUGUST,\nWHEN THE ARMY TROOPS, WHO WERE ALSO SEARCHING FOR THE REBEL COLUMN,\nFIRED AT THEM BELIEVING THEY WERE PART OF A REBEL GROUP.\n\n   THE CIVILIAN PATROL UNIT, APPROXIMATELY 70 PERSONS, DID NOT FIRE\nBACK AT THE SOLDIERS.  ACCORDING TO THE ACCOUNT GIVEN BY ONE OF THE\nSURVIVORS, THE CIVILIANS SHOUTED AND MADE SIGNS TO THE TROOPS UNTIL,\nFINALLY, THE SOLDIERS REALIZED THEIR ERROR.  THE SOLDIERS, HOWEVER,\nREALIZED THEIR MISTAKE ONLY AFTER NINE CIVILIANS HAD BEEN KILLED.\n\n   GUATEMALAN DEFENSE MINISTER GENERAL HECTOR ALEJANDRO GRAMAJO WAS\nQUERIED ABOUT THE INCIDENT. HE SAID IT WAS CAUSED BY \"REGRETTABLE\nCONFUSION\" AND THAT AN ARMY COMMAND STAFF COMMISSION HAD ALREADY BEEN\nSENT TO INVESTIGATE IT.\n\n   GRAMAJO SAID THE COMMISSION IS TO ESTABLISH HOW THE INCIDENT\nOCCURRED, BUT ADMITTED THAT INITIAL REPORTS INDICATE THAT THERE HAD\nBEEN CONFUSION BETWEEN ARMY AND PAC UNITS.\n\n   THE MILITARY CHIEF SAID: \"THE INFORMATION WE HAVE UP TO NOW IS\nCONFUSING AS BOTH THE ARMY AND PAC HAD MOVED MEN BECAUSE THERE WERE\nREPORTS THAT A REBEL UNIT WAS IN THE AREA.\"",
     "templates": [
-        {
-            "incident_type": "attack",
-            "PerpInd": [],
-            "PerpOrg": [],
-            "Target": [],
-            "Victim": [],
-            "Weapon": []
-        }
+      {
+        "incident_type": "ATTACK",
+        "PerpInd": [
+          "GUATEMALAN ARMY TROOPS",
+          "SOLDIERS",
+          "NORTHEASTERN COBAN BASE TROOPS",
+          "ARMY TROOPS",
+          "TROOPS"
+        ],
+        "PerpOrg": [
+          "GUATEMALAN ARMY",
+          "ARMY"
+        ],
+        "Target": [],
+        "Victim": [
+          "PEASANTS",
+          "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
+          "CIVILIAN PATROL",
+          "CIVILIAN PATROL UNIT",
+          "CIVILIANS",
+          "INDIAN PEASANTS",
+          "PAC PATROL",
+          "17-YEAR-OLD"
+        ],
+        "Weapon": [
+          "-"
+        ]
+      }
     ]
-},
-{
-    "docid": "TST3-MUC4-0002",
-    "doctext": "those accused of the assassination of six jesuits will have a \"fair trial\" and if found guilty, will be punished whether they are civilians, military, or influential people, supreme court president dr mauricio gutierrez castro said.    the technical investigation commission has determined that some military were reportedly involved in the assassination of the six jesuits and their two maids, which took place at daybreak on 16 november, as reported by president alfredo cristiani on 7 january.    \"the local and international community can rest assured the salvadoran judiciary system will not hesitate to enforce the law upon the authors of this horrible crime,\" dr gutierrez pointed out.    gutierrez said he does not know how many people are involved or their military ranks, because the commission to investigate criminal actions is still conducting investigations and has not presented its report to the tribunal.    however, general prosecutor dr mauricio eduardo colorado maintained that the military suspects \"are regrouped and have been put in custody.\" however, he did not reveal the names or the military ranks of the suspects.    the prosecutor said that the scientific test conducted by the commission to investigate criminal actions and the specialized police working on this case have determined that the crime could have been perpetrated by armed forces members.    \"the attorney general office will proceed according to the law and against whoever turns out to be guilty, because it is the constitutional duty of the attorney general's office,\" colorado said.    asked about this issue, justice minister dr oscar alfredo santamaria, president of the commission to investigate criminal actions said: \"we understand that the most recent information on this case was announced by the president of the republic a few days ago.\"  he refused to make any further statements.    new uca (central american university) rector jesuit francisco estrada admitted president alfredo cristiani has taken \"a step forward\" by unmasking the suspects in this crime, \"because his ethic principles do not tolerate such atrocities.\"    estrada said he understands why cristiani, during his 7 january speech, did not give any names, \"because the investigations are still being conducted.\"  moreover, there must not only be one suspect, but rather several.\"    before meeting with the reporters, the uca rector met with officials from scotland yard.  a few days ago, he also met spanish, canadian, and u.s.  policemen who, at the government's request, are assisting the salvadoran commission in charge of clarifying this case.",
+  },
+  {
+    "docid": "TST2-MUC4-0044",
+    "doctext": "CARACAS (VENEZUELA), 27 OCT 89 (DPA) -- [TEXT] THE ATTACK IN WHICH\nFIVE VENEZUELAN SOLDIERS WERE KILLED AT THE BORDER WITH COLOMBIA HAS\nBEEN BLAMED, ACCORDING TO SOME REPORTS, ON COLOMBIAN GUERRILLAS AND\nDRUG TRAFFICKING GANGS OPERATING IN COLOMBIA.\n\n   VENEZUELAN PRESIDENT CARLOS ANDRES PEREZ BLAMED COLOMBIAN DRUG\nTRAFFICKING GANGS FOR THE ATTACK -- IN WHICH FIVE GUARDS WERE KILLED\n-- PERPETRATED ON 26 OCTOBER IN THE BORDER STATE OF APURE AGAINST A\nNATIONAL GUARD PATROL IN THE AREA.\n\n   REFERRING LAST NIGHT TO THE DRUG TRAFFICKING GANGS, PEREZ SAID THIS\nIS \"A PROVOCATION FOR VENEZUELA BECAUSE THEY ARE TRYING TO EXTEND\nTHEIR CLAWS TO OUR COUNTRY.\"\n\n   HOWEVER, JORGE ROMERO, GOVERNOR OF THE BORDER STATE OF TACHIRA,\nWHICH BORDERS THE STATE OF APURE, MAINTAINED THIS WAS AN \"ATTACK WITH\nVERY POWERFUL EXPLOSIVES\" PERPETRATED BY \"MEMBERS OF THE COLOMBIAN\nGUERRILLAS, PRESUMABLY FROM THE ARMY OF NATIONAL LIBERATION ARMY,\nAGAINST A NATIONAL GUARD JEEP.\"\n\n   ACCORDING TO ROMERO, IT HAS BEEN DETERMINED DURING THE PRELIMINARY\nINVESTIGATIONS THAT THE EXPLOSIVES THAT KILLED THE FIVE SOLDIERS WERE\nBURIED IN A ROAD NEAR CUTUFI, AND SET OFF BY REMOTE CONTROL AS THE\nMILITARY VEHICLE PASSED BY.\n\n   LAST NIGHT, THE DEFENSE MINISTRY ORDERED THE ARREST OF FIVE ALLEGED\nCOLOMBIAN GUERRILLAS, WHOM IT BLAMED FOR THE ATTACK.  HOWEVER, THE\nATTACKERS REPORTEDLY CROSSED THE BORDER INTO COLOMBIA.",
     "templates": [
-        {
-            "incident_type": "attack",
-            "PerpInd": [
-                [
-                    [
-                        "military",
-                        141
-                    ],
-                    [
-                        "some military",
-                        295
-                    ],
-                    [
-                        "military suspects",
-                        1002
-                    ],
-                    [
-                        "armed forces members",
-                        1360
-                    ]
-                ]
-            ],
-            "PerpOrg": [
-                [
-                    [
-                        "armed forces",
-                        1360
-                    ]
-                ]
-            ],
-            "Target": [],
-            "Victim": [],
-            "Weapon": []
-        }
+      {
+        "incident_type": "BOMBING",
+        "PerpInd": [
+          "COLOMBIAN GUERRILLAS",
+          "MEMBERS OF THE COLOMBIAN GUERRILLAS",
+          "DRUG TRAFFICKING GANGS",
+          "COLOMBIAN DRUG TRAFFICKING GANGS"
+        ],
+        "PerpOrg": [
+          "ARMY OF NATIONAL LIBERATION ARMY",
+          "NATIONAL LIBERATION ARMY"
+        ],
+        "Target": [
+          "NATIONAL GUARD JEEP",
+          "JEEP",
+          "MILITARY VEHICLE",
+          "VEHICLE"
+        ],
+        "Victim": [
+          "SOLDIERS",
+          "GUARDS",
+          "NATIONAL GUARD PATROL"
+        ],
+        "Weapon": [
+          "VERY POWERFUL EXPLOSIVES",
+          "EXPLOSIVES",
+          "VERY POWERFUL EXPLOSIVES",
+          "EXPLOSIVES"
+        ]
+      }
     ]
-},
-{
-    "docid": "TST3-MUC4-0003",
-    "doctext": "the national police reported today that over 15,000 people have been arrested in lima over the past few hours in a dragnet aimed at uncovering the assassins of former defense minister enrique lopez albujar trint, who was murdered in a terrorist attack yesterday.  the police also stopped 8,000 cars in the search for assassins, who are presumably members of the maoist terrorist organization shining path.    lopez albujar, who left his post at the ministry in may 1989, was riddled with bullets as he was getting out of his car in the lima residential district of san isidro.  lopez albujar, 63, was retired.  he was driving without an escort.    according to the sources, the car in which the criminals fled was abandoned in surquillo district.  the dircote (counterterrorism divison) has identified one of the terrorists as gerardo olivos silva through a composite made from witness' reports.  the police say that olivos silva, a forestry engineer, has participated in other attacks against armed forces personnel in the past.    lopez albujar's murder has made a great impression in peru.  according to political observers, the incident is being regarded as an indication that the shining path intends to continue its terrorist attacks to intimidate the people because of the upcoming general election on 8 april.    some 1600 peruvians were murdered during the last quarter of 1989 due to the political violence surrounding the 12 november municipal elections.",
+  },
+  {
+    "docid": "TST2-MUC4-0055",
+    "doctext": "LIMA, 5 OCT 89 (EFE) -- [TEXT] IN LIMA TODAY, UNOFFICIAL SOURCES\nREPORTED THAT AT LEAST 2,500 PEOPLE HAVE BEEN DETAINED BY THE PERUVIAN\nPOLICE IN RAIDS CARRIED OUT IN SEARCH OF HECTOR DELGADO PARKER, A\nLOCAL TELEVISION IMPRESARIO, AND HIS KIDNAPPERS.\n\n   THE POLICE RAIDS BEGAN SHORTLY AFTER THE KIDNAPPING OF DELGADO\nPARKER, A FORMER ADVISER TO PERUVIAN PRESIDENT ALAN GARCIA AND ONE OF\nTHE MOST IMPORTANT TELEVISION IMPRESARIO.  DELGADO PARKER WAS\nKIDNAPPED IN DOWNTOWN LIMA WEDNESDAY [4 OCTOBER] BY A COMMANDO OF THE\nPRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA).\n\n   AS A RESULT OF THE TERRORIST ACTION, DELGADO'S DRIVER WAS KILLED,\nAND DELGADO'S BODYGUARD WAS SERIOUSLY WOUNDED, WHILE DELGADO HIMSELF\nWAS VIOLENTLY ABDUCTED BY THE MRTA ACTIVISTS.\n\n   ACCORDING TO THE SOURCES, THE RAIDS CARRIED OUT BY THE POLICE, WHO\nDETAIN PEOPLE WITHOUT IDENTIFICATION PAPERS AND SUSPECTS AFTER\nCHECKING ON PEDESTRIANS AND VEHICLES, TOOK PLACE ON LIMA'S ACCESS\nROADS AS WELL AS IN SOME SUBURBAN AREAS OF THIS CITY AND EVEN IN\nDOWNTOWN LIMA.\n\n   THE PERUVIAN NATIONAL POLICE HAVE REPORTED THAT SOME 2,000 AGENTS\nOF THE ANTITERRORIST DIRECTORATE (DIRCOTE) AND THE KIDNAPPING DIVISION\nARE PARTICIPATING IN THE SEARCH OPERATIONS ORDERED BY PRESIDENT\nGARCIA.\n\n   IN TELEPHONE CALLS TO LIMA MEDIA, THE MRTA HAS CLAIMED\nRESPONSIBILITY FOR THE KIDPANAPPING OF HECTOR DELGADO PARKER.\nTELEVISION \"CHANNEL 5,\" OF WHICH THE KIDNAPPED BUSINESSMAN IS PART\nOWNER, WAS AMONG THE MEDIA MRTA CALLED.",
     "templates": [
-        {
-            "incident_type": "attack",
-            "PerpInd": [
-                [
-                    [
-                        "members of the maoist terrorist organization shining path",
-                        347
-                    ],
-                    [
-                        "criminals",
-                        695
-                    ]
-                ],
-                [
-                    [
-                        "gerardo olivos silva",
-                        827
-                    ]
-                ]
-            ],
-            "PerpOrg": [
-                [
-                    [
-                        "shining path",
-                        392
-                    ]
-                ]
-            ],
-            "Target": [],
-            "Victim": [
-                [
-                    [
-                        "enrique lopez albujar trint",
-                        184
-                    ]
-                ]
-            ],
-            "Weapon": []
-        }
+      {
+        "incident_type": "KIDNAPPING",
+        "PerpInd": [
+          "COMMANDO OF THE PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA)",
+          "COMMANDO OF THE PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT",
+          "COMMANDO OF THE PRO-CHE GUEVARA GROUP",
+          "COMMANDO",
+          "MRTA ACTIVISTS"
+        ],
+        "PerpOrg": [
+          "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+          "MRTA"
+        ],
+        "Target": [],
+        "Victim": [
+          "HECTOR DELGADO PARKER",
+          "LOCAL TELEVISION IMPRESARIO",
+          "FORMER ADVISER TO PERUVIAN PRESIDENT ALAN GARCIA",
+          "TELEVISION IMPRESARIO",
+          "HECTOR DELGADO PARKER"
+        ],
+        "Weapon": []
+      }
     ]
-},
-{
-    "docid": "TST3-MUC4-0004",
-    "doctext": "the directorate of judicial police and investigations (dijin) has dismantled the bogota cartel following an operation in which 20 luxury homes were raided in different areas of the city.  according to a dijin report, the police infiltrated the inner structure of the camilo zapata vasquez family.  the noticiero de las siete newscast managed to shoot video footage of the raid on the la maria farm on the outskirts of bogota.  here is exclusive footage and a report by william calderon:    (begin recording) (calderon) anonymous callers informed the authorities about la maria farm, a luxurious ranch located near asuba, a few kilometers from bogota.  at 1900, a goes (special operations group) team surrounded the ranch.  an agent makes sure the main gate is not electrically wired, and the decision to forcibly enter the house is made. they all cover one another as they take their positions.  these men are perfectly trained for this sort of work.  these is a light inside the ranch house, so they assume someone is inside.  tension rises in view of the possibility of an armed confrontation.  as he approaches the ranch, the commander decides to storm it.  moments later, several men open the door without offering resistance and surrender to the authorities.    a patrol enters quickly and controls every corner of the ranch.  other uniformed men support the operation from outside.  they unsuccessfully look for caches.  these three workers who were doing repairs at the ranch were detained as a precaution in the main hall.  meanwhile, the search continues in other areas of the house.  three safes were hidden in different rooms of the ranch house.  one of the safes was built into one of the eight marble-tiled bathrooms.  the huge kitchen was temporarily at the workers' disposal.  near the master bedroom was a large swimming pool with a ground-level window from the sauna and jacuzzi area.  there were several game rooms and tennis and squash courts in the house.    the authorities now have documents and photographs, although the residents of this luxury ranch had left before the raid.      nineteen other operations were simultaneoulsy conducted in bogota.  the authorities said afterward that they felt they had dismantled the bogota cartel.    the dijin released the following report: 10 persons arrested, including jesus evelio zapata lopez, the alleged head of this drug trafficking band that had international connections.    the following was seized: 3 certificates of deposit worth almost 250 million pesos; 1 1977 porsche similar to the one seized from jorge luis ochoa in 1988; 3 toyotas, one of which was sold 4 months ago by an ecuadoran embassy official in bogota; 3 revolvers; 3 pistols; 1 carbine; ammunition; radio communications equipment; 2 false diplomatic licence plates; and cash. (end recording)",
-    "templates": []
-},
-{
-    "docid": "TST3-MUC4-0005",
-    "doctext": "salvadoran social democratic politician hector oqueli colindres was kidnapped today in guatemala city, his party reported in mexico city.    oqueli colindres is the secretary of the national revolutionary movement (mnr).  the mnr is directed by guillermo ungo.  oqueli is also socialist international secretary for latin america.    in a communique, the mnr said oqueli had arrived in guatemala on 11 january and was planning to travel today to nicaragua as a member of a socialist international delegation.    the communique adds that oqueli colindres was kidnapped between 0630 and 0700 by heavily armed men while on his way to the airport along with guatemalan social democratic leader gilda flores, who was also kidnapped.    oqueli, who returned last year to el salvador after a long exile in mexico, where he represented the farabundo marti national liberation front and the revolutionary democratic front (fmln-fdr) political-diplomatic commission.",
+  },
+  {
+    "docid": "TST2-MUC4-0061",
+    "doctext": "BOGOTA, 16 SEP 89 (INRAVISION TELEVISION CADENA 2) -- [TEXT] BOGOTA\nDID NOT ESCAPE THE TERRORIST ACTIONS OF ORGANIZED CRIMINALS ON FRIDAY\nNIGHT. TWO NATIONAL POLICE OFFICERS ASSIGNED TO THE DIJIN DIRECTORATE\nOF JUDIDIAL POLICE AND INVESTIGATIONS INTELLIGENCE CORPS WERE SHOT TO\nDEATH AS THEY PASSED BY ON A DIJIN MOTORCYCLE IN FRONT OF A HOME IN\nWESTERN BOGOTA.\n\n   THE CRIMINALS INTERCEPTED SERGEANT CARLOS JULIO BONILLA, WHO WAS\nDRIVING THE MOTORCYCLE, AND CORPORAL LUIS ALBERTO CHAVEZ, AS THEY\nENTERED THE HOME. BOTH POLICEMEN DIED INSTANTLY. THE PAID ASSASINS\nFLED IN A MOTORCYCLE AND IN A VEHICLE THAT AWAITED THEM A FEW METERS\nAWAY, ACCORDING TO WITNESSES.\n\n   AUTHORITIES CARRIED OUT AN INTENSE OPERATION IN THE CITY TO LOCATE\nTHE PERPETRATORS OF THIS LATEST CRIME.\n\n   ELSEWHERE, SEVERAL ARMED INDIVIDUALS SHOT REPEATEDLY AT THE\nNEWSPAPER EL SIGLO'S FACILITIES. THIS IS A NEW ACT OF HARASSMENT\nAGAINST THE MEDIA. EL SIGLO EDITOR HIPOLITO HINCAPIE WAS INTERVIEWED.\n\n   [BEGIN RECORDING] [HINCAPIE] THE INCIDENT TOOK PLACE AT 2120.\nINDIVIDUALS IN A BLUE RENAULT 12 FIRED SEVERAL TIMES AT THE\nFACILITIES. THE FACILITIES ARE AS THEY WERE PRIOR TO 2120, AND THE\nEMPLOYEES ARE WORKING AS USUAL.  [END RECORDING]\n\n   THE DAMAGE WAS MINOR AND, FORTUNATELY, THERE WERE NO VICTIMS,\nTHANKS TO THE PROMPT REACTION OF THE MARINES GUARDING THE FACILITIES.",
     "templates": [
-        {
-            "incident_type": "kidnapping",
-            "PerpInd": [
-                [
-                    [
-                        "heavily armed men",
-                        592
-                    ]
-                ]
-            ],
-            "PerpOrg": [],
-            "Target": [],
-            "Victim": [
-                [
-                    [
-                        "hector oqueli colindres",
-                        40
-                    ]
-                ],
-                [
-                    [
-                        "gilda flores",
-                        689
-                    ]
-                ]
-            ],
-            "Weapon": []
-        }
+      {
+        "incident_type": "ATTACK",
+        "PerpInd": [
+          "ARMED INDIVIDUALS",
+          "INDIVIDUALS",
+          "INDIVIDUALS IN A BLUE RENAULT 12"
+        ],
+        "PerpOrg": [],
+        "Target": [
+          "NEWSPAPER EL SIGLO'S FACILITIES"
+        ],
+        "Victim": [
+          "HIPOLITO HINCAPIE",
+          "EL SIGLO EDITOR",
+          "EDITOR",
+          "HIPOLITO HINCAPIE",
+          "EMPLOYEES"
+        ],
+        "Weapon": [
+          "-"
+        ]
+      }
     ]
-}]
+  },
+  {
+    "docid": "TST2-MUC4-0020",
+    "doctext": "MANAGUA (NICARAGUA), 27 NOV 89 (RADIO SANDINO) -- [TEXT] TODAY\nRESCUE TEAMS, ARMY TROOPS, AND POLICE HAD THE SORRY TASK OF RECOVERING\n107 DISFIGURED BODIES OF THE VICTIMS OF AVIANCA'S BOEING 727 THAT\nEXPLODED IN MIDAIR IN A SPARSELY POPULATED REGION NEAR BOGOTA.\nACCORDING TO OFFICIAL SPOKESMEN, THE TASK IS MORE DIFFICULT BECAUSE\nTHE BODIES WERE SCATTERED OVER A RADIUS OF 8 KM.  THE PLANE DEPARTED\nBOGOTA TOWARD CALI, AT 1213 GMT, BUT TWO POWERFUL EXPLOSION BROUGHT IT\nDOWN AFTER ONLY 5 MINUTES IN THE AIR.  BOMB-SQUAD EXPERTS, IN\nCOORDINATION WITH THREE CRIMINAL INVESTIGATORS, HAVE STARTED TO\nEXAMINE THE SITE TO INVESTIGATE THE ACCIDENT AND DETERMINE WHETHER THE\nTRAGEDY WAS CAUSED BY A MECHANICAL FAILURE, OR IF IT WAS A TERRORIST\nACTION.  THE BOGOTA CARACOL NETWORK RECEIVED AN ANONYMOUS CALL FROM\nTHE EXTRADITABLES -- COLOMBIAN DRUG KINGPINS WANTED BY SEVERAL U.S.\nFEDERAL COURTS -- WHO SAID THEY WERE RESPONSIBLE FOR THE ACTION.\nANOTHER NETWORK REPORTS THAT THE MAN WHO CALLED THE CARACOL NETWORK\nNEWS OFFICE SAID HE BELONGED TO THE EXTRADITABLES AND THAT THE ACTION\nWAS CARRIED OUT BECAUSE THERE WERE FIVE INFORMERS ON THE PLANE.  THE\nPOLICE HAVE REPORTED THAT THEY ARE INVESTIGATING THE EXPLOSIONS THAT\nCAUSED THE PLANE TO CRASH SHORTLY AFTER IT LEFT THE BOGOTA EL DORADO\nAIRPORT TO GO TO CALI.",
+    "templates": [
+      {
+        "incident_type": "BOMBING",
+        "PerpInd": [
+          "COLOMBIAN DRUG KINGPINS",
+          "MAN WHO CALLED THE CARACOL NETWORK NEWS OFFICE",
+          "MAN"
+        ],
+        "PerpOrg": [
+          "THE EXTRADITABLES",
+          "EXTRADITABLES"
+        ],
+        "Target": [
+          "PLANE",
+          "AVIANCA'S BOEING 727",
+          "AVIANCA'S BOEING 727 THAT EXPLODED IN MIDAIR IN A SPARSELY POPULATED REGION NEAR BOGOTA"
+        ],
+        "Victim": [
+          "DISFIGURED BODIES",
+          "DISFIGURED BODIES OF THE VICTIMS",
+          "DISFIGURED BODIES OF THE VICTIMS OF AVIANCA'S BOEING 727",
+          "DISFIGURED BODIES OF THE VICTIMS OF AVIANCA'S BOEING 727 THAT EXPLODED IN MIDAIR IN A SPARSELY POPULATED REGION NEAR BOGOTA",
+          "VICTIMS",
+          "INFORMERS"
+        ],
+        "Weapon": [
+          "-"
+        ]
+      }
+    ]
+  }
+]

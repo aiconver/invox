@@ -1,0 +1,161 @@
+[
+  {
+    "id": "TST2-MUC4-0068",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "timing": {
+        "duration_ms": 2933.3
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "GUATEMALAN ARMY TROOPS",
+        "SOLDIERS",
+        "NORTHEASTERN COBAN BASE TROOPS"
+      ],
+      "PerpOrg": [
+        "GUATEMALAN ARMY"
+      ],
+      "Target": [],
+      "Victim": [
+        "PEASANTS",
+        "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
+        "CIVILIAN PATROL",
+        "INDIAN PEASANTS",
+        "17-YEAR-OLD"
+      ],
+      "Weapon": []
+    }
+  },
+  {
+    "id": "TST2-MUC4-0044",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "timing": {
+        "duration_ms": 2705.4
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "VENEZUELAN SOLDIERS",
+        "JORGE ROMERO",
+        "MEMBERS OF THE COLOMBIAN GUERRILLAS"
+      ],
+      "PerpOrg": [
+        "COLOMBIAN GUERRILLAS",
+        "ARMY OF NATIONAL LIBERATION ARMY",
+        "COLOMBIAN DRUG TRAFFICKING GANGS"
+      ],
+      "Target": [
+        "NATIONAL GUARD PATROL",
+        "NATIONAL GUARD JEEP"
+      ],
+      "Victim": [
+        "FIVE VENEZUELAN SOLDIERS",
+        "FIVE GUARDS"
+      ],
+      "Weapon": [
+        "EXPLOSIVES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0055",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "timing": {
+        "duration_ms": 1950.5
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "HECTOR DELGADO PARKER",
+        "DELAGDO'S DRIVER",
+        "DELGADO'S BODYGUARD"
+      ],
+      "PerpOrg": [
+        "TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA)",
+        "MRTA"
+      ],
+      "Target": [
+        "DOWNTOWN LIMA",
+        "CHANNEL 5"
+      ],
+      "Victim": [
+        "HECTOR DELGADO PARKER",
+        "DELAGDO'S DRIVER",
+        "DELGADO'S BODYGUARD"
+      ],
+      "Weapon": []
+    }
+  },
+  {
+    "id": "TST2-MUC4-0061",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "timing": {
+        "duration_ms": 3189.4
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "NATIONAL POLICE OFFICERS",
+        "SERGEANT CARLOS JULIO BONILLA",
+        "CORPORAL LUIS ALBERTO CHAVEZ",
+        "CRIMINALS",
+        "PAID ASSASINS",
+        "INDIVIDUALS"
+      ],
+      "PerpOrg": [],
+      "Target": [
+        "DIJIN MOTORCYCLE",
+        "HOME",
+        "NEWSPAPER EL SIGLO'S FACILITIES",
+        "BLUE RENAULT 12"
+      ],
+      "Victim": [
+        "NATIONAL POLICE OFFICERS",
+        "POLICEMEN",
+        "EMPLOYEES"
+      ],
+      "Weapon": [
+        "MOTORCYCLE"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0020",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "timing": {
+        "duration_ms": 2465.6
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "ARMY TROOPS",
+        "POLICE"
+      ],
+      "PerpOrg": [
+        "EXTRADITABLES"
+      ],
+      "Target": [
+        "AVIANCA'S BOEING 727",
+        "BOGOTA EL DORADO AIRPORT"
+      ],
+      "Victim": [
+        "107 DISFIGURED BODIES",
+        "VICTIMS"
+      ],
+      "Weapon": [
+        "EXPLOSION",
+        "BOMB"
+      ]
+    }
+  }
+]
