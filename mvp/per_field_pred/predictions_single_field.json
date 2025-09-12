@@ -1,0 +1,165 @@
+[
+  {
+    "id": "TST2-MUC4-0068",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "extraction_type": "single_field_sequential",
+      "timing": {
+        "duration_ms": 5750.8
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "GUATEMALAN ARMY TROOPS",
+        "SOLDIERS",
+        "NORTHEASTERN COBAN BASE TROOPS"
+      ],
+      "PerpOrg": [
+        "GUATEMALAN ARMY"
+      ],
+      "Target": [],
+      "Victim": [
+        "PEASANTS",
+        "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
+        "CIVILIAN PATROL",
+        "INDIAN PEASANTS",
+        "3 WOUNDED",
+        "17-YEAR-OLD",
+        "CIVILIANS"
+      ],
+      "Weapon": []
+    }
+  },
+  {
+    "id": "TST2-MUC4-0044",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "extraction_type": "single_field_sequential",
+      "timing": {
+        "duration_ms": 8300.0
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "COLOMBIAN GUERRILLAS",
+        "MEMBERS OF THE COLOMBIAN GUERRILLAS",
+        "ATTACKERS"
+      ],
+      "PerpOrg": [
+        "COLOMBIAN GUERRILLAS",
+        "ARMY OF NATIONAL LIBERATION ARMY"
+      ],
+      "Target": [
+        "NATIONAL GUARD PATROL",
+        "NATIONAL GUARD JEEP",
+        "MILITARY VEHICLE"
+      ],
+      "Victim": [
+        "VENEZUELAN SOLDIERS",
+        "GUARDS",
+        "FIVE SOLDIERS"
+      ],
+      "Weapon": [
+        "VERY POWERFUL EXPLOSIVES",
+        "EXPLOSIVES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0055",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "extraction_type": "single_field_sequential",
+      "timing": {
+        "duration_ms": 6255.8
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "COMMANDO",
+        "MRTA ACTIVISTS",
+        "MRTA"
+      ],
+      "PerpOrg": [
+        "TUPAC AMARU REVOLUTIONARY MOVEMENT",
+        "MRTA"
+      ],
+      "Target": [],
+      "Victim": [
+        "HECTOR DELGADO PARKER",
+        "DELGADO'S DRIVER",
+        "DELGADO'S BODYGUARD"
+      ],
+      "Weapon": []
+    }
+  },
+  {
+    "id": "TST2-MUC4-0061",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "extraction_type": "single_field_sequential",
+      "timing": {
+        "duration_ms": 7073.0
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "CRIMINALS",
+        "PAID ASSASINS",
+        "ARMED INDIVIDUALS"
+      ],
+      "PerpOrg": [],
+      "Target": [
+        "NEWSPAPER EL SIGLO'S FACILITIES",
+        "FACILITIES",
+        "BLUE RENAULT 12"
+      ],
+      "Victim": [
+        "NATIONAL POLICE OFFICERS",
+        "SERGEANT CARLOS JULIO BONILLA",
+        "CORPORAL LUIS ALBERTO CHAVEZ"
+      ],
+      "Weapon": []
+    }
+  },
+  {
+    "id": "TST2-MUC4-0020",
+    "meta": {
+      "model_id": "gpt-4o-mini",
+      "extraction_type": "single_field_sequential",
+      "timing": {
+        "duration_ms": 5033.6
+      },
+      "error": null
+    },
+    "answers": {
+      "PerpInd": [
+        "ARMY TROOPS",
+        "CRIMINAL INVESTIGATORS",
+        "EXTRADITABLES",
+        "MAN"
+      ],
+      "PerpOrg": [
+        "EXTRADITABLES"
+      ],
+      "Target": [
+        "AVIANCA'S BOEING 727",
+        "BOGOTA EL DORADO AIRPORT"
+      ],
+      "Victim": [
+        "VICTIMS",
+        "BODIES",
+        "INFORMERS"
+      ],
+      "Weapon": [
+        "BOMB",
+        "EXPLOSION",
+        "EXPLOSIONS"
+      ]
+    }
+  }
+]
