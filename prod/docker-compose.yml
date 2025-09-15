@@ -15,7 +15,7 @@ services:
       - frontend
     restart: always
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=${NODE_ENV}
       - VITE_APP_KEYCLOAK_REALM=${VITE_APP_KEYCLOAK_REALM}
       - VITE_APP_KEYCLOAK_CLIENTID=${VITE_APP_KEYCLOAK_CLIENTID}
       - VITE_APP_KEYCLOAK_URL=${VITE_APP_KEYCLOAK_URL}
@@ -37,11 +37,6 @@ services:
     environment:
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
-      - DB_HOST=${INVOX_DB_HOST}
-      - DB_PORT=${INVOX_DB_PORT}
-      - DB_NAME=${INVOX_DB_NAME}
-      - DB_USER=${INVOX_DB_USER}
-      - DB_PASSWORD=${INVOX_DB_PASSWORD}
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
