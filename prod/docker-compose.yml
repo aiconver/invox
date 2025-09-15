@@ -57,9 +57,7 @@ services:
     volumes:
       - ./config/webserver/nginx/templates/server-variables.conf.template:/etc/nginx/templates/server-variables.conf.template:ro
       - ./config/webserver/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      # the certificates
       - ../docker/volumes/letsencrypt:/etc/letsencrypt:ro
-      # here the client single page application is stored
       - './volumes/html/:/usr/share/nginx/html:ro'
     cap_add:
       - NET_ADMIN
