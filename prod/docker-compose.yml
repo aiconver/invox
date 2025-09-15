@@ -1,17 +1,19 @@
 services:
   frontend:
+    image: tapirregistry.aiconver.com:443/frontend-invox:${version:-unstable}
     build:
       context: ../invox-client
       dockerfile: Dockerfile
-      target: development
+      target: build
     volumes:
-      - ../invox-client:/app
-      - /app/node_modules
+      - './volumes/html/:/usr/share/nginx/html'
+      - ./volumes/log:/var/log/aiconver
     depends_on:
       - backend
     networks:
       - backend
       - frontend
+    restart: always
     environment:
       - NODE_ENV=production
       - VITE_APP_KEYCLOAK_REALM=${VITE_APP_KEYCLOAK_REALM}
@@ -20,33 +22,36 @@ services:
       - VITE_APP_API_BASE_URL=${VITE_APP_API_BASE_URL}
   
   backend:
+    image: tapirregistry.aiconver.com:443/backend-invox:${version:-unstable}
     build:
       context: ../invox-backend
       dockerfile: Dockerfile
-      target: npm_dev_install
-    ports:
-      - "3001:3001"
+      target: prod
     volumes:
       - ../invox-backend:/usr/src/app
       - ../invox-backend/src/data:/usr/src/app/dist/data:ro
       - /usr/src/app/node_modules
-    command: npm run start:dev
+    networks:
+      - backend
+      - frontend
     environment:
       - NODE_ENV=${NODE_ENV}
       - PORT=${PORT}
+      - DB_HOST=${INVOX_DB_HOST}
+      - DB_PORT=${INVOX_DB_PORT}
+      - DB_NAME=${INVOX_DB_NAME}
+      - DB_USER=${INVOX_DB_USER}
+      - DB_PASSWORD=${INVOX_DB_PASSWORD}
       - KEYCLOAK_CLIENT_ID=${KEYCLOAK_CLIENT_ID}
       - KEYCLOAK_SERVER_URL=${KEYCLOAK_SERVER_URL}
       - KEYCLOAK_REALM=${KEYCLOAK_REALM}
       - KEYCLOAK_SECRET=${KEYCLOAK_SECRET}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-    networks:
-      - backend
-      - frontend
 
   webserver:
     image: nginx:1-alpine
     ports:
-      - "4201:4201"
+      - 443:443
     restart: always
     depends_on:
       - frontend
@@ -57,6 +62,10 @@ services:
     volumes:
       - ./config/webserver/nginx/templates/server-variables.conf.template:/etc/nginx/templates/server-variables.conf.template:ro
       - ./config/webserver/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # the certificates
+      - ../docker/volumes/letsencrypt:/etc/letsencrypt:ro
+      # here the client single page application is stored
+      - './volumes/html/:/usr/share/nginx/html:ro'
     cap_add:
       - NET_ADMIN
 
@@ -67,3 +76,4 @@ networks:
       com.docker.network.enable_ipv6: "true"
   backend:
     name: backend
+    internal: true
