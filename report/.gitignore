@@ -1,0 +1,56 @@
+# LaTeX intermediate and output files
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.run.xml
+*.synctex.gz
+*.toc
+*.lot
+*.lof
+*.nav
+*.snm
+*.bst
+
+# PDF and other generated files
+*.pdf
+*.dvi
+*.xdv
+*.ps
+
+# Editors
+*.swp
+*.bak
+*.tmp
+*.backup
+
+# Glossaries / indices
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.ist
+*.xdy
+
+# TikZ / pgfplots externalization
+*.dpth
+*.md5
+*.auxlock
+
+# Misc (latexmk, minted, etc.)
+*.minted*
+_minted*
+*.pyg
+*.vrb
+
+# Build directories (if used)
+build/
+latex.out/
+out/

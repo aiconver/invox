@@ -1,0 +1,31 @@
+User correction refers to the framework’s ability to allow manual modifications of populated template fields after automatic extraction has taken place. Unlike automated adaptation mechanisms, which rely on system learning from prior interactions, user correction focuses on immediate, explicit interventions that ensure the accuracy of individual outputs. It grants end-users direct control over the final contents of a template, ensuring that errors in recognition, interpretation, or formatting can be addressed before the data is finalized~\cite{bohus2005sorry, shneiderman2016designing}.  
+
+As illustrated in Figure~\ref{fig:form-filling-example}, an ideal framework must let users directly modify any field highlighted as incorrect or uncertain. The figure shows how entries flagged by the system can be overwritten or adjusted before finalization, ensuring that human judgment always has the final word in the template.
+
+This requirement matters because no automated extraction system can achieve perfect accuracy across all input conditions. Transcriptions may introduce errors, ambiguous phrases may be misinterpreted, and domain-specific terminology may be inconsistently mapped. In practical contexts such as medical documentation or maintenance inspections, even small inaccuracies—such as recording the wrong date of an incident or misreporting a measurement—can have disproportionate consequences. By enabling users to directly edit system-generated values, frameworks ensure that such errors can be corrected in real time without the need for retraining, secondary workflows, or downstream data cleaning~\cite{norman2013design}.  
+
+In practice, correction functionality should be applied at the field level. Users must be able to select any automatically populated entry and replace it with the intended value, for example correcting “08/16/2025” to “08/15/2025” in a date field or updating “mechanical failure” to “electrical failure” in an inspection log. Such capabilities not only resolve errors but also give users confidence in the system by demonstrating that the outputs are not immutable black-box predictions. This aligns with broader human–computer interaction principles emphasizing user empowerment, flexibility, and control over system outputs~\cite{shneiderman2016designing, hoy2018voice}.  
+
+The advantages of user correction are twofold. First, it enables immediate error resolution: users do not need to wait for iterative model updates or retraining cycles to address mistakes, but can directly ensure accuracy within the current interaction. Second, it promotes user empowerment by giving individuals ownership of the final data submitted, strengthening their trust in the system and reducing frustration when mistakes inevitably occur. These benefits are particularly important in time-sensitive workflows, where operators must finalize records quickly while retaining the ability to guarantee correctness~\cite{amershi2019guidelines}.
+
+
+\begin{table}[h!]
+\centering
+\renewcommand{\arraystretch}{1.6}
+\setlength{\tabcolsep}{12pt}
+\begin{tabularx}{\textwidth}{|>{\centering\arraybackslash}m{3cm}|>{\arraybackslash}X|}
+\hline
+\textbf{Visual Score} & \textbf{Interpretation} \\
+\hline
+\centering\raisebox{0pt}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} 
+& \textbf{Full correction support.} Users can edit any populated field directly, ensuring complete control over the final template. \\
+\hline
+\centering\raisebox{0pt}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} 
+& \textbf{No correction support.} Automatically populated values cannot be modified by users, leaving inaccuracies unresolved. \\
+\hline
+\end{tabularx}
+\caption{Evaluation Scale for R4: User Correction}
+\label{tab:r4-correction}
+\end{table}
+
+To summarize, user correction ensures that populated templates remain accurate by enabling individuals to directly edit extracted values. This requirement emphasizes immediate error resolution and user empowerment, giving people control over final outputs while reinforcing trust in the system’s reliability.

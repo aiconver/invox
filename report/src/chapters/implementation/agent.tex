@@ -1,0 +1,198 @@
+\section{Agent Implementation}
+\label{sec:impl-agents}
+
+This section describes how the four agents are realised in the running system. Each agent exposes a small, explicit JSON contract and is orchestrated by the backend through type-safe \texttt{tRPC} procedures. The contracts are stable across all strategies (S1--S4) so that orchestration can vary without changing component boundaries.
+
+\subsection*{Interfaces and Data Contracts}
+
+Figure~\ref{fig:agent-io} shows the agent chain and the JSON artefacts exchanged between agents. Messages are immutable: each agent emits a new document rather than mutating inputs. This preserves traceability for debugging and evaluation.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.72\linewidth}{!}{%
+\begin{tikzpicture}[
+  every node/.style={font=\sffamily},
+  box/.style={draw, rounded corners=2pt, thick, minimum width=56mm, minimum height=12mm, align=center, fill=blue!7},
+  doc/.style={draw, rounded corners=2pt, thick, minimum width=56mm, minimum height=10mm, align=center, fill=gray!10},
+  arrow/.style={-Latex, thick},
+  node distance=10mm
+]
+\node[doc] (audio) {Audio JSON (\texttt{sourceUri}, \texttt{mimeType}, \texttt{durationMs})};
+\node[box, below=of audio] (stt) {STT};
+\node[doc, below=of stt] (tjson) {Transcript JSON (\texttt{text}, \texttt{segments[]}, \texttt{conf})};
+\node[box, below=of tjson] (ie) {Information Extraction (IE)};
+\node[doc, below=of ie] (cjson) {Candidates JSON (\texttt{slots\{\}}, \texttt{evidence[]})};
+\node[box, below=of cjson] (cf) {Consistency Formatting (CF)};
+\node[doc, below=of cf] (njson) {Normalised JSON (\texttt{slots\{\}}, canonical forms)};
+\node[box, below=of njson] (ver) {Verification (VER)};
+\node[doc, below=of ver] (vjson) {Verified JSON (\texttt{slots\{\}}, \texttt{confidence\{\}}, \texttt{issues[]})};
+
+\draw[arrow] (audio) -- (stt);
+\draw[arrow] (stt) -- (tjson);
+\draw[arrow] (tjson) -- (ie);
+\draw[arrow] (ie) -- (cjson);
+\draw[arrow] (cjson) -- (cf);
+\draw[arrow] (cf) -- (njson);
+\draw[arrow] (njson) -- (ver);
+\draw[arrow] (ver) -- (vjson);
+\end{tikzpicture}%
+}
+\caption{Agent interfaces and immutable JSON artefacts. Vertical layout, 90° connectors only.}
+\label{fig:agent-io}
+\end{figure}
+
+\paragraph{Common tRPC surface.}
+The backend exposes a small number of typed procedures:
+\begin{itemize}
+  \item \texttt{stt.transcribe(input: AudioSpec): Transcript}
+  \item \texttt{ie.extract(input: Transcript \textbar{} Text, mode: \{full, slot\}): Candidates}
+  \item \texttt{cf.normalise(input: Candidates): Normalised}
+  \item \texttt{ver.verify(input: Normalised \textbar{} Candidates, context?): Verified}
+\end{itemize}
+All payloads are JSON; TypeScript types are shared by client and server to guarantee end-to-end type safety.
+
+\medskip
+\noindent\textbf{Minimal JSON contracts} (abridged for readability):
+
+\begin{verbatim}
+AudioSpec {
+  sourceUri: string, mimeType: "audio/wav"|"audio/mpeg", durationMs?: number
+}
+
+Transcript {
+  text: string,
+  segments?: [{ start: number, end: number, text: string, conf?: number }],
+  meta?: { model: "whisper-1", lang?: string, conf?: number }
+}
+
+Candidates {
+  slots: {
+    date?: { value: string, span?: [start,end], conf?: number },
+    location?: { value: string, span?: [start,end], conf?: number },
+    incident?: { value: string, conf?: number },
+    casualties?: { injured?: number, killed?: number, conf?: number },
+    perpetrator?: { value: string, status: "suspected"|"confirmed"|"unknown", conf?: number }
+    // ...additional MUC-4 slots as needed
+  },
+  evidence?: [{ slot: string, quote: string, span?: [start,end] }]
+}
+
+Normalised = Candidates  // values canonicalised (date ISO-8601, names, enums)
+
+Verified {
+  slots: Candidates["slots"],                 // final values
+  confidence: { [slot: string]: number },     // 0..1
+  issues?: [{ slot: string, type: "missing"|"conflict"|"low_conf",
+              detail: string }],
+  decisions?: [{ rule: string, detail: string }]
+}
+\end{verbatim}
+
+\paragraph{Execution policy.} Orchestration selects the appropriate path per strategy (S1--S4) but always respects these contracts. For S1 the pipeline terminates after \texttt{ie.extract}; S2--S4 continue through CF and VER. Clarification (triggered by VER) re-invokes \texttt{ie.extract} (text) or \texttt{stt.transcribe} (speech) with refined hints.
+
+\subsection*{Agent Details}
+
+\paragraph{Speech-to-Text (STT).}
+\emph{Role.} Convert audio into text segments with timing and confidence.  
+\emph{Implementation.} The backend streams the uploaded audio (\texttt{audio/wav}, \texttt{audio/mpeg}) to Whisper via the provider SDK. Long files are chunked (fixed window with 10\% overlap) and reassembled using timestamps.  
+\emph{Endpoint.} \texttt{stt.transcribe(AudioSpec) → Transcript}.  
+\emph{Key options.} language autodetect; temperature $=0$ for determinism; vad to reduce non-speech.  
+\emph{Failure handling.} If average confidence $<\tau_{stt}$, VER may request a re-recording (speech clarification) in strategies that enable loops.
+
+\medskip
+\noindent\emph{Example output (excerpt):}
+\begin{verbatim}
+{
+  "text": "On March 3, 1992, in Bogotá, a car bomb exploded ...",
+  "segments": [
+    {"start": 2.10, "end": 6.45, "text": "On March 3, 1992, in Bogotá", "conf": 0.94},
+    {"start": 6.46, "end": 12.02, "text": "a car bomb exploded outside the Ministry of Defense", "conf": 0.91}
+  ],
+  "meta": {"model":"whisper-1","lang":"en","conf":0.92}
+}
+\end{verbatim}
+
+\paragraph{Information Extraction (IE).}
+\emph{Role.} Map unstructured text to template slots.  
+\emph{Implementation.} The IE agent wraps LLM prompts for two modes:
+(i) \texttt{full} — one prompt to produce all slots; (ii) \texttt{slot} — one prompt per slot. Providers: OpenAI (ChatGPT) and Gemini. The agent enforces a JSON-only response with a strict schema and rejects non-parseable outputs (auto-reprompt with \emph{format-repair} instruction).  
+\emph{Endpoint.} \texttt{ie.extract(Transcript|Text, mode)}.  
+\emph{Prompt shape (abridged).}
+\begin{verbatim}
+SYSTEM: You extract MUC-4 template fields. Answer strictly as JSON
+  matching the provided schema. If unknown, set status="unknown".
+USER: <transcript text>
+SCHEMA: { "slots": { "date": {...}, "location": {...}, ... }, "evidence": [...] }
+\end{verbatim}
+\emph{Post-processing.} The agent attaches \texttt{evidence[]} spans (token indices) for traceability. In S3/S4 it returns $k$ candidates for consensus.
+
+\medskip
+\noindent\emph{Example output (excerpt):}
+\begin{verbatim}
+{
+  "slots": {
+    "date": {"value": "3 March 1992", "span": [3, 7], "conf": 0.88},
+    "location": {"value": "Bogotá", "span": [9, 10], "conf": 0.86},
+    "incident": {"value": "car bombing", "conf": 0.84},
+    "casualties": {"injured": 25, "killed": 0, "conf": 0.77},
+    "perpetrator": {"value": "left-wing guerrilla group",
+                    "status": "suspected", "conf": 0.65}
+  },
+  "evidence": [{"slot":"perpetrator","quote":"Authorities suspect ..."}]
+}
+\end{verbatim}
+
+\paragraph{Consistency Formatting (CF).}
+\emph{Role.} Canonicalise values and enforce schema invariants.  
+\emph{Implementation.} Deterministic mappers in Node (e.g., \texttt{luxon} for dates, dictionaries for country/city aliases, and regex normalisers). CF is intentionally non-stochastic for reproducibility; when normalisation is ambiguous (e.g., ``3/4/92''), CF emits an \texttt{issue} with alternatives for VER to resolve.  
+\emph{Endpoint.} \texttt{cf.normalise(Candidates) → Normalised}.  
+\emph{Rules (examples).}
+\begin{itemize}
+  \item Dates $\rightarrow$ ISO-8601 (\texttt{1992-03-03}); month names to numerals.
+  \item Locations: canonical city names; attach country if unambiguous.
+  \item Enumerations: incident types restricted to a closed set (e.g., \texttt{"bombing"}).
+  \item Text trims \& Unicode normalisation (NFC).
+\end{itemize}
+
+\medskip
+\noindent\emph{Example output (diff to candidates):}
+\begin{verbatim}
+{
+  "slots": {
+    "date": {"value": "1992-03-03", "conf": 0.88},
+    "location": {"value": "Bogotá, Colombia", "conf": 0.86},
+    "incident": {"value": "bombing", "conf": 0.84},
+    "casualties": {"injured": 25, "killed": 0, "conf": 0.77},
+    "perpetrator": {"value": "left-wing guerrilla group",
+                    "status": "suspected", "conf": 0.65}
+  }
+}
+\end{verbatim}
+
+\paragraph{Verification (VER).}
+\emph{Role.} Validate completeness and consistency; assign confidence; trigger clarification when required.  
+\emph{Implementation.} Hybrid rules + LLM checks. Rule engine verifies cross-field constraints (e.g., date plausibility; incident $\in$ allowed set; contradictions). LLM verifier performs text-grounding: given the transcript spans and normalised slots, it must (i) confirm each value is entailed by the text, or (ii) downgrade confidence and add an \texttt{issue}.  
+\emph{Endpoint.} \texttt{ver.verify(Normalised|Candidates, context?) → Verified}.  
+\emph{Clarification.} If any slot confidence $<\tau_{ver}$ or an essential slot is missing, VER returns \texttt{issues[]} with \texttt{action: "requery"} and optional \texttt{hint}. The orchestrator then (a) re-prompts IE with a targeted slot prompt, or (b) requests speech clarification (re-record the ambiguous segment) in setups that include user feedback.
+
+\medskip
+\noindent\emph{Example output (excerpt):}
+\begin{verbatim}
+{
+  "slots": { "...": "..." },
+  "confidence": { "date": 0.94, "location": 0.90, "incident": 0.89,
+                  "casualties": 0.83, "perpetrator": 0.58 },
+  "issues": [
+    { "slot": "perpetrator", "type": "low_conf",
+      "detail": "Only 'suspect' is stated; not confirmed",
+      "action": "requery", "hint": "check second paragraph for claim of responsibility" }
+  ],
+  "decisions": [{ "rule": "enum.incident", "detail": "normalised to 'bombing'" }]
+}
+\end{verbatim}
+
+\subsection*{Operational Notes}
+
+\paragraph{Parallelism.} In slot-wise modes (S2, S4) the backend dispatches independent \texttt{ie.extract(..., mode="slot")} calls concurrently (Node worker pool); VER then evaluates the merged result.  
+\paragraph{Determinism.} For reproducibility, temperature is set to $0$ for verification and CF is entirely deterministic; IE may use nucleus sampling in consensus strategies.  
+\paragraph{Tracing.} Every artefact (Transcript, Candidates, Normalised, Verified) is persisted with a run identifier in PostgreSQL (JSONB columns), enabling full lineage during evaluation.

@@ -1,0 +1,54 @@
+\section{Four-Agent Architecture}
+\label{sec:concept-architecture}
+
+The modular architecture of \textit{Invox} is organised into four agents. Each agent exposes a clear input/output contract, which enables component-level analysis and flexible substitution. This section characterises the roles of the agents and their interconnections, independent of any particular deployment strategy.
+
+\subsection{Speech-to-Text Agent (STT)}
+The STT agent converts spoken language into text using a Whisper-based transcription model. It accepts audio recordings as input and outputs transcribed text along with metadata such as confidence scores and timestamps. As the focus of this work is the mapping from unstructured text to template fields, the STT component remains an adapter rather than the core of the architecture. Textual inputs bypass this stage and enter directly into the Information Extraction agent.
+
+\subsection{Information Extraction Agent (IE)}
+The IE agent performs the central task of transforming unstructured text into structured template fields. Its input is free-form text, either transcribed or provided directly. Its outputs are candidate slot-value pairs for the target template schema.
+
+The agent identifies relevant entities, relations, and events by prompting a large language model with task-specific instructions. Depending on the strategy (cf.~Section~\ref{sec:concept-strategies}), this can involve one-pass generation of all fields, iterative slot-by-slot processing, or consensus across multiple LLMs. The IE agent is therefore the primary source of architectural variation. 
+
+Design requirements for the IE agent are:
+\begin{itemize}
+    \item \textbf{Completeness:} all relevant slots must be addressed, even if values are uncertain.
+    \item \textbf{Faithfulness:} extracted values must reflect only information present in the source text.
+    \item \textbf{Traceability:} intermediate reasoning or supporting spans should be accessible for verification.
+\end{itemize}
+
+\subsection{Consistency Formatting Agent (CF)}
+The CF agent standardises the candidate values into canonical forms. This includes normalising dates, abbreviations, and entity variants, as well as enforcing schema-level conventions such as country names or role labels. The agent ensures that different surface forms (e.g., ``Sept.~11'' vs. ``11 September 2001'') are mapped to a common representation, which simplifies downstream comparison and evaluation. Although lightweight relative to IE, CF is crucial for robustness when processing large volumes of heterogeneous documents.
+
+\subsection{Verification Agent (VER)}
+The VER agent validates the structured output. It accepts the formatted slot-value pairs and produces a verified template plus a set of annotations. Verification comprises:
+\begin{itemize}
+    \item \textbf{Completeness checks:} identification of missing fields.
+    \item \textbf{Consistency checks:} detection of internal contradictions (e.g., differing dates for the same event).
+    \item \textbf{Confidence scoring:} estimation of reliability for each field, which can inform whether clarification or user review is required.
+\end{itemize}
+
+When low confidence or contradictions are detected, VER triggers a clarification loop. This may involve re-prompting the IE agent with a refined query or requesting additional input from the user. In strategies that employ multiple LLMs, VER also compares alternative outputs and resolves them by applying consensus rules.
+
+\subsection{Agent Interfaces}
+Table~\ref{tab:agent-interfaces} summarises the interface of each agent. By separating their responsibilities and outputs, the architecture supports substitution of different models, logging of intermediate states, and detailed error analysis.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{p{3cm}p{4cm}p{6cm}}
+\toprule
+\textbf{Agent} & \textbf{Input} & \textbf{Output} \\
+\midrule
+STT & Audio signal & Transcribed text with metadata \\
+IE & Text (transcribed or raw) & Candidate slot-value pairs \\
+CF & Candidate slot-value pairs & Normalised slot-value pairs \\
+VER & Normalised slot-value pairs & Verified template + confidence + annotations \\
+\bottomrule
+\end{tabular}
+\caption{Agent interfaces in the Invox architecture.}
+\label{tab:agent-interfaces}
+\end{table}
+
+
+\input{images/agent_pipeline}

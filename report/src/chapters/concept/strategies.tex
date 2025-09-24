@@ -1,0 +1,268 @@
+\section{Architectural Strategies}
+\label{sec:concept-strategies}
+
+While the modular four-agent pipeline defines the general structure of the \textit{Invox} system, its effectiveness depends on how large language models (LLMs) are deployed within the \textit{Information Extraction} and \textit{Verification} stages. Different architectural strategies offer distinct trade-offs in terms of accuracy, robustness, cost, and transparency. In the following, four strategies are outlined and illustrated using the same example for comparability.
+
+For all examples, we use the input sentence:  
+\textit{``On March 3, 1992, in Bogotá, a powerful car bomb exploded outside the Ministry of Defense, damaging nearby buildings and injuring 25 people, though no fatalities were reported. Authorities suspect a left-wing guerrilla group, but responsibility remains unconfirmed.''}
+
+This example introduces multiple attributes (date, location, event type, casualties, suspected perpetrators, and uncertainty), allowing us to highlight the strengths and weaknesses of each strategy.
+
+% ======================
+\subsection*{S1: Single-Pass (Full-Input, Single-LLM)}
+
+\textbf{Overview.}  
+In the simplest approach, a single LLM receives the complete transcript and directly generates all template fields. The process ends here, without applying \textit{Consistency Formatting} or \textit{Verification}.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.35\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=12mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=35mm, minimum height=10mm, align=center, fill=blue!7},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (stt) {Speech-to-Text};
+\node[box, below=of stt] (llm) {Single LLM Call};
+\node[box, below=of llm] (out) {Structured Template};
+
+\draw[arrow] (stt) -- (llm);
+\draw[arrow] (llm) -- (out);
+\end{tikzpicture}%
+}
+\caption{S1: One model processes all fields in a single step.}
+\label{fig:s1-overview}
+\end{figure}
+
+\textbf{Example Flow.}  
+\begin{figure}[H]
+\centering
+\resizebox{0.55\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=10mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=45mm, minimum height=12mm, align=center, fill=green!10},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (input) {Full sentence as input};
+\node[box, below=of input] (llm) {LLM generates all fields at once};
+\node[box, below=of llm, xshift=-30mm] (date) {Date: March 3, 1992};
+\node[box, below=of llm] (loc) {Location: Bogotá};
+\node[box, below=of llm, xshift=30mm] (incident) {Incident: Car Bombing};
+\node[box, below=of loc, yshift=-22mm] (perp) {Perpetrator: Guerrilla Group (assumed)};
+\node[box, below=of perp, yshift=-18mm] (cas) {Casualties: 25 Injured, 0 Dead};
+
+\draw[arrow] (input) -- (llm);
+\draw[arrow] (llm.south west) -- (date.north);
+\draw[arrow] (llm) -- (loc);
+\draw[arrow] (llm.south east) -- (incident.north);
+\draw[arrow] (loc.south) -- (perp.north);
+\draw[arrow] (perp.south) -- (cas.north);
+\end{tikzpicture}%
+}
+\caption{Example for S1: Single-pass extraction.}
+\label{fig:s1-example}
+\end{figure}
+
+\textbf{Discussion.}  
+This approach is efficient, requiring only one model call. However, if the LLM incorrectly interprets ``suspected guerrilla group'' as a confirmed perpetrator, the error propagates directly into the final template with no correction.
+
+% ======================
+\subsection*{S2: Iterative (Slot-wise, Single-LLM)}
+
+\textbf{Overview.}  
+Here, each template slot is extracted by an independent LLM call with a specialised prompt. Slots can be processed sequentially or in parallel. Results are then passed to \textit{Consistency Formatting} and \textit{Verification}.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.35\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=12mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=40mm, minimum height=10mm, align=center, fill=blue!7},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (stt) {Speech-to-Text};
+\node[box, below=of stt] (ie) {Multiple LLM Calls (per slot)};
+\node[box, below=of ie] (cf) {Consistency Formatting};
+\node[box, below=of cf] (ver) {Verification};
+\node[box, below=of ver] (out) {Structured Template};
+
+\draw[arrow] (stt) -- (ie);
+\draw[arrow] (ie) -- (cf);
+\draw[arrow] (cf) -- (ver);
+\draw[arrow] (ver) -- (out);
+\end{tikzpicture}%
+}
+\caption{S2: Independent slot-wise extraction with verification.}
+\label{fig:s2-overview}
+\end{figure}
+
+\textbf{Example Flow.}  
+Each field is extracted in a separate call, making uncertainties easier to localise.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.65\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=10mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=48mm, minimum height=12mm, align=center, fill=green!10},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (input) {Sentence};
+\node[box, below=of input] (q1) {LLM Call 1: Date → March 3, 1992};
+\node[box, below=of q1] (q2) {LLM Call 2: Location → Bogotá};
+\node[box, below=of q2] (q3) {LLM Call 3: Incident → Car Bombing};
+\node[box, below=of q3] (q4) {LLM Call 4: Casualties → 25 Injured, 0 Dead};
+\node[box, below=of q4] (q5) {LLM Call 5: Perpetrator → Suspected Guerrilla Group};
+\node[box, below=of q5] (ver) {Formatting \& Verification};
+\node[box, below=of ver] (out) {Final Template};
+
+\draw[arrow] (input) -- (q1);
+\draw[arrow] (q1) -- (q2);
+\draw[arrow] (q2) -- (q3);
+\draw[arrow] (q3) -- (q4);
+\draw[arrow] (q4) -- (q5);
+\draw[arrow] (q5) -- (ver);
+\draw[arrow] (ver) -- (out);
+\end{tikzpicture}%
+}
+\caption{Example for S2: Per-slot extraction.}
+\label{fig:s2-example}
+\end{figure}
+
+\textbf{Discussion.}  
+Slot independence allows targeted corrections. If the perpetrator slot is uncertain, only that field needs re-querying. The downside is higher inference cost and latency.
+
+% ======================
+\subsection*{S3: Multi-LLM Consensus (Full-Input)}
+
+\textbf{Overview.}  
+Here, multiple LLMs (or multiple runs of one model) each generate a complete template from the full transcript. Their outputs are compared, and the \textit{Verification} agent selects the most consistent fields.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.4\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=12mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=42mm, minimum height=10mm, align=center, fill=blue!7},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (stt) {Speech-to-Text};
+\node[box, below=of stt] (llm) {Parallel LLM Calls (Full Transcript)};
+\node[box, below=of llm] (ver) {Verification \& Consensus};
+\node[box, below=of ver] (out) {Structured Template};
+
+\draw[arrow] (stt) -- (llm);
+\draw[arrow] (llm) -- (ver);
+\draw[arrow] (ver) -- (out);
+\end{tikzpicture}%
+}
+\caption{S3: Multi-LLM consensus on full template.}
+\label{fig:s3-overview}
+\end{figure}
+
+\textbf{Example Flow.}  
+\begin{figure}[H]
+\centering
+\resizebox{0.7\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=10mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=50mm, minimum height=12mm, align=center, fill=green!10},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (input) {Sentence};
+\node[box, below=of input, xshift=-35mm] (m1) {Model 1: Perpetrator = Guerrilla Group (confirmed)};
+\node[box, below=of input] (m2) {Model 2: Perpetrator = Suspected Guerrilla Group};
+\node[box, below=of input, xshift=35mm] (m3) {Model 3: Perpetrator = Unknown};
+\node[box, below=of m2, yshift=-20mm] (vote) {Verifier reconciles outputs};
+\node[box, below=of vote] (out) {Final: Perpetrator = Suspected Guerrilla Group};
+
+\draw[arrow] (input) -- (m1);
+\draw[arrow] (input) -- (m2);
+\draw[arrow] (input) -- (m3);
+\draw[arrow] (m1) -- (vote);
+\draw[arrow] (m2) -- (vote);
+\draw[arrow] (m3) -- (vote);
+\draw[arrow] (vote) -- (out);
+\end{tikzpicture}%
+}
+\caption{Example for S3: Consensus resolves uncertainty.}
+\label{fig:s3-example}
+\end{figure}
+
+\textbf{Discussion.}  
+This reduces systematic bias and increases robustness. However, it is costlier and may still struggle if all models repeat the same misinterpretation.
+
+% ======================
+\subsection*{S4: Multi-LLM Consensus (Slot-wise)}
+
+\textbf{Overview.}  
+Each slot is extracted by multiple LLMs, and consensus is reached per field before formatting and verification. This combines the robustness of ensembles with the granularity of slot-wise extraction.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=12mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=46mm, minimum height=10mm, align=center, fill=blue!7},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (stt) {Speech-to-Text};
+\node[box, below=of stt] (ie) {Multiple LLMs per Slot};
+\node[box, below=of ie] (cf) {Consistency Formatting};
+\node[box, below=of cf] (ver) {Verification};
+\node[box, below=of ver] (out) {Structured Template};
+
+\draw[arrow] (stt) -- (ie);
+\draw[arrow] (ie) -- (cf);
+\draw[arrow] (cf) -- (ver);
+\draw[arrow] (ver) -- (out);
+\end{tikzpicture}%
+}
+\caption{S4: Slot-wise multi-LLM consensus.}
+\label{fig:s4-overview}
+\end{figure}
+
+\textbf{Example Flow.}  
+\begin{figure}[H]
+\centering
+\resizebox{0.7\linewidth}{!}{%
+\begin{tikzpicture}[
+    node distance=10mm,
+    box/.style={draw, rounded corners=2pt, thick, minimum width=50mm, minimum height=12mm, align=center, fill=green!10},
+    arrow/.style={-Latex, thick}
+]
+\node[box] (input) {Casualty slot extraction};
+\node[box, below=of input, xshift=-35mm] (m1) {Model 1: 25 Injured, 0 Dead};
+\node[box, below=of input] (m2) {Model 2: Several Injured, No Fatalities};
+\node[box, below=of input, xshift=35mm] (m3) {Model 3: 25 People Hurt, None Killed};
+\node[box, below=of m2, yshift=-20mm] (vote) {Consensus + Formatting};
+\node[box, below=of vote] (out) {Final: 25 Injured, 0 Dead};
+
+\draw[arrow] (input) -- (m1);
+\draw[arrow] (input) -- (m2);
+\draw[arrow] (input) -- (m3);
+\draw[arrow] (m1) -- (vote);
+\draw[arrow] (m2) -- (vote);
+\draw[arrow] (m3) -- (vote);
+\draw[arrow] (vote) -- (out);
+\end{tikzpicture}%
+}
+\caption{Example for S4: Per-slot consensus improves reliability.}
+\label{fig:s4-example}
+\end{figure}
+
+\textbf{Discussion.}  
+This is the most reliable but also the most computationally expensive strategy. It is well-suited for domains where accuracy is critical and resources are available.
+
+% ======================
+\subsection*{Summary}
+
+These four strategies represent different points in the trade-off space between efficiency and robustness.  
+\begin{itemize}
+    \item \textbf{S1} is fastest but fragile.  
+    \item \textbf{S2} isolates errors at the slot level.  
+    \item \textbf{S3} increases robustness through full-template consensus.  
+    \item \textbf{S4} provides fine-grained reliability via per-slot consensus.  
+\end{itemize}
+
+Later chapters evaluate these strategies on the MUC-4 benchmark.

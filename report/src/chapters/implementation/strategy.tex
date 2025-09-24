@@ -1,0 +1,151 @@
+\section{Strategy Realisation}
+\label{sec:impl-strategies}
+
+The four strategies introduced in Section~\ref{sec:arch-strategies} are realised by selecting different orchestration paths through the common agent interfaces. While the JSON contracts remain identical across strategies, the order, multiplicity, and verification steps differ. This section outlines how each strategy is executed in the implementation.
+
+% ========================
+\subsection*{Strategy S1: Single-Pass Extraction}
+
+\textbf{Overview.}  
+The orchestrator performs a single \texttt{ie.extract} call (mode=\texttt{full}) after transcription. No explicit consistency or verification is applied; the output of IE is written directly as the structured template.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=2pt, thick, minimum width=46mm,
+              minimum height=11mm, align=center, fill=blue!7},
+  arrow/.style={-Latex, thick}, node distance=10mm
+]
+\node[box] (stt) {STT (\texttt{stt.transcribe})};
+\node[box, below=of stt] (ie) {IE (\texttt{ie.extract}, full)};
+\node[box, below=of ie] (out) {Structured Template};
+
+\draw[arrow] (stt) -- (ie);
+\draw[arrow] (ie) -- (out);
+\end{tikzpicture}%
+}
+\caption{S1 – Single-pass extraction.}
+\end{figure}
+
+\textbf{Notes.}  
+\begin{itemize}
+  \item Fastest: one LLM call after STT.  
+  \item Fragile: any misclassification (e.g., “injured” vs “killed”) persists uncorrected.  
+\end{itemize}
+
+% ========================
+\subsection*{Strategy S2: Per-Slot Extraction}
+
+\textbf{Overview.}  
+The orchestrator calls \texttt{ie.extract} once per slot (mode=\texttt{slot}), in parallel where possible. Each field is independently predicted.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.5\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
+              minimum height=11mm, align=center, fill=blue!7},
+  arrow/.style={-Latex, thick}, node distance=8mm
+]
+\node[box] (stt) {STT};
+\node[box, below=of stt] (q1) {IE: Extract Date};
+\node[box, below=of q1] (q2) {IE: Extract Location};
+\node[box, below=of q2] (q3) {IE: Extract Incident};
+\node[box, below=of q3] (q4) {IE: Extract Target / Perpetrator};
+\node[box, below=of q4] (merge) {Merge Slots $\rightarrow$ Template};
+
+\draw[arrow] (stt) -- (q1);
+\draw[arrow] (q1) -- (q2);
+\draw[arrow] (q2) -- (q3);
+\draw[arrow] (q3) -- (q4);
+\draw[arrow] (q4) -- (merge);
+\end{tikzpicture}%
+}
+\caption{S2 – Per-slot extraction.}
+\end{figure}
+
+\textbf{Notes.}  
+\begin{itemize}
+  \item Parallel execution reduces latency but increases cost (one call per slot).  
+  \item Errors are isolated: a wrong date does not affect incident extraction.  
+\end{itemize}
+
+% ========================
+\subsection*{Strategy S3: Single-Pass + Verification}
+
+\textbf{Overview.}  
+A full-template extraction (as in S1) is followed by \texttt{ver.verify}, which checks consistency, plausibility, and completeness. Low-confidence fields may trigger clarification.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.45\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
+              minimum height=11mm, align=center, fill=blue!7},
+  arrow/.style={-Latex, thick}, node distance=10mm
+]
+\node[box] (stt) {STT};
+\node[box, below=of stt] (ie) {IE (full)};
+\node[box, below=of ie] (ver) {Verification (VER)};
+\node[box, below=of ver] (out) {Verified Template};
+
+\draw[arrow] (stt) -- (ie);
+\draw[arrow] (ie) -- (ver);
+\draw[arrow] (ver) -- (out);
+\end{tikzpicture}%
+}
+\caption{S3 – Single-pass with verification.}
+\end{figure}
+
+\textbf{Notes.}  
+\begin{itemize}
+  \item Adds robustness by catching contradictions or implausible values.  
+  \item If VER detects issues, orchestration can re-invoke IE with hints.  
+\end{itemize}
+
+% ========================
+\subsection*{Strategy S4: Per-Slot + Verification}
+
+\textbf{Overview.}  
+Combines S2 (slot-wise extraction) with S3 (verification). Each slot is predicted independently and then verified.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.55\linewidth}{!}{%
+\begin{tikzpicture}[
+  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
+              minimum height=11mm, align=center, fill=blue!7},
+  arrow/.style={-Latex, thick}, node distance=8mm
+]
+\node[box] (stt) {STT};
+\node[box, below=of stt] (q1) {IE: Date};
+\node[box, below=of q1] (v1) {VER: Check Date};
+\node[box, below=of v1] (q2) {IE: Location};
+\node[box, below=of q2] (v2) {VER: Check Location};
+\node[box, below=of v2] (q3) {IE: Incident};
+\node[box, below=of q3] (v3) {VER: Check Incident};
+\node[box, below=of v3] (merge) {Merge Verified Slots $\rightarrow$ Template};
+
+\draw[arrow] (stt) -- (q1);
+\draw[arrow] (q1) -- (v1);
+\draw[arrow] (v1) -- (q2);
+\draw[arrow] (q2) -- (v2);
+\draw[arrow] (v2) -- (q3);
+\draw[arrow] (q3) -- (v3);
+\draw[arrow] (v3) -- (merge);
+\end{tikzpicture}%
+}
+\caption{S4 – Per-slot extraction with verification.}
+\end{figure}
+
+\textbf{Notes.}  
+\begin{itemize}
+  \item Highest reliability: each slot is validated independently.  
+  \item Computationally most expensive. Best suited for high-stakes use cases.  
+\end{itemize}
+
+% ========================
+\subsection*{Summary}
+
+The orchestrator can switch between strategies without altering agent implementations, as all share the same JSON contracts. This separation allows empirical evaluation of trade-offs between cost, accuracy, and robustness in later chapters.

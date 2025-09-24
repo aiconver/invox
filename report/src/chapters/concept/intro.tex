@@ -1,0 +1,43 @@
+\section{System Overview}
+\label{sec:concept-overview}
+
+The \textit{Invox} system converts unstructured natural language into structured template fields through a modular, four–agent architecture. Audio input is supported via a speech interface, but the core contribution is the reliable mapping from unstructured text to well-defined template slots. The design is intentionally componentised to avoid the brittleness and opacity of single, monolithic LLM pipelines.
+
+\subsection{Goal and Scope}
+This chapter presents the concept of the solution---its decomposition, data flow, and orchestration patterns. The target task is filling the fields of a predefined template (e.g., the MUC-4 schema) from narrative text. Evaluation methodology and metrics are not discussed here and are deferred to the later Evaluation chapter.
+
+\subsection{Four-Agent Pipeline}
+The pipeline is organised as four specialised agents:
+\begin{itemize}
+    \item \textbf{Speech-to-Text (STT).} Optional front-end for audio input. A Whisper-based adapter produces text for downstream components. As the thesis focuses on text-to-template mapping, this stage remains deliberately brief.
+    \item \textbf{Information Extraction (IE).} The central component. It analyses the text, identifies relevant entities and events, and proposes values for each template slot.
+    \item \textbf{Consistency Formatting (CF).} It normalises the proposed values into canonical forms (e.g., date formats, location names, label vocabularies) and enforces simple schema rules.
+    \item \textbf{Verification (VER).} It checks completeness and cross-field consistency, highlights conflicts or low-confidence fields, and may request clarifications.
+\end{itemize}
+
+\subsection{Processing Flow}
+Inputs are refined stage by stage. Audio follows \textit{STT} $\rightarrow$ \textit{IE} $\rightarrow$ \textit{CF} $\rightarrow$ \textit{VER}. Text bypasses STT and enters at IE. Each step reduces ambiguity and increases structure, producing machine-actionable output that conforms to the target schema. When VER detects gaps or contradictions, the system can trigger a clarification round with the user and then re-apply CF and VER on the updated values.
+
+\subsection{Execution Modes}
+While the pipeline order is fixed for correctness, the IE and VER stages admit two execution modes that motivate the architectural strategies developed later:
+\begin{enumerate}
+    \item \textbf{Sequential (single-pass).} One inference computes the full set of fields, followed by CF and VER.
+    \item \textbf{Slot-parallel (iterative).} Fields are processed independently, allowing parallel extraction per slot and subsequent aggregation before CF and VER. This reduces latency on multi-field templates and isolates errors.
+\end{enumerate}
+Both modes are compatible with single-LLM and multi-LLM deployments. The concrete strategy (Section~\ref{sec:concept-strategies}) determines whether one model handles all fields, fields are processed one by one, or multiple models are combined by a consensus mechanism.
+
+\subsection{Design Advantages}
+The modular design yields three practical benefits:
+\begin{itemize}
+    \item \textbf{Transparency.} Intermediate artefacts at each stage (candidate spans, normalised values, verification notes) make decisions traceable and simplify error analysis.
+    \item \textbf{Isolated improvements.} Components can be tuned or replaced without destabilising the whole system (e.g., stricter normalisation or a stronger verifier).
+    \item \textbf{Flexible deployment.} The same architecture supports different LLM deployment patterns (single-pass, iterative, or consensus) to balance quality, cost, and latency.
+\end{itemize}
+
+\subsection{Structure of the Remainder}
+Section~\ref{sec:concept-architecture} details the four agents and their interfaces. Section~\ref{sec:concept-strategies} specifies four architectural strategies (single-pass full input, iterative single-field, multi-LLM consensus over full input, and multi-LLM consensus per field) using the same pipeline. Implementation details follow in the next chapter.
+
+
+\input{images/c4_context}
+\input{images/c4_container}
+\input{images/bpmn}

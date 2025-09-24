@@ -1,0 +1,166 @@
+\documentclass[a4paper, 12pt, oneside, BCOR1cm, toc=chapterentrywithdots]{scrbook}
+
+% --- Encoding and Fonts ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{pifont}
+\usepackage{lmodern} % Optional, better default font
+
+% --- Common Packages ---
+\usepackage{graphicx}
+\usepackage{makeidx}
+\usepackage[colorlinks=false]{hyperref}
+\usepackage{tocbibind}
+\usepackage{blindtext}
+\usepackage{subfigure} 
+\usepackage{acronym}
+\usepackage{multicol}
+\KOMAoptions{parskip=half}
+
+\usepackage{tikz}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{makecell}
+
+\usepackage{graphicx} % for \resizebox
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
+
+\renewcommand{\arraystretch}{1.4}
+\newcommand{\cmark}{\ding{51}} % check mark
+\newcommand{\xmark}{\ding{55}} % cross mark
+\usepackage[numbers]{natbib}
+
+\setcounter{secnumdepth}{3}
+
+
+% --- Hyperref Setup ---
+\hypersetup{
+  bookmarksnumbered=true,
+  hyperindex=true,
+  bookmarksopen=true,
+  bookmarksopenlevel=1,
+  pdfborder=0 0 0
+}
+
+% --- Custom Star Symbols ---
+\newcommand{\starfull}{\ding{72}}   % Full star
+\newcommand{\starhalf}{\ding{73}}   % Half star
+\newcommand{\starzero}{\ding{78}}   % Empty star
+
+% --- TOC Appearance Fixes ---
+\renewcommand*{\tableofcontents}{%
+  \begingroup
+  \tocsection
+  \tocfile{\contentsname}{toc}
+  \endgroup
+}
+\renewcommand*{\listoffigures}{%
+  \begingroup
+  \tocsection
+  \tocfile{\listfigurename}{lof}
+  \endgroup
+}
+\renewcommand{\listoftables}{
+  \begingroup
+  \tocsection
+  \tocfile{\listtablename}{lot}
+  \endgroup
+}
+
+\makeindex
+
+\begin{document}
+
+% =====================================================
+% FRONTMATTER: Roman numeral page numbering
+% =====================================================
+\frontmatter
+
+% -------- Title Page --------
+\begin{titlepage}
+  {
+    \begin{center}
+        \raisebox{-1ex}{\includegraphics[scale=1.4]{images/TU_Chemnitz_positiv_gruen.pdf}}\\
+    \end{center}
+    \vspace{0.5cm}
+  }
+  \begin{center}
+    \LARGE{\textbf{ulti-Agent Template Filling using LLMs: Design and Comparative Evaluation with Speech Input Case Study}}\\
+    \vspace{1cm}
+    \Large{\textbf{Master Thesis}}\\ 
+    \vspace{0.5cm}
+    Submitted in Fulfilment of the\\
+    Requirements for the Academic Degree\\
+    M.Sc. Web Engineering\\
+    \vspace{0.5cm}
+    Dept. of Computer Science\\
+    Chair of Computer Engineering
+  \end{center}
+  \vspace{1cm}
+  Submitted by: Huzefa Ismail Jadliwala\\
+  Student ID: 806286\\
+  Date: 07.07.2025\\
+  \vspace{0.3cm}\\
+  Internal Supervising tutor: Verena Traubinger \\
+  External Supervising tutor: Dr. Christoph Carl Kling \\
+\end{titlepage}
+
+% -------- Abstract --------
+\addchap*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\input{src/abstract}
+
+% -------- Acknowledgment --------
+\chapter*{Acknowledgment}
+\addcontentsline{toc}{chapter}{Acknowledgment}
+\input{src/acknowledgment}
+
+% -------- Task Description --------
+\chapter*{Task Description}
+\addcontentsline{toc}{chapter}{Task Description}
+\input{src/task_description}
+
+% -------- TOC, List of Figures, Tables --------
+\tableofcontents
+\listoffigures
+\listoftables
+
+% -------- List of Abbreviations --------
+\chapter*{List of Abbreviations}
+\addcontentsline{toc}{chapter}{List of Abbreviations}
+\input{src/abbreviations}
+
+% =====================================================
+% MAINMATTER: Arabic numerals, numbered chapters
+% =====================================================
+\mainmatter
+
+\chapter{Introduction}
+\input{src/chapters/introduction}
+
+\chapter{Analysis}
+\input{src/chapters/analysis/analysis}
+
+\chapter{Concept}
+\input{src/chapters/concept/concept}
+
+\chapter{Implementation}
+\input{src/chapters/implementation/implementation}
+
+% Add more chapters as needed...
+% \chapter{Concept}
+% \chapter{Implementation}
+% ...
+
+% =====================================================
+% BACKMATTER: Bibliography, Index, etc.
+% =====================================================
+\backmatter
+
+\bibliographystyle{splncs03}
+\bibliography{bibliography}
+
+\printindex
+
+\end{document}

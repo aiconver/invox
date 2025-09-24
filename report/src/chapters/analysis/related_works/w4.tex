@@ -1,0 +1,66 @@
+The reviewed approaches show steady progress in structured information extraction. Rule-based and statistical systems established transparent baselines but depended on handcrafted features and did not generalize well. Generative transformers (e.g., Du et al.\ \cite{du2021template}) enabled end-to-end template filling and improved accuracy. Speech-focused work (Sun et al.\ \cite{sun2023slot}) pushed extraction under noisy ASR inputs. Schema-centric methods and tools (Zhang et al.\ \cite{zhang2023sgptod}; Google LangExtract \cite{google2024langextract}) stabilized output formats, while constrained decoding \cite{anderson2017guided} enforced structure. Beyond extraction, Chen et al.\ \cite{le2025automated} showed schema-constrained generation for web testing. Multi-agent lines (Shen et al.\ \cite{shen2023hugginggpt}; Liang et al.\ \cite{liang2023taskmatrix}; Park et al.\ \cite{park2023generative}) introduced modularity, coordination, and validation. 
+
+When judged against the requirements in the above Section, no single approach satisfies all of \textbf{R1--R6}. The consolidated table below summarizes what each work \emph{explicitly} supports (we mark a requirement as satisfied only if the paper/tool itself provides direct evidence; otherwise we mark ``---'' as \emph{not mentioned}).
+
+% ===== Consolidated table (10 papers, R1--R6) =====
+\begin{table*}[h!]
+\centering
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\small
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Paper / Tool} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} & \textbf{R6} \\
+\hline
+Du et al.\ 2021 \cite{du2021template} & \cmark & \cmark & \xmark & \xmark & \xmark & --- \\
+Sun et al.\ 2023 \cite{sun2023slot} & \cmark & \cmark & \xmark & \xmark & \xmark & --- \\
+Chen et al.\ 2025 \cite{le2025automated} & \cmark & \cmark & \xmark & \xmark & \xmark & --- \\
+Google LangExtract 2024 \cite{google2024langextract} & \cmark & \cmark & \xmark & \xmark & \xmark & --- \\
+Zhang et al.\ 2023 \cite{zhang2023sgptod} & \cmark & \cmark & \xmark & \xmark & \xmark & --- \\
+Lin et al.\ 2021 \cite{lin2021leveraging} & \cmark & \cmark & \xmark & \xmark & \cmark & --- \\
+Peng et al.\ 2023 \cite{peng2023check} & \cmark & \cmark & \xmark & \cmark & \cmark & --- \\
+Shen et al.\ 2023 \cite{shen2023hugginggpt} & \cmark & \cmark & \cmark & \xmark & \cmark & --- \\
+Liang et al.\ 2023 \cite{liang2023taskmatrix} & \cmark & \cmark & \xmark & \xmark & \cmark & --- \\
+Park et al.\ 2023 \cite{park2023generative} & \cmark & \cmark & \cmark & \cmark & \cmark & --- \\
+\hline
+\end{tabular}
+\caption{Consolidated evaluation of reviewed works against requirements R1--R6.}
+\vspace{4pt}
+\footnotesize \textit{Legend:} \cmark\,= satisfied; \xmark\,= not satisfied; ---\,= not mentioned.
+\end{table*}
+
+
+% ===== 2–3 lines per paper (brief evidence-based notes) =====
+\paragraph{Du et al.\ 2021 \cite{du2021template}.}
+End-to-end generative template filling outperforms pipelines on MUC-4 and models cross-event dependencies (R1, R2). No evidence spans, confidence scores, user correction, or adaptive learning are provided (R3--R5). Latency/usability not reported (R6).
+
+\paragraph{Sun et al.\ 2023 \cite{sun2023slot}.}
+Evaluates LLMs for slot filling from noisy ASR (SLURP), with prompt structures, LoRA, and LKI improving accuracy (R1, R2). No transparency or user-correction loop; adaptation is not defined as learning from corrections/ontologies (R3--R5). No latency reporting (R6).
+
+\paragraph{Chen et al.\ 2025 \cite{le2025automated}.}
+Combines screen transition/state graphs with LLMs to generate structured Selenium scripts (R1, R2). No interpretability, correction mechanisms, or adaptive learning (R3--R5). No runtime/latency analysis (R6).
+
+\paragraph{Google LangExtract 2024 \cite{google2024langextract}.}
+Production tool mapping text to user-defined JSON schemas with validation (R1, R2). Opaque single-model design with no interactive correction or learning from edits (R3--R5). No latency claims (R6).
+
+\paragraph{Zhang et al.\ 2023 \cite{zhang2023sgptod}.}
+Schema-guided prompting reduces invalid slot outputs in task-oriented dialogue (R1, R2). No span-level evidence, correction loop, or learning-from-corrections (R3--R5). No latency reporting (R6).
+
+\paragraph{Lin et al.\ 2021 \cite{lin2021leveraging}.}
+Slot descriptions enable zero-shot DST across unseen domains, supporting generalization (R1, R2, R5). Lacks transparency and user correction (R3, R4). No latency discussion (R6).
+
+\paragraph{Peng et al.\ 2023 \cite{peng2023check}.}
+Automated feedback improves factuality and structured outputs (R1, R2). Uses iterative prompt refinement as a correction signal and integrates external knowledge (R4, R5). No transparency or latency reporting (R3, R6).
+
+\paragraph{Shen et al.\ 2023 \cite{shen2023hugginggpt}.}
+LLM controller coordinates HF models; task planning and tool selection logs provide partial transparency (R1--R3). No explicit user-correction mechanism; adaptable via tool selection (R4, R5). No latency reporting (R6).
+
+\paragraph{Liang et al.\ 2023 \cite{liang2023taskmatrix}.}
+Connects LLMs with a large API ecosystem to perform varied tasks via structured calls (R1, R2); adaptable across domains (R5). No interpretability or correction loop (R3, R4). No latency metrics (R6).
+
+\paragraph{Park et al.\ 2023 \cite{park2023generative}.}
+Multi-agent document pipeline separates extraction and validation, improving traceability and enabling correction; modular agents support adaptation (R1--R5). No latency/usability characterization (R6).
+
+% ===== Section wrap-up =====
+\paragraph{Summary.}
+Across R1--R6, current solutions contribute complementary strengths: end-to-end generative models lift accuracy; speech-focused methods add noise robustness; schema-guided designs stabilize formats; and multi-agent systems improve transparency, correction, and adaptability. Yet none meet all requirements simultaneously. This motivates the comparative experiments in later chapters, where we implement single-pass, iterative, consensus-based, and multi-agent designs and evaluate them with the same R1--R6 framework to quantify trade-offs in realistic, speech-driven scenarios.

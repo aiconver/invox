@@ -1,0 +1,49 @@
+% Preamble (once, if not already loaded)
+% \usepackage{tikz}
+% \usetikzlibrary{arrows.meta, positioning}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.7\linewidth}{!}{%
+\begin{tikzpicture}[
+    every node/.style={font=\sffamily},
+    box/.style={draw, rounded corners=2pt, thick, minimum width=38mm, minimum height=12mm, align=center, fill=blue!7},
+    iobox/.style={draw, rounded corners=2pt, thick, minimum width=34mm, minimum height=10mm, align=center, fill=gray!10},
+    arrow/.style={-Latex, thick},
+    fb/.style={-Latex, thick, dashed},
+    node distance=10mm
+]
+% Inputs (top row)
+\node[iobox] (audio) {Audio Input};
+\node[iobox, right=25mm of audio] (text) {Text Input};
+
+% Pipeline (vertical stack)
+\node[box, below=15mm of audio.center] (stt) {Speech-to-Text (STT)};
+\node[box, below=15mm of stt] (ie)  {Information Extraction (IE)};
+\node[box, below=15mm of ie]  (cf)  {Consistency Formatting (CF)};
+\node[box, below=15mm of cf]  (ver) {Verification (VER)};
+\node[iobox, below=15mm of ver] (out) {Structured Template};
+
+% Main straight connections (vertical)
+\draw[arrow] (stt) -- (ie);
+\draw[arrow] (ie) -- (cf);
+\draw[arrow] (cf) -- (ver);
+\draw[arrow] (ver) -- (out);
+
+% Input routes (right-angle only)
+% Audio -> STT (straight down via left)
+\draw[arrow] (audio) |- (stt);
+% Text -> IE (right-angle from right input)
+\draw[arrow] (text) |- (ie);
+
+% Clarification feedback (from VER back to IE and STT)
+% VER -> IE (text clarification)
+\draw[fb] (ver.east) -| node[pos=0.25, right]{\scriptsize Clarification (Text)} (ie.east);
+% VER -> STT (speech clarification)
+\draw[fb] (ver.west) -| node[pos=0.25, left]{\scriptsize Clarification (Speech)} (stt.west);
+
+\end{tikzpicture}%
+}
+\caption{Vertical agent pipeline with right-angle connectors. The system primarily starts from speech (Audio $\rightarrow$ STT), optionally accepts direct text, and allows verification-driven clarification either as speech (loop to STT) or text (loop to IE).}
+\label{fig:agent-pipeline-vertical}
+\end{figure}

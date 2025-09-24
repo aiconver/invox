@@ -1,0 +1,84 @@
+This chapter identifies the fundamental requirements for converting natural language into structured templates and critically examines existing approaches. The goal is to establish a systematic basis for evaluating current methods and to derive implications for the design of the proposed framework.
+
+\section{Requirements}
+
+This section outlines the core requirements that a system must fulfill to transform natural language input into structured templates with predefined fields. Such templates are widely used across domains, including healthcare (e.g., patient checklists), manufacturing (e.g., quality inspections), and logistics (e.g., delivery reports).
+
+The primary goal of the system presented in this thesis, named Invox, is to support users in filling out these templates more easily, quickly, and accurately. Instead of using traditional tools like a mouse, keyboard, or touchscreen, users interact with the system using natural language. This input can be typed or spoken aloud—both are valid forms of unstructured data. However, it is important to note that voice-based input is just one way of using the system; the true innovation lies in how the system processes and understands natural human language and translates it into structured form data.
+
+In a traditional setting, filling out templates can be tedious. Users must manually locate the correct form, understand what each field is asking for, and type in the responses one by one. This is not only time-consuming but also error-prone. Mistakes may happen due to misunderstandings, skipped fields, or inconsistent use of terminology. The system described in this thesis seeks to overcome these problems by using a multi-agent architecture that processes unstructured input and populates templates automatically using large language models (LLMs).
+
+The motivation behind using LLMs is their strong ability to understand context, infer meaning from loosely structured inputs, and generalize across different domains. When a user gives a voice or text description, the LLMs can interpret what they are trying to say—even if the input is informal, non-linear, or incomplete—and determine how to map this information into the correct fields of a form. This enables users to interact with the system in a more natural and efficient way.
+
+However, building such a system is not straightforward. Several challenges must be addressed to ensure the solution is usable, reliable, and trustworthy across real-world scenarios. To clearly define what such a system should achieve, we identify the following six requirements:   
+
+\textbf{R1 – Consistency:}  
+The system must be able to transform heterogeneous and informal input—such as voice transcriptions, chat messages, or handwritten notes—into consistently populated template fields. It should normalize wording, tonality, length, and semantic specificity, and enforce formatting standards so that entries are comparable, unambiguous, and suitable for downstream analysis.  
+
+\textbf{R2 – Information Extraction Abilities:}  
+The system should accurately identify and assign relevant details from noisy, fragmented, or multilingual input to the correct fields, while leaving irrelevant fields empty. It must recognize when required information is missing, handle contradictions by prompting for clarification, and integrate scattered fragments into coherent entries.  
+
+\textbf{R3 – Transparency:}  
+To foster trust and accountability, the system must make its decision-making process visible. It should highlight the input fragments that support each extracted value and provide confidence scores to indicate the certainty of those values. This enables users to verify outputs efficiently, focus on uncertain cases, and ensure auditability in regulated domains.  
+
+\textbf{R4 – User Correction:}  
+The system must enable users to manually edit automatically populated template fields. This ensures immediate error resolution without requiring retraining and empowers users with direct control over the accuracy of the final data submitted.  
+
+\textbf{R5 – Learning and Adaptation:}  
+The system should improve over time by consolidating knowledge from past interactions and domain resources. It must learn from manually filled or corrected templates as well as from structured sources such as ontologies, glossaries, or rule sets, progressively reducing repetitive errors and improving alignment with domain-specific practices.
+
+\textbf{R6 – Usability:}  
+The system must deliver prompt, near–real-time feedback so interaction feels natural and uninterrupted. This requirement applies to both spoken and typed input (speech is only one use case). Usability is evaluated via end-to-end latency and must be interpreted relative to the declared hardware and deployment profile (e.g., GPU/TPU vs.\ CPU-only, concurrency, network).
+
+These six requirements were identified based on the challenges discussed in Chapter 1 and are supported by current trends in research on natural language processing, speech and text interfaces, and intelligent form-filling systems. Each of the following sections will examine one requirement in detail. We explain what the requirement means, why it matters, and illustrate it with examples. For each requirement, we also define assessment standards that help evaluate how well the system satisfies the requirement in practice.  
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth]{images/form-filling-example.png}
+    \caption{Illustration of the form-filling framework. }
+    \label{fig:form-filling-example}
+\end{figure}
+
+
+To make these requirements more concrete, Figure~\ref{fig:form-filling-example} shows a practical usage scenario of the Invox framework. On the left, the user provides a natural language description, which the assistant processes into a structured template on the right. Some fields are automatically filled with extracted values, while others remain highlighted as incomplete and require user clarification. This illustration highlights the central challenges addressed by the requirements: ensuring consistent representation of entries (R1), accurately extracting relevant details (R2), providing transparency about what was filled and why (R3), enabling user correction of missing or incorrect fields (R4), creating a foundation for gradual learning and adaptation over time (R5), and maintaining responsiveness so updates appear promptly during interaction (R6).
+
+\subsection{R1: Consistency}
+\input{src/chapters/analysis/requirements/r1} 
+
+\subsection{R2: Information Extraction}
+\input{src/chapters/analysis/requirements/r2} 
+
+\subsection{R3: Transparency}
+\input{src/chapters/analysis/requirements/r3} 
+
+\subsection{R4: User Correction}
+\input{src/chapters/analysis/requirements/r4}
+
+\subsection{R5: Learning and Adaptation}
+\input{src/chapters/analysis/requirements/r5}
+
+\subsection{R6: Usability}
+\input{src/chapters/analysis/requirements/r6}
+
+
+\section{Related Work}
+
+The transformation of unstructured natural language into structured templates represents a fundamental challenge in natural language processing that intersects multiple research domains. This challenge has gained renewed attention with the advent of large language models (LLMs), which demonstrate unprecedented capabilities in understanding context, extracting relevant information, and generating structured outputs from free-form text. 
+
+However, despite these advances, current approaches often struggle with the specific requirements identified in Section 2.1, particularly when dealing with noisy, domain-specific, or incomplete inputs common in real-world industrial and professional settings.
+This section examines the current state of research relevant to multi-agent template filling systems, with particular focus on how existing approaches address the core challenges of consistency, information extraction accuracy, transparency, user correction capabilities, learning mechanisms, and usability. The analysis reveals significant gaps in current methodologies, particularly in their monolithic design assumptions and limited adaptability to specialized domains.
+
+The review is organized into four key areas that directly inform the design of the proposed Invox system. First, we examine traditional and modern approaches to template filling and structured information extraction, tracing the evolution from rule-based systems to contemporary LLM-driven methods. Second, we analyze prompt engineering techniques that have emerged as critical tools for guiding LLMs toward structured output generation. Third, we explore multi-agent LLM systems that decompose complex tasks into specialized components, offering potential solutions to the modularity and transparency challenges identified in monolithic approaches. Finally, we evaluate how existing solutions perform against the six requirements established in this thesis, identifying specific limitations that motivate the need for a more comprehensive, modular approach to speech-driven template filling.
+
+
+\subsection{Template Filling and Structured Information Extraction}
+\input{src/chapters/analysis/related_works/w1}
+
+\subsection{Prompt Engineering for Information Extraction}
+\input{src/chapters/analysis/related_works/w2}
+
+\subsection{Multi-Agent LLM Systems}
+\input{src/chapters/analysis/related_works/w3}
+
+\subsection{Evaluation of Requirements in Existing Solutions}
+\input{src/chapters/analysis/related_works/w4}

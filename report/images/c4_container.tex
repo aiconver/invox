@@ -1,0 +1,47 @@
+\begin{figure}[H]
+\centering
+\resizebox{\linewidth}{!}{%
+\scriptsize
+\begin{tikzpicture}[
+  node distance=7mm and 9mm,
+  box/.style={draw,rounded corners,thick,align=left,inner sep=3pt,minimum width=38mm,minimum height=9mm,fill=blue!7},
+  ext/.style={draw,rounded corners,align=center,inner sep=2pt,minimum width=30mm,minimum height=7mm,fill=gray!10},
+  sub/.style={draw,rounded corners=2pt,align=left,inner sep=2pt,minimum width=34mm,fill=white},
+  rel/.style={-Latex,thick},
+  dashedrel/.style={-Latex,thick,dashed},
+  group/.style={draw,rounded corners,inner sep=4pt}
+]
+% External
+\node[ext] (client) {Client UI (Web/App)};
+\node[ext, right=74mm of client] (llms) {LLM APIs};
+\node[ext, below=14mm of llms] (asr) {ASR API (Whisper)};
+\node[ext, above=14mm of llms] (idp) {Identity Provider (OIDC)};
+
+% Backend group
+\node[group, right=16mm of client, minimum width=74mm, minimum height=52mm, label={[align=left]north:Invox Backend}] (grp) {};
+\node[box, anchor=north west] (gw) at ([xshift=4mm,yshift=-4mm]grp.north west) {API Gateway / Auth};
+\node[box, below=5mm of gw] (orch) {Orchestrator};
+\node[sub, below=2mm of orch] (agents) {Agents:\\
+-- Speech-to-Text Adapter\\
+-- Information Extraction\\
+-- Consistency Formatting\\
+-- Verification};
+\node[sub, right=8mm of orch] (store) {Internal Storage:\\
+-- Prompt / Result Cache\\
+-- Template Schema (slots \& rules)\\
+-- Logs / Traces};
+
+% Edges
+\draw[rel] (client) -- node[above]{HTTPS} (gw);
+\draw[rel] (gw) -- (orch);
+\draw[rel] (orch) -- (agents);
+\draw[rel] (orch) -- node[above]{KV / DB} (store);
+\draw[rel] (agents.east) .. controls +(14mm,0) and +(-14mm,12mm) .. node[above]{Infer} (llms.west);
+\draw[rel] (agents.east) .. controls +(14mm,0) and +(-14mm,-12mm) .. node[below]{Transcribe} (asr.west);
+\draw[dashedrel] (gw) -- node[above]{OIDC} (idp.west);
+\draw[dashedrel] (client) |- node[pos=0.25,left]{Corrections} (orch);
+\end{tikzpicture}%
+}
+\caption{C4 container: client, backend, agents, storage, and external ASR/LLM/auth (no datasets/evaluation).}
+\label{fig:c4-container}
+\end{figure}
