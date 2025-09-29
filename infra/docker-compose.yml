@@ -42,6 +42,49 @@ services:
     networks:
       - backend
       - frontend
+  opensearch:
+    image: opensearchproject/opensearch:2.13.0
+    container_name: opensearch
+    environment:
+      - discovery.type=single-node                 # run as a single node (dev)
+      - DISABLE_SECURITY_PLUGIN=true            # no auth/TLS for local dev
+      - bootstrap.memory_lock=true                 # avoid swapping (nice-to-have)
+      - OPENSEARCH_JAVA_OPTS=-Xms1g -Xmx1g         # adjust if your RAM is tight
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - opensearch-data:/usr/share/opensearch/data # persist indices across restarts
+    ports:
+      - "9200:9200"                                 # OpenSearch REST API
+    networks:
+      - backend                                     # reachable as http://opensearch:9200 from backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200 >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  opensearch-dashboards:
+    image: opensearchproject/opensearch-dashboards:2.13.0
+    container_name: opensearch-dashboards
+    environment:
+      - OPENSEARCH_HOSTS=http://opensearch:9200     # talk to the service name on the backend network
+      - DISABLE_SECURITY_DASHBOARDS_PLUGIN=true     # matches security off in OpenSearch
+    depends_on:
+      opensearch:
+        condition: service_healthy
+    ports:
+      - "5601:5601"                                 # Web UI at http://localhost:5601
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:5601/api/status >/dev/null || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
 
   webserver:
     image: nginx:1-alpine
@@ -67,3 +110,8 @@ networks:
       com.docker.network.enable_ipv6: "true"
   backend:
     name: backend
+
+
+volumes:
+  opensearch-data:
+
