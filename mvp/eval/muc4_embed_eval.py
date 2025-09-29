@@ -55,7 +55,7 @@ except ImportError:
     print("ERROR: sentence-transformers is required. Install with: pip install sentence-transformers")
     sys.exit(1)
 
-ENTITY_FIELDS = ["PerpInd", "PerpOrg", "Target", "Victim", "Weapon"]
+ENTITY_FIELDS = ["incident_type","PerpInd", "PerpOrg", "Target", "Victim", "Weapon"]
 
 # ------------------------
 # Helpers for IO & parsing
@@ -112,7 +112,7 @@ def load_pred(path: Path) -> Dict[str, Dict[str, List[str]]]:
     for d in data:
         ans = d.get("answers", {}) or {}
         pred[d["id"]] = {
-            k: [normalize_text(x) for x in (ans.get(k) or []) if normalize_text(x)]
+            k: [normalize_text(x) for x in _as_string_list(ans.get(k)) if normalize_text(x)]
             for k in ENTITY_FIELDS
         }
     return pred
