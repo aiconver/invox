@@ -119,9 +119,12 @@ def load_gold(path: Path) -> Dict[str, Dict[str, object]]:
         gold[did] = row
     return gold
 
-def load_pred(path: Path) -> Dict[str, Dict[str, object]]:
+# change signature:
+def load_pred(path: Path) -> Tuple[Dict[str, Dict[str, object]], Dict[str, float]]:
     data = json.loads(path.read_text(encoding="utf-8"))
     pred: Dict[str, Dict[str, object]] = {}
+    latency_ms: Dict[str, float] = {}
+
     for d in data:
         ans = d.get("answers", {}) or {}
         row: Dict[str, object] = {}
@@ -135,10 +138,37 @@ def load_pred(path: Path) -> Dict[str, Dict[str, object]]:
                 else:
                     s = str(v).strip()
                     row[fid] = s if s else None
+
+        # validate date
         if isinstance(row.get("incidentDate"), str) and not DATE_RE.match(row["incidentDate"]):  # type: ignore
             row["incidentDate"] = None
+
+        # ⬇️ capture latency
+        lat = d.get("meta", {}).get("timing", {}).get("duration_ms")
+        if isinstance(lat, (int, float)) and np.isfinite(lat):
+            latency_ms[d["id"]] = float(lat)
+
         pred[d["id"]] = row
-    return pred
+
+    return pred, latency_ms
+
+
+
+def compute_latency_stats(latency_ms: Dict[str, float]) -> Dict[str, float]:
+    if not latency_ms:
+        return {"count": 0, "mean": 0.0, "median_p50": 0.0, "p90": 0.0, "p95": 0.0, "p99": 0.0, "min": 0.0, "max": 0.0}
+    arr = np.array(list(latency_ms.values()), dtype=float)
+    return {
+        "count": int(arr.size),
+        "mean": float(arr.mean()),
+        "median_p50": float(np.percentile(arr, 50)),
+        "p90": float(np.percentile(arr, 90)),
+        "p95": float(np.percentile(arr, 95)),
+        "p99": float(np.percentile(arr, 99)),
+        "min": float(arr.min()),
+        "max": float(arr.max()),
+    }
+
 
 # ------------------------
 # Embedding scorer
@@ -282,10 +312,14 @@ def main():
 
     print("Loading gold standard...")
     gold = load_gold(Path(args.gold))
+
     print("Loading predictions...")
-    pred = load_pred(Path(args.pred))
+    pred, latency = load_pred(Path(args.pred))
 
     results = evaluate(gold, pred, embed_model=args.embed_model, show_matches=args.show_matches)
+
+    # ⬇️ attach latency summary
+    results["latency_ms"] = compute_latency_stats(latency)
 
     print("\n" + "="*50)
     print("EVALUATION RESULTS")
