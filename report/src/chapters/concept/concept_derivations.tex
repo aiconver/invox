@@ -1,0 +1,42 @@
+\section{Concept Derivation from Analysis Results}
+\label{sec:concept-derivation}
+
+The conceptual design of the Invox system is derived systematically from the six requirements identified in Section~\ref{sec:requirements} and the gaps observed in existing approaches reviewed in Section~\ref{sec:related-work}. This section traces how each architectural decision directly addresses specific limitations in current template-filling systems, establishing the rationale for a modular, multi-agent design.
+
+\subsection{From Monolithic to Modular Processing}
+\label{subsec:monolithic-to-modular}
+
+The analysis in Section~\ref{sec:related-work} revealed that monolithic approaches—where a single LLM performs extraction, normalization, and validation in one inference step—suffer from three fundamental weaknesses. First, they propagate errors across stages without providing mechanisms for localized recovery \cite{sun2023slot}. When entity recognition fails, subsequent field mapping inherits these errors, compounding inaccuracies. Second, they lack transparency: users cannot trace which part of the input led to which output, making error diagnosis difficult and undermining trust \cite{ribeiro2016should}. Third, they provide no intermediate points for user intervention, forcing corrections to be applied post-hoc rather than during processing \cite{amershi2019guidelines}.
+
+These observations directly motivate the decomposition of the template-filling task into discrete, sequential stages. By separating transcription, retrieval, extraction, normalization, and verification into dedicated agents, the system gains three critical capabilities. Errors can be isolated to specific stages, allowing targeted debugging and recovery without reprocessing the entire pipeline. Intermediate outputs become visible and editable, supporting both transparency (R3) and user correction (R4). Finally, individual agents can be improved or replaced independently, enabling iterative refinement without destabilizing the overall architecture.
+
+\subsection{Addressing Consistency Through Dedicated Normalization}
+\label{subsec:consistency-normalization}
+
+Requirement R1 demands that heterogeneous inputs—whether informal speech transcripts, chat messages, or multilingual notes—be transformed into uniform, comparable template entries. Existing generative systems often produce stylistically inconsistent outputs because the same model is responsible for both content extraction and format enforcement \cite{huang2024authorship}. This dual responsibility introduces variance: one inference may produce "08/16/2025" while another outputs "August 16, 2025" for the same date, even when guided by identical prompts.
+
+The solution is to delegate normalization to a specialized Consistency Formatting (CF) agent that operates independently of extraction. Once the Information Extraction (IE) agent proposes candidate values, CF applies deterministic transformations—date standardization, entity canonicalization, and vocabulary alignment—ensuring that all outputs conform to predefined schemas. This separation ensures that extraction logic remains focused on identifying correct content, while formatting logic enforces structural and stylistic uniformity. The result is higher consistency across diverse inputs, directly satisfying R1.
+
+\subsection{Retrieval-Augmented Generation for Domain Adaptation}
+\label{subsec:rag-domain-adaptation}
+
+Requirement R2 emphasizes robust information extraction under noisy, incomplete, and domain-specific conditions. Section~\ref{sec:related-work} showed that zero-shot LLMs struggle with specialized terminology, abbreviations, and implicit references common in industrial and healthcare contexts \cite{wang2021spoken}. While few-shot prompting improves performance, manually curating examples for every deployment scenario is impractical and does not scale across domains \cite{wei2022emergent}.
+
+This motivates the introduction of a Retrieval-Augmented Generation (RAG) agent positioned between transcription and extraction. The RAG agent queries an indexed corpus of historical templates and domain glossaries, retrieving the $k$ most semantically similar examples for the current input. These examples are passed to the IE agent as dynamic few-shot context, grounding its reasoning in domain-specific patterns without requiring manual prompt engineering. This design directly supports R2 by improving extraction accuracy on specialized vocabulary, and also contributes to R5 (learning and adaptation) by leveraging organizational knowledge accumulated over time.
+
+\subsection{Verification for Completeness and Cross-Field Consistency}
+\label{subsec:verification-consistency}
+
+Existing template-filling systems rarely validate their own outputs. Once fields are populated, the result is presented to the user without checking for missing required fields, contradictory values, or schema violations \cite{sun2023slot}. This places the entire verification burden on the user, increasing workload and reducing trust.
+
+The Verification (VER) agent addresses this gap by performing three types of checks after normalization. Completeness checks ensure that all required fields have been populated or explicitly marked as unavailable. Cross-field consistency checks detect contradictions, such as an incident date that falls outside the reported shift time. Confidence scoring highlights uncertain extractions, directing user attention to fields most likely to require correction. When issues are detected, VER can trigger a clarification loop, prompting the user for additional input before re-applying CF and VER on the updated values. This design supports R3 (transparency) by making verification criteria explicit, and R4 (user correction) by enabling targeted intervention.
+
+\subsection{Modularity as a Foundation for Flexibility}
+\label{subsec:modularity-flexibility}
+
+The evaluation in Section~\ref{subsec:limitations} demonstrated that no single existing system satisfies all six requirements simultaneously. Systems optimized for accuracy often sacrifice latency \cite{park2023generative}, while those prioritizing speed compromise on transparency or adaptability \cite{google2024langextract}. This trade-off is inherent to monolithic designs, where architectural choices are baked into a single model and cannot be adjusted post-deployment.
+
+The modular pipeline enables flexible deployment strategies without changing the underlying components. The same five agents can be orchestrated in multiple ways: as a sequential single-pass system for low-latency scenarios, as an iterative slot-parallel architecture for higher accuracy, or as a multi-model consensus mechanism for critical applications where reliability outweighs cost. Section~\ref{sec:architectural-strategies} formalizes these strategies and analyzes their trade-offs. This flexibility directly addresses R6 (usability) by allowing latency constraints to guide strategy selection, while preserving modularity for future improvements.
+
+
+This section summarizes how each architectural decision maps to the requirements established in Chapter~\ref{chap:analysis}. The modular design is not an arbitrary choice, but a direct consequence of the limitations observed in existing work and the operational constraints of real-world deployment contexts. The next section details the five agents that instantiate this design, specifying their inputs, outputs, and internal processing logic.

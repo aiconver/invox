@@ -1,0 +1,41 @@
+\section{System Workflow}
+\label{sec:system-workflow}
+
+This section describes the operational workflow of the Invox system, tracing the transformation of unstructured input into verified structured templates. The workflow implements the conceptual pipeline from Chapter~\ref{chap:concept} through a sequence of processing stages with user-driven quality control.
+
+\subsection*{End-to-End Processing Flow}
+
+The system workflow begins with user input and proceeds through six sequential stages:
+
+\begin{enumerate}
+    \item \textbf{Input Reception}: Users provide input through speech (audio recording) or direct text entry via the web interface. The system accepts both modalities and routes them appropriately through the processing pipeline.
+    
+    \item \textbf{Speech Recognition}: For audio inputs, the system invokes the Whisper ASR service to generate transcripts with confidence scores and timestamps. Text inputs proceed directly to the next stage.
+    
+    \item \textbf{Context Retrieval}: The RAG agent queries the vector database to retrieve the most relevant historical templates and examples, providing contextual guidance for the extraction process.
+    
+    \item \textbf{Information Extraction}: Based on the selected strategy (S1–S4), the system processes the input:
+    \begin{itemize}
+        \item \textbf{S1 (Single LLM)}: A single language model extracts all template fields in one pass
+        \item \textbf{S2 (Slot-wise)}: Multiple LLM calls extract each field independently  
+        \item \textbf{S3/S4 (Multi-LLM)}: Multiple models generate candidate answers, with a dedicated judge LLM selecting the optimal response through comparative analysis
+    \end{itemize}
+    
+    \item \textbf{Consistency Enforcement}: The CF agent normalizes dates to ISO format, standardizes entity names, and enforces schema compliance through deterministic transformation rules.
+    
+    \item \textbf{Quality Assessment and Presentation}: The system assigns confidence scores to each extracted field and presents the complete template to the user for review and potential correction.
+\end{enumerate}
+
+\subsection*{User-Driven Quality Control}
+
+The system employs a user-in-the-loop approach where quality assurance is primarily driven by human judgment:
+
+\textbf{Confidence-Based Presentation}: Fields with lower confidence scores are visually highlighted, directing user attention to potentially problematic extractions.
+
+\textbf{Multi-Model Decision Making}: In strategies S3 and S4, the judge LLM evaluates candidate answers from multiple models, selecting the most appropriate response based on coherence, accuracy, and alignment with the input context.
+
+\textbf{User-Initiated Reprocessing}: If users are unsatisfied with results, they can modify their input and resubmit for reprocessing, creating an iterative refinement cycle driven by human assessment rather than automated detection.
+
+\subsection*{Knowledge Accumulation}
+
+Successfully processed templates are indexed in the vector database, enabling the RAG agent to leverage an expanding knowledge base for improved context retrieval in future processing cycles.

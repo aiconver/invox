@@ -1,26 +1,42 @@
 \section{Technology Stack and Rationale}
+\label{sec:tech-stack}
 
-The implementation of the \textit{Invox} system required a careful analysis and choice of technologies that could support the modular multi-agent pipeline while ensuring scalability, reliability, and ease of development. The final stack combines modern web frameworks, robust database solutions, authentication infrastructure, and state-of-the-art language models. This section provides a detailed description of the selected components and the rationale behind each choice.
+The implementation of the \textit{Invox} system employs a modular monolith architecture that balances development simplicity with operational flexibility. The core application executes as a single Node.js service containing all five agents, while specialized components such as vector search and embedding generation operate as external services. This hybrid approach preserves the benefits of modular design while avoiding the operational complexity typically associated with fully distributed microservice deployments \cite{fowler2015monolith,microservices_newman}.
 
-\subsection*{Backend}
-The backend of the system is implemented in \textbf{Node.js} using the \textbf{Express} framework. Node.js was selected for its non-blocking I/O model and its strong ecosystem for building scalable web services. Express provides a lightweight but extensible framework for defining routes and middleware, making it suitable for orchestrating the different agents of the pipeline.  
+\subsection*{Architecture Pattern: Modular Monolith with External Services}
 
-To achieve type-safe and efficient communication between the frontend and backend, the system employs \textbf{tRPC}. Unlike traditional REST APIs, which require separate schema definitions and validation, tRPC enables end-to-end type safety by sharing type definitions between client and server. This reduces boilerplate code, minimizes runtime errors, and supports rapid iteration during development. All inter-agent messages and client–server interactions are exchanged in \textbf{JSON} format to maintain a consistent and human-readable structure.
+The system follows a modular monolith pattern in which all agents (STT, RAG, IE, CF, VER) are implemented as cohesive modules within a single Node.js application. This design choice offers several advantages: a unified codebase that reduces coordination overhead, simplified debugging, and consistent versioning across agents. In-process inter-agent communication minimizes latency compared to network-based microservices, while modularity is maintained through well-defined interfaces that preserve separation of concerns.
 
-\subsection*{Frontend}
-The user interface is developed in \textbf{React}, a widely adopted library for building modular, component-based web applications. React’s virtual DOM and state management features make it suitable for rendering dynamic content such as structured templates and extracted fields. The system integrates the \textbf{shadcn/ui} library to provide a set of modern, accessible, and customizable UI components. This reduces frontend development effort while ensuring a consistent design language across the application.
+External specialized services are integrated via network calls. \textbf{OpenSearch} provides vector similarity search, accessible through \texttt{http://opensearch:9200}; a dedicated embedding service generates dense vector representations; and external LLM APIs (OpenAI, Google) handle model inference. This hybrid approach leverages specialized infrastructure where necessary, while retaining the core template-filling logic within a unified application \cite{opensearch_knn}.
 
-\subsection*{Database}
-For persistent storage, the system relies on \textbf{PostgreSQL}, a relational database well-suited for handling structured data with complex relationships. The slot-filling task in MUC-4 maps naturally to relational structures, where fields such as incident type, date, location, and perpetrator can be represented as structured columns or as \texttt{JSONB} objects when more flexibility is required. To facilitate schema definition and object mapping, the system uses the \textbf{Sequelize} ORM. Sequelize simplifies database migrations, ensures secure query generation, and abstracts away low-level SQL operations, which accelerates development without sacrificing control.
+\subsection*{Containerization and Deployment}
 
-\subsection*{Authentication}
-Authentication and role-based access control are managed through \textbf{Keycloak}, an open-source identity and access management system. Keycloak supports OAuth2 and OpenID Connect, enabling secure integration with the backend and frontend. It provides essential features such as single sign-on, token-based authentication, and fine-grained role assignment. This is particularly relevant in collaborative scenarios where different roles (e.g., system administrators, annotators, or evaluators) require distinct levels of access to system functionality.
+The entire system is containerized using \textbf{Docker}. The main application runs in a single container, ensuring a consistent runtime environment across development and production. Containerization simplifies dependency management, enables horizontal scaling through replication, and facilitates seamless integration with external services. \textbf{Docker Compose} orchestrates the multi-service deployment, coordinating the main application container alongside OpenSearch and other dependencies \cite{docker_docs}.
 
-\subsection*{Language Models and AI Services}
-The system integrates multiple large language model services to support different stages of the pipeline. \textbf{OpenAI Whisper} is used for automatic speech recognition, ensuring that spoken inputs are reliably converted into textual transcripts. For information extraction, both \textbf{ChatGPT (OpenAI)} and \textbf{Gemini (Google)} are employed. ChatGPT provides high-quality natural language understanding, while Gemini introduces diversity and enables ensemble or consensus-based strategies. The integration of multiple models reflects the modular philosophy of the system, allowing experimentation with single-model and multi-model approaches as outlined in the conceptual strategies.
+\subsection*{Backend Implementation}
 
-\subsection*{Development Environment and Tooling}
-Development was carried out using \textbf{Visual Studio Code} as the primary integrated development environment, chosen for its extensibility and strong ecosystem of plugins for JavaScript, TypeScript, and Node.js development. \textbf{Postman} was employed for testing and debugging API endpoints during backend development. Version control and project organisation followed a \textbf{monorepo} structure under Git, where backend, frontend, and database components are maintained as submodules. This organisation simplifies dependency management, enforces coherence across components, and supports streamlined deployment.
+The backend is implemented in \textbf{Node.js} with \textbf{Express}, providing a robust foundation for the agent pipeline. The system employs the \textbf{Vercel AI SDK} to realize a plugin-like architecture for LLM integration. This abstraction enables seamless switching between AI providers (OpenAI, Google, Anthropic), simplifies the addition of new models with minimal code changes, and future-proofs the system against the rapid evolution of the AI ecosystem \cite{llm_orchestration_survey}. Type-safe communication between frontend and backend is achieved through \textbf{tRPC}, while \textbf{JSON} serves as a flexible exchange format for inter-agent communication.
 
-\subsection*{Rationale}
-The chosen stack reflects a balance between robustness, modularity, and experimental flexibility. Node.js with Express provides a reliable foundation for the backend, React enables dynamic and modular frontend design, and PostgreSQL ensures robust handling of structured template data. Keycloak secures the system through modern authentication standards, while Whisper, ChatGPT, and Gemini provide state-of-the-art natural language processing capabilities. The integration of these components allows the conceptual architecture to be realised in a practical, extensible system that supports experimentation with different extraction and verification strategies.
+\subsection*{External Service Integration}
+
+\textbf{OpenSearch} functions as the vector database for the RAG agent, enabling efficient semantic search over historical templates. A dedicated embedding generation service produces dense vector representations, which underpin similarity matching. Both services expose \textbf{REST APIs}, maintaining clear service boundaries while enabling specialized functionality \cite{opensearch_knn}.
+
+\subsection*{Frontend Interface}
+
+The user interface is implemented in \textbf{React}, selected for its component-based architecture that aligns naturally with the modular design of the template-filling system. React's virtual DOM and state management capabilities enable efficient rendering of dynamic content, such as structured templates and extracted fields with confidence indicators.
+
+To ensure modern and accessible UI design, the system integrates the \textbf{shadcn/ui} component library. This provides reusable, consistent components with built-in design principles, thereby reducing frontend development overhead while ensuring a professional user experience for template review and correction workflows.
+
+\subsection*{Data Persistence and Retrieval}
+
+Persistent storage is provided by \textbf{PostgreSQL}, a relational database well-suited for structured data with complex relationships. The MUC-4 template schema maps naturally onto relational structures: fields such as incident type, date, and location are represented as structured columns, while more flexible attributes are stored in \texttt{JSONB} to allow schema evolution \cite{postgresql_jsonb}.
+
+The \textbf{Sequelize} ORM is employed for schema definition, object mapping, secure query generation, and migration management. For vector similarity search, \textbf{OpenSearch} with the \texttt{knn} plugin enables efficient retrieval of relevant historical templates using dense embeddings \cite{opensearch_knn}.
+
+\subsection*{Authentication and Security}
+
+Authentication and role-based access control are managed via \textbf{Keycloak}, an open-source identity and access management solution supporting OAuth2 and OpenID Connect \cite{rfc6749,openid_connect}. Keycloak ensures secure integration with backend services and allows fine-grained role assignments—essential for collaborative workflows in which different users require distinct levels of access to system functionality.
+
+\subsection*{Architecture Rationale}
+
+The modular monolith pattern was chosen as a pragmatic balance between simplicity and flexibility. It combines the development velocity of a monolith with the architectural clarity of modular design \cite{fowler2015monolith}. The plugin-oriented LLM integration enabled by the Vercel AI SDK ensures adaptability to new models and capabilities as the field evolves, while containerized deployment guarantees reliable operation at scale. This architecture thereby provides a future-proof, maintainable, and efficient foundation for the \textit{Invox} system.

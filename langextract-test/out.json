@@ -1,118 +1,296 @@
 [
   {
-    "id": "TST2-MUC4-0068",
+    "id": "TST2-MUC4-0001",
     "meta": {
       "model_id": "gemini-2.5-flash"
     },
     "answers": {
-      "PerpOrg": [
-        "GUATEMALAN ARMY",
-        "ARMY"
-      ],
-      "PerpInd": [
-        "GUATEMALAN ARMY TROOPS",
-        "SOLDIERS",
-        "MILITARY OFFICIALS",
-        "NORTHEASTERN COBAN BASE TROOPS",
-        "ARMY TROOPS",
-        "TROOPS"
-      ],
       "Victim": [
-        "PEASANTS",
-        "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS",
-        "CIVILIAN PATROL",
-        "INDIAN PEASANTS",
-        "PAC PATROL",
-        "CIVILIAN PATROL UNIT",
-        "CIVILIANS",
-        "PAC UNITS",
-        "PAC"
-      ],
-      "Target": [
-        "REBEL COLUMN",
-        "REBEL GROUP",
-        "REBEL UNIT"
+        "SPANISH JESUITS"
       ]
     }
   },
   {
-    "id": "TST2-MUC4-0044",
+    "id": "TST2-MUC4-0002",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Target": [
+        "SALVADORAN CONSULATE",
+        "SALVADORAN EMBASSY BUILDING",
+        "NEARBY STRUCTURES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0003",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "PerpInd": [
+        "A TERRORIST",
+        "RUTH ESPERANZA AGUILAR MARROQUIN",
+        "SANDRA",
+        "THE WOMAN",
+        "JENNIFER CASOLO",
+        "TERRORIST LEADER FERNANDO",
+        "CASOLO",
+        "FERNANDO",
+        "AN INDIVIDUAL KNOWN AS MINCHO",
+        "MINCHO",
+        "THE PRISONER",
+        "AGUILAR'S CHIEF, KNOWN AS MIRIAM",
+        "MIRIAM",
+        "OTHER TERRORISTS"
+      ],
+      "PerpOrg": [
+        "ERP [PEOPLE'S REVOLUTIONARY ARMY]",
+        "ERP",
+        "AN URBAN COMMANDO CALLED WORKERS JUSTICE COMMAND",
+        "WORKERS JUSTICE COMMAND",
+        "URBAN COMMANDOS"
+      ],
+      "Target": [
+        "AN URBAN PUBLIC BUS",
+        "A GROUP OF STUDENTS",
+        "BUSES",
+        "TELEPHONE DISTRIBUTION BOXES",
+        "POWER PYLONS",
+        "MILITARY GARRISONS"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0004",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Weapon": [
+        "POWERFUL DYNAMITE CHARGE",
+        "PACKAGE",
+        "THE CHARGE",
+        "BOMB"
+      ],
+      "Target": [
+        "AMERICAN EMBASSY",
+        "ALL BUILDINGS ON THE BLOCK",
+        "WINDOWS OF THE BUILDINGS ON THE BLOCK",
+        "U.S. EMBASSY",
+        "THE SHELVES OF A BOOK STORE",
+        "THE \"PEOPLE'S PERUVIAN BANK,\"",
+        "THE STATE BANK",
+        "THE MARISCAL BALLIVIAN BUILDING",
+        "OTHER SHOPS",
+        "PLANT POTS",
+        "U.S. EMBASSY"
+      ],
+      "PerpInd": [
+        "AN UNIDENTIFIED PERSON",
+        "THE \"ZARATE WILLKA ARMED FORCES OF LIBERATION,\"",
+        "THE \"ZARATE WILLKA\" GROUP"
+      ],
+      "Victim": [
+        "BOLIVIANS"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0007",
     "meta": {
       "model_id": "gemini-2.5-flash"
     },
     "answers": {
       "Victim": [
-        "FIVE VENEZUELAN SOLDIERS",
-        "FIVE GUARDS",
-        "FIVE SOLDIERS"
+        "20 PERSONS",
+        "APPROXIMATELY 100"
       ],
       "PerpInd": [
-        "COLOMBIAN GUERRILLAS",
-        "DRUG TRAFFICKING GANGS",
-        "COLOMBIAN DRUG TRAFFICKING GANGS",
-        "MEMBERS OF THE COLOMBIAN GUERRILLAS",
-        "FIVE ALLEGED COLOMBIAN GUERRILLAS",
-        "THE ATTACKERS"
-      ],
-      "Target": [
-        "NATIONAL GUARD PATROL",
-        "NATIONAL GUARD JEEP",
-        "MILITARY VEHICLE"
+        "TERRORISTS ON THE DRUG CARTEL'S PAYROLL",
+        "SUBVERSIVES",
+        "ESCOBAR GAVIRIA"
       ],
       "Weapon": [
-        "VERY POWERFUL EXPLOSIVES",
-        "EXPLOSIVES"
-      ]
-    }
-  },
-  {
-    "id": "TST2-MUC4-0055",
-    "meta": {
-      "model_id": "gemini-2.5-flash"
-    },
-    "answers": {
-      "Victim": [
-        "HECTOR DELGADO PARKER",
-        "DELGADO'S DRIVER",
-        "DELGADO'S BODYGUARD",
-        "THE KIDNAPPED BUSINESSMAN"
-      ],
-      "PerpInd": [
-        "HIS KIDNAPPERS",
-        "COMMANDO",
-        "MRTA ACTIVISTS"
-      ],
-      "PerpOrg": [
-        "PRO-CHE GUEVARA GROUP TUPAC AMARU REVOLUTIONARY MOVEMENT",
-        "MRTA"
-      ]
-    }
-  },
-  {
-    "id": "TST2-MUC4-0061",
-    "meta": {
-      "model_id": "gemini-2.5-flash"
-    },
-    "answers": {
-      "PerpOrg": [
-        "ORGANIZED CRIMINALS"
-      ],
-      "Victim": [
-        "NATIONAL POLICE OFFICERS",
-        "SERGEANT CARLOS JULIO BONILLA",
-        "CORPORAL LUIS ALBERTO CHAVEZ",
-        "POLICEMEN"
-      ],
-      "PerpInd": [
-        "CRIMINALS",
-        "PAID ASSASINS",
-        "ARMED INDIVIDUALS",
-        "INDIVIDUALS IN A BLUE RENAULT 12"
+        "EXPLOSION",
+        "CAR BOMB",
+        "300 KG OF DYNAMITE"
       ],
       "Target": [
-        "NEWSPAPER EL SIGLO'S FACILITIES",
-        "THE MEDIA",
-        "THE FACILITIES"
+        "A TRUCK FULL OF POLICEMEN",
+        "SEVERAL PUBLIC BUSES",
+        "HOUSES",
+        "BUSINESSES",
+        "THE ELITE FORCE PATROL"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0008",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Victim": [
+        "DEATHS AND WOUNDED"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0010",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Target": [
+        "A NEWSPAPER"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0011",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Victim": [
+        "SIX JESUIT PRIESTS",
+        "JESUITS"
+      ],
+      "PerpInd": [
+        "ONE COLONEL",
+        "TWO LIEUTENANTS",
+        "SIX SOLDIERS",
+        "COLONEL GUILLERMO ALFREDO BENAVIDES MORENO"
+      ],
+      "PerpOrg": [
+        "GUERRILLA"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0012",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Victim": [
+        "JECAR NEGHME, SPOKESMAN OF THE MIR [MOVEMENT OF THE REVOLUTIONARY LEFT]",
+        "JECAR NEGHME"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0013",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Target": [
+        "A SMALL ECUADORAN FLAGSHIP WORKING WITH THE IMANCO MINING COMPANY"
+      ],
+      "PerpOrg": [
+        "A COLOMBIAN VESSEL",
+        "COLOMBIAN MILITARY"
+      ],
+      "Victim": [
+        "U.S. CITIZEN SCOTT HEYNDAL",
+        "ECUADOREANS LUIS ANTONIO MENESES BENAVIDES",
+        "EDWIN RODRIGO TENEDA PARRENO",
+        "COLOMBIAN PILOT JULIO TORRES",
+        "MR. TORRES",
+        "MR. MENESES",
+        "HEYNDAL",
+        "TENEDA",
+        "MR. HEYNDAL",
+        "MR. TENEDA"
+      ],
+      "PerpInd": [
+        "THE ATTACKERS"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0015",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Target": [
+        "SEVEN BANK BRANCH OFFICES",
+        "THE BANCO CAFETERO BRANCHES AND ITS OFFICES"
+      ],
+      "Weapon": [
+        "EXPLOSIVES",
+        "OVER 55 KG OF DYNAMITE",
+        "ANOTHER 20 KG OF EXPLOSIVES"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0017",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "Weapon": [
+        "TRUCK-BOMB",
+        "TRUCK RIGGED WITH DYNAMITE",
+        "DYNAMITE"
+      ],
+      "Target": [
+        "FEDERAL POLICE BUILDING"
+      ],
+      "Victim": [
+        "23 PEOPLE",
+        "1,000"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0018",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "PerpOrg": [
+        "FARABUNDO MARTI NATIONAL LIBERATION FRONT [FMLN]"
+      ],
+      "PerpInd": [
+        "OUR COMRADES",
+        "OUR FIGHTERS",
+        "FMLN FIGHTERS",
+        "ASSASSINS OF MSGR ROMERO",
+        "COMRADE FIGHTERS",
+        "COMRADES"
+      ],
+      "Victim": [
+        "MSGR ROMERO",
+        "THE PEOPLE IN THE NEIGHBORHOODS IN SAN SALVADOR CITY"
+      ]
+    }
+  },
+  {
+    "id": "TST2-MUC4-0019",
+    "meta": {
+      "model_id": "gemini-2.5-flash"
+    },
+    "answers": {
+      "PerpOrg": [
+        "FARABUNDO MARTI NATIONAL LIBERATION FRONT'S [FMLN]",
+        "REBELS",
+        "FMLN",
+        "FMLN REBELS"
+      ],
+      "Victim": [
+        "SALVADORANS",
+        "NATIONAL FIRE DEPARTMENT DIRECTOR COLONEL ROBERTO ARMANDO RIVERA ESCOBAR",
+        "DEFENSELESS CITIZENS"
+      ],
+      "PerpInd": [
+        "TETRORISTS",
+        "THE TERRORISTS"
       ]
     }
   },
@@ -124,8 +302,8 @@
     "answers": {
       "Victim": [
         "107 DISFIGURED BODIES",
-        "FIVE INFORMERS",
-        "VICTIMS"
+        "THE VICTIMS",
+        "FIVE INFORMERS"
       ],
       "Target": [
         "AVIANCA'S BOEING 727",

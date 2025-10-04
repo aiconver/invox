@@ -1,151 +1,205 @@
-\section{Strategy Realisation}
+\section{Strategy Implementation}
 \label{sec:impl-strategies}
 
-The four strategies introduced in Section~\ref{sec:arch-strategies} are realised by selecting different orchestration paths through the common agent interfaces. While the JSON contracts remain identical across strategies, the order, multiplicity, and verification steps differ. This section outlines how each strategy is executed in the implementation.
+This section details the technical realization of the four architectural strategies introduced in Section~\ref{sec:architectural-strategies}. While the conceptual trade-offs were established previously, this section focuses on the concrete implementation patterns, code organization, and execution flows that differentiate each strategy in practice.
 
-% ========================
-\subsection*{Strategy S1: Single-Pass Extraction}
+\subsection{S1 Implementation: Single-Pass Full-Input}
+\label{subsec:impl-s1}
 
-\textbf{Overview.}  
-The orchestrator performs a single \texttt{ie.extract} call (mode=\texttt{full}) after transcription. No explicit consistency or verification is applied; the output of IE is written directly as the structured template.
+The S1 strategy is implemented through the \texttt{singleLlmAllField} function, which orchestrates a linear pipeline with minimal branching.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.45\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners=2pt, thick, minimum width=46mm,
-              minimum height=11mm, align=center, fill=blue!7},
-  arrow/.style={-Latex, thick}, node distance=10mm
-]
-\node[box] (stt) {STT (\texttt{stt.transcribe})};
-\node[box, below=of stt] (ie) {IE (\texttt{ie.extract}, full)};
-\node[box, below=of ie] (out) {Structured Template};
-
-\draw[arrow] (stt) -- (ie);
-\draw[arrow] (ie) -- (out);
-\end{tikzpicture}%
+\textbf{Execution Flow:}
+\begin{verbatim}
+// Core S1 implementation
+export async function singleLlmAllField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  // 1. Combine transcripts
+  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  
+  // 2. Retrieve few-shot examples
+  const fewShots = await getFewShotsFromTranscript(combinedTranscript, fields, 3);
+  
+  // 3. Single LLM call for all fields
+  const schema = z.object(/* comprehensive field schema */);
+  const result = await generateObject({
+    model: openai(modelName),
+    schema,
+    prompt: buildComprehensivePrompt(fields, oldText, newText, fewShots),
+  });
+  
+  // 4. Process results
+  const filled = processAllFields(result.object, fields, currentValues);
+  const verified = await runVerifier(combinedTranscript, fields, filled);
+  
+  return { filled: verified, model: modelName, transcript: transcriptData };
 }
-\caption{S1 – Single-pass extraction.}
-\end{figure}
+\end{verbatim}
 
-\textbf{Notes.}  
+\textbf{Key Implementation Characteristics:}
 \begin{itemize}
-  \item Fastest: one LLM call after STT.  
-  \item Fragile: any misclassification (e.g., “injured” vs “killed”) persists uncorrected.  
+    \item \textbf{Single Schema Definition:} One Zod schema encompassing all template fields
+    \item \textbf{Unified Prompt Construction:} Single prompt containing all field definitions and examples
+    \item \textbf{Batch Processing:} All fields processed simultaneously in normalization and verification
+    \item \textbf{Minimal Orchestration:} Straightforward sequential execution without parallelization logic
 \end{itemize}
 
-% ========================
-\subsection*{Strategy S2: Per-Slot Extraction}
+\subsection{S2 Implementation: Iterative Single-Field}
+\label{subsec:impl-s2}
 
-\textbf{Overview.}  
-The orchestrator calls \texttt{ie.extract} once per slot (mode=\texttt{slot}), in parallel where possible. Each field is independently predicted.
+The S2 strategy is implemented through \texttt{singleLlmOneField}, which introduces field-level parallelism and individual error handling.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.5\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
-              minimum height=11mm, align=center, fill=blue!7},
-  arrow/.style={-Latex, thick}, node distance=8mm
-]
-\node[box] (stt) {STT};
-\node[box, below=of stt] (q1) {IE: Extract Date};
-\node[box, below=of q1] (q2) {IE: Extract Location};
-\node[box, below=of q2] (q3) {IE: Extract Incident};
-\node[box, below=of q3] (q4) {IE: Extract Target / Perpetrator};
-\node[box, below=of q4] (merge) {Merge Slots $\rightarrow$ Template};
-
-\draw[arrow] (stt) -- (q1);
-\draw[arrow] (q1) -- (q2);
-\draw[arrow] (q2) -- (q3);
-\draw[arrow] (q3) -- (q4);
-\draw[arrow] (q4) -- (merge);
-\end{tikzpicture}%
+\textbf{Execution Flow:}
+\begin{verbatim}
+export async function singleLlmOneField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const fewShots = await getFewShotsFromTranscript(combinedTranscript, fields, 3);
+  
+  // Parallel field processing with individual error boundaries
+  const tasks = fields.map(field => 
+    runField({
+      field,
+      oldText, newText,
+      fewShots,
+      current: currentValues?.[field.id],
+      modelName,
+    }).catch(error => {
+      // Field-level error recovery
+      return [field.id, getFallbackField(field, currentValues)];
+    })
+  );
+  
+  const entries = await Promise.all(tasks);
+  return {
+    filled: Object.fromEntries(entries),
+    model: modelName,
+    transcript: transcriptData,
+  };
 }
-\caption{S2 – Per-slot extraction.}
-\end{figure}
+\end{verbatim}
 
-\textbf{Notes.}  
+\textbf{Key Implementation Characteristics:}
 \begin{itemize}
-  \item Parallel execution reduces latency but increases cost (one call per slot).  
-  \item Errors are isolated: a wrong date does not affect incident extraction.  
+    \item \textbf{Field-Specific Prompts:} Individual prompts per field with filtered few-shot examples
+    \item \textbf{Parallel Execution:} \texttt{Promise.all} for concurrent field processing
+    \item \textbf{Individual Error Boundaries:} Try-catch blocks around each field extraction
+    \item \textbf{Selective RAG Filtering:} Field-specific example selection from retrieved few-shots
 \end{itemize}
 
-% ========================
-\subsection*{Strategy S3: Single-Pass + Verification}
+\subsection{S3 Implementation: Multi-LLM Consensus}
+\label{subsec:impl-s3}
 
-\textbf{Overview.}  
-A full-template extraction (as in S1) is followed by \texttt{ver.verify}, which checks consistency, plausibility, and completeness. Low-confidence fields may trigger clarification.
+The S3 strategy is implemented through \texttt{dualLlmAllField}, introducing model-level parallelism and consensus verification.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.45\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
-              minimum height=11mm, align=center, fill=blue!7},
-  arrow/.style={-Latex, thick}, node distance=10mm
-]
-\node[box] (stt) {STT};
-\node[box, below=of stt] (ie) {IE (full)};
-\node[box, below=of ie] (ver) {Verification (VER)};
-\node[box, below=of ver] (out) {Verified Template};
-
-\draw[arrow] (stt) -- (ie);
-\draw[arrow] (ie) -- (ver);
-\draw[arrow] (ver) -- (out);
-\end{tikzpicture}%
+\textbf{Execution Flow:}
+\begin{verbatim}
+export async function dualLlmAllField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  // Parallel model execution
+  const [gptResult, geminiResult] = await Promise.all([
+    generateObject({ model: openai(gptModel), schema, prompt }),
+    generateObject({ model: google(geminiModel), schema, prompt })
+  ]);
+  
+  // Consensus verification
+  const verified = await runEnsembleVerifier({
+    combinedTranscript,
+    fields,
+    currentValues,
+    gpt: buildCandidate(gptResult.object, fields, currentValues),
+    gemini: buildCandidate(geminiResult.object, fields, currentValues),
+  });
+  
+  return {
+    filled: verified.filled,
+    model: `ensemble:${gptModel}+${geminiModel}`,
+    transcript: transcriptData,
+  };
 }
-\caption{S3 – Single-pass with verification.}
-\end{figure}
+\end{verbatim}
 
-\textbf{Notes.}  
+\textbf{Key Implementation Characteristics:}
 \begin{itemize}
-  \item Adds robustness by catching contradictions or implausible values.  
-  \item If VER detects issues, orchestration can re-invoke IE with hints.  
+    \item \textbf{Model Parallelism:} Concurrent execution of multiple LLM providers
+    \item \textbf{Consensus Engine:} Specialized verifier with judge LLM for candidate selection
+    \item \textbf{Decision Tracking:} Structured logging of model choices and rationales
+    \item \textbf{Provider Abstraction:} Unified interface for different model providers
 \end{itemize}
 
-% ========================
-\subsection*{Strategy S4: Per-Slot + Verification}
+\subsection{S4 Implementation: Multi-LLM Per-Field}
+\label{subsec:impl-s4}
 
-\textbf{Overview.}  
-Combines S2 (slot-wise extraction) with S3 (verification). Each slot is predicted independently and then verified.
+The S4 strategy is implemented through \texttt{multiLlmOneField}, combining field-level and model-level parallelism with granular consensus.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.55\linewidth}{!}{%
-\begin{tikzpicture}[
-  box/.style={draw, rounded corners=2pt, thick, minimum width=52mm,
-              minimum height=11mm, align=center, fill=blue!7},
-  arrow/.style={-Latex, thick}, node distance=8mm
-]
-\node[box] (stt) {STT};
-\node[box, below=of stt] (q1) {IE: Date};
-\node[box, below=of q1] (v1) {VER: Check Date};
-\node[box, below=of v1] (q2) {IE: Location};
-\node[box, below=of q2] (v2) {VER: Check Location};
-\node[box, below=of v2] (q3) {IE: Incident};
-\node[box, below=of q3] (v3) {VER: Check Incident};
-\node[box, below=of v3] (merge) {Merge Verified Slots $\rightarrow$ Template};
-
-\draw[arrow] (stt) -- (q1);
-\draw[arrow] (q1) -- (v1);
-\draw[arrow] (v1) -- (q2);
-\draw[arrow] (q2) -- (v2);
-\draw[arrow] (v2) -- (q3);
-\draw[arrow] (q3) -- (v3);
-\draw[arrow] (v3) -- (merge);
-\end{tikzpicture}%
+\textbf{Execution Flow:}
+\begin{verbatim}
+export async function multiLlmOneField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const results: [string, FilledField][] = [];
+  
+  // Sequential field processing (rate limit avoidance)
+  for (const field of fields) {
+    const entry = await runOneFieldWithEnsemble({
+      field,
+      oldText, newText,
+      fewShots,
+      current: currentValues?.[field.id],
+      gptModel, geminiModel, verifierModel,
+    });
+    results.push(entry);
+  }
+  
+  return {
+    filled: Object.fromEntries(results),
+    model: `ensemble-per-field:${gptModel}+${geminiModel}`,
+    transcript: transcriptData,
+  };
 }
-\caption{S4 – Per-slot extraction with verification.}
-\end{figure}
+\end{verbatim}
 
-\textbf{Notes.}  
+\textbf{Key Implementation Characteristics:}
 \begin{itemize}
-  \item Highest reliability: each slot is validated independently.  
-  \item Computationally most expensive. Best suited for high-stakes use cases.  
+    \item \textbf{Sequential Field Processing:} Rate-limited execution to avoid API throttling
+    \item \textbf{Per-Field Ensemble:} Multiple models per individual field
+    \item \textbf{Granular Verification:} Field-specific judge prompts for precise decision making
+    \item \textbf{Complex Error Handling:} Multi-level recovery for both field and model failures
 \end{itemize}
 
-% ========================
-\subsection*{Summary}
+\subsection{Strategy Orchestration Infrastructure}
+\label{subsec:impl-orchestration}
 
-The orchestrator can switch between strategies without altering agent implementations, as all share the same JSON contracts. This separation allows empirical evaluation of trade-offs between cost, accuracy, and robustness in later chapters.
+The strategy selection and execution is managed through a unified orchestrator that provides consistent interfaces across all approaches.
+
+\textbf{Orchestrator Interface:}
+\begin{verbatim}
+class StrategyOrchestrator {
+  async executeStrategy(
+    input: ProcessingRequest
+  ): Promise<FinalTemplate> {
+    const strategyImpl = this.getStrategyImplementation(input.strategy);
+    return await strategyImpl.execute(input);
+  }
+  
+  private getStrategyImplementation(strategy: Strategy): StrategyImplementation {
+    switch (strategy) {
+      case "S1": return new SinglePassStrategy();
+      case "S2": return new IterativeStrategy(); 
+      case "S3": return new MultiModelFullStrategy();
+      case "S4": return new MultiModelSlotStrategy();
+    }
+  }
+}
+\end{verbatim}
+
+\textbf{Common Infrastructure:}
+\begin{itemize}
+    \item \textbf{Unified Error Handling:} Consistent error types and recovery patterns across strategies
+    \item \textbf{Telemetry Integration:} Standardized logging of performance metrics and decision points
+    \item \textbf{Configuration Management:} Environment-based strategy configuration and model selection
+    \item \textbf{Result Serialization:} Consistent output formatting regardless of strategy complexity
+\end{itemize}
+
+The implementation maintains architectural consistency while allowing each strategy to optimize for different operational constraints, providing a flexible foundation for empirical evaluation across diverse deployment scenarios.

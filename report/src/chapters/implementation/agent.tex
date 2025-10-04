@@ -1,198 +1,265 @@
 \section{Agent Implementation}
 \label{sec:impl-agents}
 
-This section describes how the four agents are realised in the running system. Each agent exposes a small, explicit JSON contract and is orchestrated by the backend through type-safe \texttt{tRPC} procedures. The contracts are stable across all strategies (S1--S4) so that orchestration can vary without changing component boundaries.
+This section details the concrete implementation of each agent in the Invox system, covering their API contracts, processing logic, and integration patterns. Each agent exposes well-defined TypeScript interfaces and follows consistent error handling patterns. The implementation is designed to be domain-agnostic, supporting arbitrary template schemas across healthcare, manufacturing, administrative, and other domains.
 
-\subsection*{Interfaces and Data Contracts}
+\subsection{Speech-to-Text (STT) Agent}
+\label{subsec:impl-stt}
 
-Figure~\ref{fig:agent-io} shows the agent chain and the JSON artefacts exchanged between agents. Messages are immutable: each agent emits a new document rather than mutating inputs. This preserves traceability for debugging and evaluation.
+The STT agent provides a single entry point \texttt{transcribeForm} that converts audio inputs to structured transcripts using OpenAI's Whisper model.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.72\linewidth}{!}{%
-\begin{tikzpicture}[
-  every node/.style={font=\sffamily},
-  box/.style={draw, rounded corners=2pt, thick, minimum width=56mm, minimum height=12mm, align=center, fill=blue!7},
-  doc/.style={draw, rounded corners=2pt, thick, minimum width=56mm, minimum height=10mm, align=center, fill=gray!10},
-  arrow/.style={-Latex, thick},
-  node distance=10mm
-]
-\node[doc] (audio) {Audio JSON (\texttt{sourceUri}, \texttt{mimeType}, \texttt{durationMs})};
-\node[box, below=of audio] (stt) {STT};
-\node[doc, below=of stt] (tjson) {Transcript JSON (\texttt{text}, \texttt{segments[]}, \texttt{conf})};
-\node[box, below=of tjson] (ie) {Information Extraction (IE)};
-\node[doc, below=of ie] (cjson) {Candidates JSON (\texttt{slots\{\}}, \texttt{evidence[]})};
-\node[box, below=of cjson] (cf) {Consistency Formatting (CF)};
-\node[doc, below=of cf] (njson) {Normalised JSON (\texttt{slots\{\}}, canonical forms)};
-\node[box, below=of njson] (ver) {Verification (VER)};
-\node[doc, below=of ver] (vjson) {Verified JSON (\texttt{slots\{\}}, \texttt{confidence\{\}}, \texttt{issues[]})};
-
-\draw[arrow] (audio) -- (stt);
-\draw[arrow] (stt) -- (tjson);
-\draw[arrow] (tjson) -- (ie);
-\draw[arrow] (ie) -- (cjson);
-\draw[arrow] (cjson) -- (cf);
-\draw[arrow] (cf) -- (njson);
-\draw[arrow] (njson) -- (ver);
-\draw[arrow] (ver) -- (vjson);
-\end{tikzpicture}%
-}
-\caption{Agent interfaces and immutable JSON artefacts. Vertical layout, 90° connectors only.}
-\label{fig:agent-io}
-\end{figure}
-
-\paragraph{Common tRPC surface.}
-The backend exposes a small number of typed procedures:
-\begin{itemize}
-  \item \texttt{stt.transcribe(input: AudioSpec): Transcript}
-  \item \texttt{ie.extract(input: Transcript \textbar{} Text, mode: \{full, slot\}): Candidates}
-  \item \texttt{cf.normalise(input: Candidates): Normalised}
-  \item \texttt{ver.verify(input: Normalised \textbar{} Candidates, context?): Verified}
-\end{itemize}
-All payloads are JSON; TypeScript types are shared by client and server to guarantee end-to-end type safety.
-
-\medskip
-\noindent\textbf{Minimal JSON contracts} (abridged for readability):
-
+\textbf{API Contract:}
 \begin{verbatim}
-AudioSpec {
-  sourceUri: string, mimeType: "audio/wav"|"audio/mpeg", durationMs?: number
+interface TranscribeInput {
+  file: {
+    base64: string;         // Base64-encoded audio data
+    mimetype: string;       // "audio/wav" | "audio/mpeg" | "audio/m4a"
+    originalname: string;
+  };
 }
 
-Transcript {
-  text: string,
-  segments?: [{ start: number, end: number, text: string, conf?: number }],
-  meta?: { model: "whisper-1", lang?: string, conf?: number }
-}
-
-Candidates {
-  slots: {
-    date?: { value: string, span?: [start,end], conf?: number },
-    location?: { value: string, span?: [start,end], conf?: number },
-    incident?: { value: string, conf?: number },
-    casualties?: { injured?: number, killed?: number, conf?: number },
-    perpetrator?: { value: string, status: "suspected"|"confirmed"|"unknown", conf?: number }
-    // ...additional MUC-4 slots as needed
-  },
-  evidence?: [{ slot: string, quote: string, span?: [start,end] }]
-}
-
-Normalised = Candidates  // values canonicalised (date ISO-8601, names, enums)
-
-Verified {
-  slots: Candidates["slots"],                 // final values
-  confidence: { [slot: string]: number },     // 0..1
-  issues?: [{ slot: string, type: "missing"|"conflict"|"low_conf",
-              detail: string }],
-  decisions?: [{ rule: string, detail: string }]
+interface TranscribeResponse {
+  transcript: string;           // Full transcribed text
+  language: string;             // Detected language code (ISO 639-1)
+  durationInSeconds: number;    // Audio duration
+  segments?: Array<{            // Optional word-level timing
+    start: number;
+    end: number;
+    text: string;
+    confidence?: number;
+  }>;
 }
 \end{verbatim}
 
-\paragraph{Execution policy.} Orchestration selects the appropriate path per strategy (S1--S4) but always respects these contracts. For S1 the pipeline terminates after \texttt{ie.extract}; S2--S4 continue through CF and VER. Clarification (triggered by VER) re-invokes \texttt{ie.extract} (text) or \texttt{stt.transcribe} (speech) with refined hints.
+\textbf{Implementation:} The agent decodes Base64 audio data into buffers and invokes the Whisper API via the Vercel AI SDK. Long audio files (>25MB or >10 minutes) are automatically chunked with 10\% overlap to ensure context preservation at boundaries. The agent returns word-level timestamps and confidence scores when available, enabling downstream agents to trace extracted values back to specific audio segments. Failed transcriptions (e.g., due to excessive noise or unsupported formats) throw structured errors that the orchestrator can handle gracefully, either by requesting re-recording or falling back to manual text entry.
 
-\subsection*{Agent Details}
+\textbf{Configuration:} Temperature is set to 0 for deterministic output. Language detection is automatic unless overridden by the client. Voice activity detection (VAD) filters out silence and non-speech segments to improve accuracy.
+\subsection{Retrieval-Augmented Generation (RAG) Agent}
+\label{subsec:impl-rag}
 
-\paragraph{Speech-to-Text (STT).}
-\emph{Role.} Convert audio into text segments with timing and confidence.  
-\emph{Implementation.} The backend streams the uploaded audio (\texttt{audio/wav}, \texttt{audio/mpeg}) to Whisper via the provider SDK. Long files are chunked (fixed window with 10\% overlap) and reassembled using timestamps.  
-\emph{Endpoint.} \texttt{stt.transcribe(AudioSpec) → Transcript}.  
-\emph{Key options.} language autodetect; temperature $=0$ for determinism; vad to reduce non-speech.  
-\emph{Failure handling.} If average confidence $<\tau_{stt}$, VER may request a re-recording (speech clarification) in strategies that enable loops.
+The RAG agent implements semantic search over historical templates through the \texttt{getFewShotsFromTranscript} function, which retrieves contextually relevant examples to guide the information extraction process.
 
-\medskip
-\noindent\emph{Example output (excerpt):}
+\textbf{API Contract:}
 \begin{verbatim}
-{
-  "text": "On March 3, 1992, in Bogotá, a car bomb exploded ...",
-  "segments": [
-    {"start": 2.10, "end": 6.45, "text": "On March 3, 1992, in Bogotá", "conf": 0.94},
-    {"start": 6.46, "end": 12.02, "text": "a car bomb exploded outside the Ministry of Defense", "conf": 0.91}
-  ],
-  "meta": {"model":"whisper-1","lang":"en","conf":0.92}
+interface RAGInput {
+  transcript: string;           // Input text for similarity search
+  fields: FormTemplateField[];  // Target schema for field mapping
+  k?: number;                   // Number of examples (default: 5, max: 5)
+}
+
+interface FewShot {
+  text: string;                 // Truncated historical transcript
+  expected: Record<string, {    // Field ID → normalized value
+    value: unknown | null;
+    evidence?: { transcriptSnippet?: string };
+  }>;
 }
 \end{verbatim}
 
-\paragraph{Information Extraction (IE).}
-\emph{Role.} Map unstructured text to template slots.  
-\emph{Implementation.} The IE agent wraps LLM prompts for two modes:
-(i) \texttt{full} — one prompt to produce all slots; (ii) \texttt{slot} — one prompt per slot. Providers: OpenAI (ChatGPT) and Gemini. The agent enforces a JSON-only response with a strict schema and rejects non-parseable outputs (auto-reprompt with \emph{format-repair} instruction).  
-\emph{Endpoint.} \texttt{ie.extract(Transcript|Text, mode)}.  
-\emph{Prompt shape (abridged).}
-\begin{verbatim}
-SYSTEM: You extract MUC-4 template fields. Answer strictly as JSON
-  matching the provided schema. If unknown, set status="unknown".
-USER: <transcript text>
-SCHEMA: { "slots": { "date": {...}, "location": {...}, ... }, "evidence": [...] }
-\end{verbatim}
-\emph{Post-processing.} The agent attaches \texttt{evidence[]} spans (token indices) for traceability. In S3/S4 it returns $k$ candidates for consensus.
+\textbf{Implementation:} The agent generates dense vector embeddings using OpenAI's \texttt{text-embedding-3-large} model. A key implementation detail is the embedding generation process: the input text is prefixed with \texttt{templateId=\${TEMPLATE\_ID}} to create template-aware embeddings that improve retrieval relevance within specific template contexts.
 
-\medskip
-\noindent\emph{Example output (excerpt):}
+The agent performs k-nearest neighbor search using cosine similarity in OpenSearch with the \texttt{knn\_score} script. The search query filters results by template ID to ensure schema compatibility and uses a \texttt{script\_score} approach for efficient vector similarity computation.
+
+
+\textbf{Result Processing:} Retrieved documents undergo post-processing where transcript texts are truncated to a maximum character limit (default: 1200 characters) to maintain prompt efficiency. The \texttt{toExpectedShape} function maps raw database results to the expected field schema, ensuring that only fields present in the current template schema are included in the output.
+
+\textbf{Error Handling:} The implementation includes robust error handling for embedding generation failures and OpenSearch connectivity issues. If retrieval fails, the system gracefully falls back to zero-shot extraction, ensuring continuous operation despite temporary infrastructure problems.
+
+
+\subsection{Information Extraction (IE) Agent}
+\label{subsec:impl-ie}
+
+The IE agent implements four extraction strategies through unified functions corresponding to S1–S4. All strategies share a common preprocessing pipeline and differ only in their orchestration of LLM calls.
+
+\textbf{API Contract:}
 \begin{verbatim}
-{
-  "slots": {
-    "date": {"value": "3 March 1992", "span": [3, 7], "conf": 0.88},
-    "location": {"value": "Bogotá", "span": [9, 10], "conf": 0.86},
-    "incident": {"value": "car bombing", "conf": 0.84},
-    "casualties": {"injured": 25, "killed": 0, "conf": 0.77},
-    "perpetrator": {"value": "left-wing guerrilla group",
-                    "status": "suspected", "conf": 0.65}
-  },
-  "evidence": [{"slot":"perpetrator","quote":"Authorities suspect ..."}]
+interface IEInput {
+  oldTranscript?: string;       // Previous context (for incremental updates)
+  newTranscript: string;        // New user input (primary extraction source)
+  fields: FormTemplateField[];  // Schema definition
+  currentValues?: Record<string, CurrentFieldValue>;
+  strategy: "S1" | "S2" | "S3" | "S4";
+  fewShots?: RAGOutput['examples'];  // Retrieved examples from RAG
+  locale?: string;              // e.g., "en-US", "de-DE"
+  timezone?: string;            // e.g., "Europe/Berlin", "America/New_York"
+  templateId?: string;          // For logging and monitoring
+}
+
+interface CurrentFieldValue {
+  value: any;
+  locked?: boolean;             // If true, field is never overwritten
+  source?: "ai" | "manual";     // Origin of current value
+}
+
+interface IEOutput {
+  filled: Record<string, FilledField>;
+  model: string;                // Model identifier(s) used
+  confidence?: Record<string, number>;  // Per-field confidence [0,1]
+}
+
+interface FilledField {
+  value: any;
+  changed: boolean;             // Whether value differs from current
+  previousValue?: any;          // Only present if changed=true
+  source: "ai" | "manual";
+  confidence?: number;          // Optional: model's certainty estimate
 }
 \end{verbatim}
 
-\paragraph{Consistency Formatting (CF).}
-\emph{Role.} Canonicalise values and enforce schema invariants.  
-\emph{Implementation.} Deterministic mappers in Node (e.g., \texttt{luxon} for dates, dictionaries for country/city aliases, and regex normalisers). CF is intentionally non-stochastic for reproducibility; when normalisation is ambiguous (e.g., ``3/4/92''), CF emits an \texttt{issue} with alternatives for VER to resolve.  
-\emph{Endpoint.} \texttt{cf.normalise(Candidates) → Normalised}.  
-\emph{Rules (examples).}
-\begin{itemize}
-  \item Dates $\rightarrow$ ISO-8601 (\texttt{1992-03-03}); month names to numerals.
-  \item Locations: canonical city names; attach country if unambiguous.
-  \item Enumerations: incident types restricted to a closed set (e.g., \texttt{"bombing"}).
-  \item Text trims \& Unicode normalisation (NFC).
-\end{itemize}
+\textbf{Strategy Implementations:}
 
-\medskip
-\noindent\emph{Example output (diff to candidates):}
+\paragraph{S1: Single-Pass Full-Input (\texttt{singleLlmAllField})}
+Constructs a comprehensive prompt requesting all template fields simultaneously. The prompt includes task instructions emphasizing extraction from \texttt{newTranscript} only, few-shot examples from RAG (up to 3 examples showing input→output mappings), field definitions with type constraints, options for enums, and guidelines, current field values with lock status, and both old and new transcript (old for context, new for extraction).
+
+The agent uses Zod schema validation to ensure type-safe outputs. Dates must match \texttt{YYYY-MM-DD} format, numbers must be finite, and enum values must belong to the predefined set. The LLM is instructed to return a JSON object with one key per field ID. Post-processing normalizes values (e.g., joining arrays to comma-separated strings for multi-value fields, trimming whitespace) and applies lock-aware merging: if a field is locked or if the new transcript does not mention a field, the current value is preserved.
+
+\paragraph{S2: Iterative Single-Field (\texttt{singleLlmOneField})}
+Processes each field independently with a field-specific prompt. For each field: filter RAG examples to include only those that populated this specific field, construct a focused prompt with field-specific guidelines, type constraints, and 1–2 relevant examples, call the LLM with schema \texttt{\{value, confidence\}}, normalize the returned value according to field type, and apply lock-aware update logic.
+
+Fields are processed in parallel using \texttt{Promise.all}, reducing wall-clock latency on multi-core systems. Each field call is wrapped in a try-catch block with individual error boundaries: if one field extraction fails (e.g., due to API timeout), others proceed normally and the failed field retains its current value. This isolation improves robustness compared to S1, where a single parsing error can invalidate the entire output.
+
+\paragraph{S3: Multi-LLM Consensus Full-Input (\texttt{dualLlmAllField})}
+Runs two models in parallel—GPT-4 and Gemini 2.0 Flash by default—each generating a complete template using the same prompt as S1. The outputs are then passed to a verification agent that implements consensus logic with rule-based checks to validate that locked fields were not overwritten, enum values are in the allowed set, and dates are parseable. LLM-based reconciliation uses a judge model (GPT-4o-mini by default) that compares the two candidate outputs field-by-field and selects one of four decisions per field: \texttt{gpt} (use GPT's value), \texttt{gemini} (use Gemini's value), \texttt{merge} (combine both values for multi-value text fields), or \texttt{keep\_current} (neither candidate is reliable; preserve existing value).
+
+The verifier prompt includes both candidate outputs, the transcript, and field-level metadata (type, required status, current value). It is instructed to prefer the candidate with higher confidence, better grounding in the transcript, and consistency with schema constraints. For multi-value fields, the merge operation deduplicates and quality-filters entries, discarding empty strings or placeholders.
+
+\paragraph{S4: Multi-LLM Consensus Per-Field (\texttt{multiLlmOneField})}
+Combines the granularity of S2 with the robustness of S3. For each field: run GPT and Gemini in parallel with field-specific prompts (as in S2), pass both candidate values to a per-field verifier, apply the same decision logic as S3 but focusing on a single field to reduce prompt size and improve decision quality, and return the final value with aggregated confidence (max of the two candidates if merged).
+
+This strategy has the highest computational cost—\textit{(number of fields)} × \textit{(number of models)} LLM calls—but provides maximum reliability by isolating errors at the field level and leveraging ensemble diversity for each slot.
+
+\textbf{Shared preprocessing:} All strategies share common logic for incremental updates (only \texttt{newTranscript} is treated as the source of new information), lock enforcement (fields marked \texttt{locked=true} are never overwritten), change detection (the \texttt{changed} flag is set only if the final value differs from \texttt{currentValue}), and type-specific normalization to ensure consistency across strategies.
+
+\subsection{Consistency Formatting (CF) Agent}
+\label{subsec:impl-cf}
+
+The CF agent provides \texttt{normalizeValueForField} for deterministic value standardization.
+
+\textbf{Transformation Rules:}
 \begin{verbatim}
-{
-  "slots": {
-    "date": {"value": "1992-03-03", "conf": 0.88},
-    "location": {"value": "Bogotá, Colombia", "conf": 0.86},
-    "incident": {"value": "bombing", "conf": 0.84},
-    "casualties": {"injured": 25, "killed": 0, "conf": 0.77},
-    "perpetrator": {"value": "left-wing guerrilla group",
-                    "status": "suspected", "conf": 0.65}
+// Date normalization: "March 3, 1992" → "1992-03-03"
+function normalizeDate(value: string): string | null;
+
+// Number parsing: "25 people" → 25 (extract leading digits)
+function normalizeNumber(value: string): number | null;
+
+// Enum validation: ensure value ∈ allowed options (case-insensitive)
+function validateEnum(value: string, options: string[]): string | null;
+
+// Multi-value handling: ["A", "B", null, ""] → "A, B"
+function joinMultiValue(values: any[]): string | null;
+
+// Text trimming: remove leading/trailing whitespace and normalize Unicode
+function normalizeText(value: string): string | null;
+\end{verbatim}
+
+\textbf{Implementation:} The agent applies type-specific normalization rules using standard libraries: Luxon for date parsing, regex patterns for number extraction, and case-insensitive matching for enums. For text and textarea fields, Unicode normalization (NFC form) ensures consistent representation of accented characters across different input methods. Multi-value fields (identified by \texttt{type="textarea"} in schema) join array inputs into comma-separated strings, filtering out null, empty, or placeholder values.
+
+Ambiguous values that cannot be normalized deterministically (e.g., "\texttt{3/4/92}" with unclear month/day order) are flagged with an issue annotation for the verification agent to resolve. The CF agent is intentionally non-stochastic: given the same input, it always produces the same output, ensuring reproducibility across runs.
+
+\subsection{Verification Agent (VER)}
+\label{subsec:impl-ver}
+
+The verification agent implements \texttt{runVerifier} for single-model outputs and \texttt{runEnsembleVerifier} for multi-model consensus (S3/S4).
+
+\textbf{API Contract:}
+\begin{verbatim}
+interface VerificationInput {
+  candidates: Record<string, FilledField> | Record<string, FilledField>[];
+  transcript: string;           // Combined old + new for context
+  fields: FormTemplateField[];
+  currentValues?: Record<string, CurrentFieldValue>;
+}
+
+interface VerificationOutput {
+  filled: Record<string, FilledField>;
+  confidence: Record<string, number>;   // Calibrated per-field confidence
+  issues?: Array<{
+    field: string;
+    type: "missing" | "conflict" | "low_conf" | "invalid";
+    detail: string;
+    action?: "requery" | "clarify" | "manual_review";
+  }>;
+  decisions?: Array<{             // Only for ensemble strategies
+    field: string;
+    decision: "gpt" | "gemini" | "merge" | "keep_current";
+    reason: string;
+  }>;
+}
+\end{verbatim}
+
+\textbf{Consensus Logic (for S3/S4):} The agent uses a judge LLM to evaluate candidate extractions field-by-field. The judge prompt includes candidate values from all models, current field values with lock status, transcript snippets for evidence grounding, schema constraints (type, required, options), and decision rules emphasizing transcript consistency, confidence scores, and lock respect.
+
+The judge must return a structured decision per field. For multi-value fields, the \texttt{merge} decision triggers intelligent deduplication: values are normalized, duplicates removed, and the combined list returned. Confidence scores are aggregated using max (if merged) or inherited from the selected model.
+
+\textbf{Single-Model Verification (for S1/S2):} When only one candidate is available, VER performs completeness checks to identify required fields that remain null or empty, type validation to ensure dates are parseable and numbers are finite, cross-field consistency to detect logical contradictions, and optional grounding checks to verify that extracted values are entailed by the transcript.
+
+Issues are prioritized: low-confidence extractions suggest \texttt{"manual\_review"}, and contradictions require \texttt{"clarify"} with user input.
+
+
+\subsection{Agent Orchestration}
+\label{subsec:impl-orchestration}
+
+The \texttt{Orchestrator} class coordinates agent execution through typed procedure calls exposed via tRPC endpoints. The orchestrator is strategy-aware: it selects the appropriate IE function (S1–S4) based on client configuration and manages the pipeline flow.
+
+\textbf{Core orchestration logic:}
+\begin{verbatim}
+class Orchestrator {
+  async processTemplate(input: ProcessingRequest): Promise<FinalTemplate> {
+    // Step 1: Transcription (optional)
+    const transcript = input.audio 
+      ? await stt.transcribe(input.audio)
+      : { transcript: input.text, language: input.lang ?? "en" };
+
+    // Step 2: Retrieval (RAG)
+    const examples = await rag.retrieve(
+      transcript.transcript,
+      input.fields,
+      input.templateId
+    );
+
+    // Step 3: Extraction (strategy-dependent)
+    const extraction = await this.runStrategy({
+      strategy: input.strategy,
+      transcript: transcript.transcript,
+      fields: input.fields,
+      currentValues: input.currentValues,
+      fewShots: examples.examples,
+      ...input.metadata,
+    });
+
+    // Step 4: Formatting (deterministic normalization)
+    const normalized = await cf.normalize(extraction.filled, input.fields);
+
+    // Step 5: Verification (completeness + consistency)
+    const verified = await ver.verify({
+      candidates: normalized,
+      transcript: transcript.transcript,
+      fields: input.fields,
+      currentValues: input.currentValues,
+    });
+
+    // Step 6: Clarification loop (if needed)
+    if (verified.issues?.some(i => i.action === "requery")) {
+      // Re-run IE with hints from VER, then re-verify
+    }
+
+    return {
+      filled: verified.filled,
+      confidence: verified.confidence,
+      issues: verified.issues,
+      model: extraction.model,
+      transcript: transcript.transcript,
+    };
+  }
+
+  private async runStrategy(params: StrategyParams): Promise<IEOutput> {
+    switch (params.strategy) {
+      case "S1": return await singleLlmAllField(params);
+      case "S2": return await singleLlmOneField(params);
+      case "S3": return await dualLlmAllField(params);
+      case "S4": return await multiLlmOneField(params);
+    }
   }
 }
 \end{verbatim}
-
-\paragraph{Verification (VER).}
-\emph{Role.} Validate completeness and consistency; assign confidence; trigger clarification when required.  
-\emph{Implementation.} Hybrid rules + LLM checks. Rule engine verifies cross-field constraints (e.g., date plausibility; incident $\in$ allowed set; contradictions). LLM verifier performs text-grounding: given the transcript spans and normalised slots, it must (i) confirm each value is entailed by the text, or (ii) downgrade confidence and add an \texttt{issue}.  
-\emph{Endpoint.} \texttt{ver.verify(Normalised|Candidates, context?) → Verified}.  
-\emph{Clarification.} If any slot confidence $<\tau_{ver}$ or an essential slot is missing, VER returns \texttt{issues[]} with \texttt{action: "requery"} and optional \texttt{hint}. The orchestrator then (a) re-prompts IE with a targeted slot prompt, or (b) requests speech clarification (re-record the ambiguous segment) in setups that include user feedback.
-
-\medskip
-\noindent\emph{Example output (excerpt):}
-\begin{verbatim}
-{
-  "slots": { "...": "..." },
-  "confidence": { "date": 0.94, "location": 0.90, "incident": 0.89,
-                  "casualties": 0.83, "perpetrator": 0.58 },
-  "issues": [
-    { "slot": "perpetrator", "type": "low_conf",
-      "detail": "Only 'suspect' is stated; not confirmed",
-      "action": "requery", "hint": "check second paragraph for claim of responsibility" }
-  ],
-  "decisions": [{ "rule": "enum.incident", "detail": "normalised to 'bombing'" }]
-}
-\end{verbatim}
-
-\subsection*{Operational Notes}
-
-\paragraph{Parallelism.} In slot-wise modes (S2, S4) the backend dispatches independent \texttt{ie.extract(..., mode="slot")} calls concurrently (Node worker pool); VER then evaluates the merged result.  
-\paragraph{Determinism.} For reproducibility, temperature is set to $0$ for verification and CF is entirely deterministic; IE may use nucleus sampling in consensus strategies.  
-\paragraph{Tracing.} Every artefact (Transcript, Candidates, Normalised, Verified) is persisted with a run identifier in PostgreSQL (JSONB columns), enabling full lineage during evaluation.

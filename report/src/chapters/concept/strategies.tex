@@ -1,268 +1,121 @@
 \section{Architectural Strategies}
-\label{sec:concept-strategies}
+\label{sec:architectural-strategies}
 
-While the modular four-agent pipeline defines the general structure of the \textit{Invox} system, its effectiveness depends on how large language models (LLMs) are deployed within the \textit{Information Extraction} and \textit{Verification} stages. Different architectural strategies offer distinct trade-offs in terms of accuracy, robustness, cost, and transparency. In the following, four strategies are outlined and illustrated using the same example for comparability.
+While the modular five-agent pipeline defines the general structure of the \textit{Invox} system, its effectiveness depends on how large language models (LLMs) are deployed within the \textit{Information Extraction} and \textit{Verification} stages. Different architectural strategies offer distinct trade-offs in terms of accuracy, robustness, latency, cost, and transparency. This section outlines four strategies and illustrates them using a common example to enable direct comparison.
 
-For all examples, we use the input sentence:  
+For all examples, we use the following input derived from the MUC-4 benchmark:  
 \textit{``On March 3, 1992, in Bogotá, a powerful car bomb exploded outside the Ministry of Defense, damaging nearby buildings and injuring 25 people, though no fatalities were reported. Authorities suspect a left-wing guerrilla group, but responsibility remains unconfirmed.''}
 
-This example introduces multiple attributes (date, location, event type, casualties, suspected perpetrators, and uncertainty), allowing us to highlight the strengths and weaknesses of each strategy.
+This example introduces multiple attributes (date, location, event type, casualties, suspected perpetrators, and epistemic uncertainty), allowing us to highlight the strengths and weaknesses of each strategy under realistic conditions.
 
-% ======================
-\subsection*{S1: Single-Pass (Full-Input, Single-LLM)}
-
-\textbf{Overview.}  
-In the simplest approach, a single LLM receives the complete transcript and directly generates all template fields. The process ends here, without applying \textit{Consistency Formatting} or \textit{Verification}.
-
-\begin{figure}[H]
-\centering
-\resizebox{0.35\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=12mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=35mm, minimum height=10mm, align=center, fill=blue!7},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (stt) {Speech-to-Text};
-\node[box, below=of stt] (llm) {Single LLM Call};
-\node[box, below=of llm] (out) {Structured Template};
-
-\draw[arrow] (stt) -- (llm);
-\draw[arrow] (llm) -- (out);
-\end{tikzpicture}%
-}
-\caption{S1: One model processes all fields in a single step.}
-\label{fig:s1-overview}
-\end{figure}
-
-\textbf{Example Flow.}  
-\begin{figure}[H]
-\centering
-\resizebox{0.55\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=10mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=45mm, minimum height=12mm, align=center, fill=green!10},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (input) {Full sentence as input};
-\node[box, below=of input] (llm) {LLM generates all fields at once};
-\node[box, below=of llm, xshift=-30mm] (date) {Date: March 3, 1992};
-\node[box, below=of llm] (loc) {Location: Bogotá};
-\node[box, below=of llm, xshift=30mm] (incident) {Incident: Car Bombing};
-\node[box, below=of loc, yshift=-22mm] (perp) {Perpetrator: Guerrilla Group (assumed)};
-\node[box, below=of perp, yshift=-18mm] (cas) {Casualties: 25 Injured, 0 Dead};
-
-\draw[arrow] (input) -- (llm);
-\draw[arrow] (llm.south west) -- (date.north);
-\draw[arrow] (llm) -- (loc);
-\draw[arrow] (llm.south east) -- (incident.north);
-\draw[arrow] (loc.south) -- (perp.north);
-\draw[arrow] (perp.south) -- (cas.north);
-\end{tikzpicture}%
-}
-\caption{Example for S1: Single-pass extraction.}
-\label{fig:s1-example}
-\end{figure}
-
-\textbf{Discussion.}  
-This approach is efficient, requiring only one model call. However, if the LLM incorrectly interprets ``suspected guerrilla group'' as a confirmed perpetrator, the error propagates directly into the final template with no correction.
-
-% ======================
-\subsection*{S2: Iterative (Slot-wise, Single-LLM)}
+\subsection{Strategy S1: Single-Pass (Full-Input, Single-LLM)}
+\label{subsec:strategy-s1}
 
 \textbf{Overview.}  
-Here, each template slot is extracted by an independent LLM call with a specialised prompt. Slots can be processed sequentially or in parallel. Results are then passed to \textit{Consistency Formatting} and \textit{Verification}.
+In the simplest approach, a single LLM receives the complete transcript—along with few-shot examples retrieved by the RAG agent—and directly generates all template fields in one inference pass. The extracted values then proceed through Consistency Formatting (CF) and Verification (VER) before finalization.
 
 \begin{figure}[H]
-\centering
-\resizebox{0.35\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=12mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=40mm, minimum height=10mm, align=center, fill=blue!7},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (stt) {Speech-to-Text};
-\node[box, below=of stt] (ie) {Multiple LLM Calls (per slot)};
-\node[box, below=of ie] (cf) {Consistency Formatting};
-\node[box, below=of cf] (ver) {Verification};
-\node[box, below=of ver] (out) {Structured Template};
-
-\draw[arrow] (stt) -- (ie);
-\draw[arrow] (ie) -- (cf);
-\draw[arrow] (cf) -- (ver);
-\draw[arrow] (ver) -- (out);
-\end{tikzpicture}%
-}
-\caption{S2: Independent slot-wise extraction with verification.}
-\label{fig:s2-overview}
+  \centering
+  \includegraphics[width=1.0\linewidth]{images/single-llm-full-input.drawio.pdf}
+  \caption{Strategy: Full-Input, Single-LLM}
+  \label{fig:single-llm-full-input}
 \end{figure}
 
-\textbf{Example Flow.}  
-Each field is extracted in a separate call, making uncertainties easier to localise.
+\textbf{Advantages.}  
+This strategy is computationally efficient, requiring only one IE model call. It minimizes latency and API costs, making it suitable for high-throughput scenarios. The inclusion of RAG-retrieved examples improves domain adaptation compared to zero-shot prompting, while CF and VER stages provide downstream quality assurance.
 
-\begin{figure}[H]
-\centering
-\resizebox{0.65\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=10mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=48mm, minimum height=12mm, align=center, fill=green!10},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (input) {Sentence};
-\node[box, below=of input] (q1) {LLM Call 1: Date → March 3, 1992};
-\node[box, below=of q1] (q2) {LLM Call 2: Location → Bogotá};
-\node[box, below=of q2] (q3) {LLM Call 3: Incident → Car Bombing};
-\node[box, below=of q3] (q4) {LLM Call 4: Casualties → 25 Injured, 0 Dead};
-\node[box, below=of q4] (q5) {LLM Call 5: Perpetrator → Suspected Guerrilla Group};
-\node[box, below=of q5] (ver) {Formatting \& Verification};
-\node[box, below=of ver] (out) {Final Template};
+\textbf{Limitations.}  
+If the LLM misinterprets a critical ambiguity—such as treating ``suspected guerrilla group'' as a confirmed perpetrator—the error propagates through CF (which normalizes the incorrect value) and may only be flagged by VER if confidence thresholds are exceeded. The single inference point offers no redundancy, making the system vulnerable to model-specific biases or hallucinations \cite{du2020event}.
 
-\draw[arrow] (input) -- (q1);
-\draw[arrow] (q1) -- (q2);
-\draw[arrow] (q2) -- (q3);
-\draw[arrow] (q3) -- (q4);
-\draw[arrow] (q4) -- (q5);
-\draw[arrow] (q5) -- (ver);
-\draw[arrow] (ver) -- (out);
-\end{tikzpicture}%
-}
-\caption{Example for S2: Per-slot extraction.}
-\label{fig:s2-example}
-\end{figure}
-
-\textbf{Discussion.}  
-Slot independence allows targeted corrections. If the perpetrator slot is uncertain, only that field needs re-querying. The downside is higher inference cost and latency.
-
-% ======================
-\subsection*{S3: Multi-LLM Consensus (Full-Input)}
+\subsection{Strategy S2: Iterative (Slot-wise, Single-LLM)}
+\label{subsec:strategy-s2}
 
 \textbf{Overview.}  
-Here, multiple LLMs (or multiple runs of one model) each generate a complete template from the full transcript. Their outputs are compared, and the \textit{Verification} agent selects the most consistent fields.
+Each template slot is extracted by an independent LLM call with a slot-specific prompt. Slots can be processed sequentially or in parallel. The RAG agent retrieves relevant examples once at the beginning, and these are included in every slot-level prompt. Results are then passed to CF and VER for normalization and validation.
 
 \begin{figure}[H]
-\centering
-\resizebox{0.4\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=12mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=42mm, minimum height=10mm, align=center, fill=blue!7},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (stt) {Speech-to-Text};
-\node[box, below=of stt] (llm) {Parallel LLM Calls (Full Transcript)};
-\node[box, below=of llm] (ver) {Verification \& Consensus};
-\node[box, below=of ver] (out) {Structured Template};
-
-\draw[arrow] (stt) -- (llm);
-\draw[arrow] (llm) -- (ver);
-\draw[arrow] (ver) -- (out);
-\end{tikzpicture}%
-}
-\caption{S3: Multi-LLM consensus on full template.}
-\label{fig:s3-overview}
+  \centering
+  \includegraphics[width=1.0\linewidth]{images/single-llm-slot-wise.drawio.pdf}
+  \caption{Strategy: Slot-wise, Single-LLM}
+  \label{fig:single-llm-slot-wise}
 \end{figure}
 
-\textbf{Example Flow.}  
-\begin{figure}[H]
-\centering
-\resizebox{0.7\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=10mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=50mm, minimum height=12mm, align=center, fill=green!10},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (input) {Sentence};
-\node[box, below=of input, xshift=-35mm] (m1) {Model 1: Perpetrator = Guerrilla Group (confirmed)};
-\node[box, below=of input] (m2) {Model 2: Perpetrator = Suspected Guerrilla Group};
-\node[box, below=of input, xshift=35mm] (m3) {Model 3: Perpetrator = Unknown};
-\node[box, below=of m2, yshift=-20mm] (vote) {Verifier reconciles outputs};
-\node[box, below=of vote] (out) {Final: Perpetrator = Suspected Guerrilla Group};
+\textbf{Advantages.}  
+Slot independence isolates errors: if the perpetrator field is uncertain, only that slot requires re-extraction. This improves transparency (R3) by making it clear which fields are problematic. Parallelization across slots can reduce wall-clock latency on multi-core systems, though total computational cost increases. The strategy also supports slot-specific prompt engineering, allowing prompts to be tuned for date extraction, entity recognition, or casualty parsing independently.
 
-\draw[arrow] (input) -- (m1);
-\draw[arrow] (input) -- (m2);
-\draw[arrow] (input) -- (m3);
-\draw[arrow] (m1) -- (vote);
-\draw[arrow] (m2) -- (vote);
-\draw[arrow] (m3) -- (vote);
-\draw[arrow] (vote) -- (out);
-\end{tikzpicture}%
-}
-\caption{Example for S3: Consensus resolves uncertainty.}
-\label{fig:s3-example}
-\end{figure}
+\textbf{Limitations.}  
+The approach increases inference cost linearly with the number of slots. For templates with 15–20 fields, this becomes expensive. Additionally, slot-level prompts lack cross-field context: the model extracting casualties does not see the perpetrator information, which may reduce coherence in cases where fields are interdependent \cite{sun2023slot}.
 
-\textbf{Discussion.}  
-This reduces systematic bias and increases robustness. However, it is costlier and may still struggle if all models repeat the same misinterpretation.
-
-% ======================
-\subsection*{S4: Multi-LLM Consensus (Slot-wise)}
+\subsection{Strategy S3: Multi-LLM Consensus (Full-Input)}
+\label{subsec:strategy-s3}
 
 \textbf{Overview.}  
-Each slot is extracted by multiple LLMs, and consensus is reached per field before formatting and verification. This combines the robustness of ensembles with the granularity of slot-wise extraction.
+Multiple LLMs—either different models (e.g., GPT-4, Claude, DeepSeek) or multiple runs of the same model with varied prompts—each generate a complete template from the full transcript and RAG-retrieved examples. Their outputs are compared by the Internal Verifier which has results from multiple llms, text input and the RAG examples, which selects the most consistent or reliable values using consensus rules such as majority voting or confidence-weighted aggregation.
 
 \begin{figure}[H]
-\centering
-\resizebox{0.45\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=12mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=46mm, minimum height=10mm, align=center, fill=blue!7},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (stt) {Speech-to-Text};
-\node[box, below=of stt] (ie) {Multiple LLMs per Slot};
-\node[box, below=of ie] (cf) {Consistency Formatting};
-\node[box, below=of cf] (ver) {Verification};
-\node[box, below=of ver] (out) {Structured Template};
-
-\draw[arrow] (stt) -- (ie);
-\draw[arrow] (ie) -- (cf);
-\draw[arrow] (cf) -- (ver);
-\draw[arrow] (ver) -- (out);
-\end{tikzpicture}%
-}
-\caption{S4: Slot-wise multi-LLM consensus.}
-\label{fig:s4-overview}
+  \centering
+  \includegraphics[width=1.0\linewidth]{images/multiple-llm-full-input.drawio.pdf}
+  \caption{Strategy: Full-Input, Multiple-LLM}
+  \label{fig:multiple-llm-full-input}
 \end{figure}
 
-\textbf{Example Flow.}  
+\textbf{Advantages.}  
+Ensemble diversity reduces systematic bias: if one model hallucinates or misinterprets ambiguous phrasing, others may produce more faithful outputs. Consensus mechanisms increase robustness, particularly when models disagree on uncertain fields. This strategy also preserves cross-field context, as each model sees the full input during extraction \cite{wu2023autoagents, park2023generative}.
+
+\textbf{Limitations.}  
+Computational cost increases linearly with the number of models. If all models converge on the same misinterpretation—due to shared training biases or ambiguous input phrasing—consensus provides no advantage. The strategy also requires careful tuning of aggregation rules: simple majority voting may discard nuanced or hedged outputs (e.g., "suspected") in favor of overly confident but incorrect answers.
+
+\subsection{Strategy S4: Multi-LLM Consensus (Slot-wise)}
+\label{subsec:strategy-s4}
+
+\textbf{Overview.}  
+Each slot is extracted independently by multiple LLMs, and consensus is reached per field before aggregating results. This combines the granularity of S2 (slot-wise processing) with the robustness of S3 (multi-model consensus). Their outputs are compared by the Internal Verifier which has results from multiple llms, text input and the RAG examples, which selects the most consistent or reliable values using consensus rules such as majority voting or confidence-weighted aggregation. Results are then passed through CF and VER. 
+
 \begin{figure}[H]
-\centering
-\resizebox{0.7\linewidth}{!}{%
-\begin{tikzpicture}[
-    node distance=10mm,
-    box/.style={draw, rounded corners=2pt, thick, minimum width=50mm, minimum height=12mm, align=center, fill=green!10},
-    arrow/.style={-Latex, thick}
-]
-\node[box] (input) {Casualty slot extraction};
-\node[box, below=of input, xshift=-35mm] (m1) {Model 1: 25 Injured, 0 Dead};
-\node[box, below=of input] (m2) {Model 2: Several Injured, No Fatalities};
-\node[box, below=of input, xshift=35mm] (m3) {Model 3: 25 People Hurt, None Killed};
-\node[box, below=of m2, yshift=-20mm] (vote) {Consensus + Formatting};
-\node[box, below=of vote] (out) {Final: 25 Injured, 0 Dead};
-
-\draw[arrow] (input) -- (m1);
-\draw[arrow] (input) -- (m2);
-\draw[arrow] (input) -- (m3);
-\draw[arrow] (m1) -- (vote);
-\draw[arrow] (m2) -- (vote);
-\draw[arrow] (m3) -- (vote);
-\draw[arrow] (vote) -- (out);
-\end{tikzpicture}%
-}
-\caption{Example for S4: Per-slot consensus improves reliability.}
-\label{fig:s4-example}
+  \centering
+  \includegraphics[width=1.0\linewidth]{images/multiple-llm-slot-wise.drawio.pdf}
+  \caption{Strategy: Slot-wise, Multiple-LLM}
+  \label{fig:multiple-llm-slot-wise}
 \end{figure}
 
-\textbf{Discussion.}  
-This is the most reliable but also the most computationally expensive strategy. It is well-suited for domains where accuracy is critical and resources are available.
+\textbf{Advantages.}  
+This strategy offers the highest reliability by applying ensemble methods at the most granular level. Slot-level consensus allows diverse models to specialize: one model may excel at date parsing, another at casualty extraction. Error isolation remains strong, as each field is independently verified. The approach is well-suited for safety-critical domains where accuracy justifies cost.
 
-% ======================
-\subsection*{Summary}
+\textbf{Limitations.}  
+Computational cost scales as (number of slots) × (number of models), making this the most expensive strategy. For a 15-field template with 3 models, this requires 45 LLM calls per document. Latency increases unless aggressive parallelization is employed. Additionally, consensus logic becomes more complex when models produce semantically equivalent but syntactically different outputs (e.g., "25 injured" vs. "25 people hurt"), requiring robust normalization before voting.
 
-These four strategies represent different points in the trade-off space between efficiency and robustness.  
+\subsection{Summary and Trade-Off Analysis}
+\label{subsec:strategy-summary}
+
+These four strategies represent different points in the trade-off space between accuracy, robustness, latency, and cost. Table~\ref{tab:strategy-comparison} summarizes their characteristics.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Strategy} & \textbf{LLM Calls} & \textbf{Error Isolation} & \textbf{Robustness} & \textbf{Latency} & \textbf{Cost} \\
+\midrule
+S1: Single-Pass & 1 & L & L & L & L \\
+S2: Iterative & $n$ (slots) & H & M & M & M \\
+S3: Consensus (Full) & $m$ (models) & L & H & M & H \\
+S4: Consensus (Slot) & $n \times m$ & H & H & H & H \\
+\bottomrule
+\end{tabular}
+\caption{Comparison of architectural strategies. $n$ = number of slots, $m$ = number of models. L=Low, M=Medium, H=High.}
+\label{tab:strategy-comparison}
+\end{table}
+
+\textbf{Selection criteria.} Strategy choice depends on deployment constraints:
 \begin{itemize}
-    \item \textbf{S1} is fastest but fragile.  
-    \item \textbf{S2} isolates errors at the slot level.  
-    \item \textbf{S3} increases robustness through full-template consensus.  
-    \item \textbf{S4} provides fine-grained reliability via per-slot consensus.  
+    \item \textbf{S1} is suitable for high-throughput applications where speed and cost matter more than perfect accuracy.
+    \item \textbf{S2} enables fine-grained debugging and is appropriate when specific fields are known to be problematic.
+    \item \textbf{S3} balances robustness and context preservation, making it suitable for general-purpose deployments.
+    \item \textbf{S4} provides maximum reliability for critical applications where errors have serious consequences (e.g., medical records, regulatory reporting).
 \end{itemize}
 
-Later chapters evaluate these strategies on the MUC-4 benchmark.
+Chapter 5 empirically evaluates these strategies on the MUC-4 benchmark, also quantifying their performance across the six requirements (R1–R6) established in Chapter 2.\begin{figure}
+    \centering
+    \includegraphics[width=0.5\linewidth]{sa.png}
+    \caption{Enter Caption}
+    \label{fig:placeholder}
+\end{figure}
