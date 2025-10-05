@@ -208,6 +208,34 @@ class EmbeddingScorer:
         avg = float(np.mean([m[2] for m in matches])) if matches else 0.0
         return matches, avg
 
+
+# ------------------------
+# Embedding metrics helpers
+# ------------------------
+def soft_coverage(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: List[str]) -> float:
+    # gold-anchored: avg of max sim(g -> any pred)
+    if not gold_vals:
+        return 1.0 if not pred_vals else 0.0
+    if not pred_vals:
+        return 0.0
+    S = scorer.cosine_similarity_matrix(gold_vals, pred_vals)  # G x P
+    return float(np.mean(np.max(S, axis=1)))
+
+def soft_specificity(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: List[str]) -> float:
+    # pred-anchored: avg of max sim(p -> any gold)
+    if not pred_vals:
+        return 1.0 if not gold_vals else 0.0
+    if not gold_vals:
+        return 0.0
+    S = scorer.cosine_similarity_matrix(pred_vals, gold_vals)  # P x G
+    return float(np.mean(np.max(S, axis=1)))
+
+def chamfer_symmetric(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: List[str]) -> float:
+    cov = soft_coverage(scorer, gold_vals, pred_vals)
+    spec = soft_specificity(scorer, gold_vals, pred_vals)
+    return (cov + spec) / 2.0
+
+
 # ------------------------
 # Per-field scoring
 # ------------------------
@@ -245,6 +273,46 @@ def score_list(gold: List[str], pred: List[str], scorer: EmbeddingScorer, show_m
         print(f"  Field doc-score: {avg:.3f}")
     return avg
 
+
+def compute_list_metrics(
+    gold_vals: List[str],
+    pred_vals: List[str],
+    scorer: "EmbeddingScorer",
+    show_matches: bool,
+    doc_id: str,
+    field: str,
+) -> Tuple[float, float, float, float]:
+    """
+    Returns:
+      avg_best (gold-anchored best-match average)  -- this matches your current list scoring
+      coverage (gold-anchored)
+      specificity (pred-anchored)
+      chamfer (symmetric avg of coverage & specificity)
+    """
+    # avg_best for backwards-compat is the same as coverage when both non-empty,
+    # but we preserve your empty-handling by reusing best_matches().
+    matches, avg_best = scorer.best_matches(gold_vals, pred_vals)
+    coverage = soft_coverage(scorer, gold_vals, pred_vals)
+    specificity = soft_specificity(scorer, gold_vals, pred_vals)
+    chamfer = (coverage + specificity) / 2.0
+
+    if show_matches and (gold_vals or pred_vals):
+        print(f"\nDoc {doc_id} | Field {field}")
+        if not gold_vals and not pred_vals:
+            print("  (both empty)")
+        else:
+            for g, p, s in matches:
+                arrow = "->" if p else "-> [no prediction]"
+                print(f"  Gold '{g}' {arrow} '{p}'  (score: {s:.3f})")
+            if not gold_vals and pred_vals:
+                print("  NOTE: gold empty, predictions present -> field score = 0.0")
+            if gold_vals and not pred_vals:
+                print("  NOTE: predictions empty -> field score = 0.0")
+        print(f"  Field doc-score (avg_best ≈ coverage): {avg_best:.3f}")
+
+    return float(avg_best), float(coverage), float(specificity), float(chamfer)
+
+
 # ------------------------
 # Evaluation
 # ------------------------
@@ -257,6 +325,9 @@ def evaluate(
     scorer = EmbeddingScorer(embed_model)
     field_scores: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
     field_stats: Dict[str, Dict[str, float]] = {}
+    field_cov: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
+    field_spec: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
+    field_chamfer: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
 
     all_doc_ids = sorted(set(gold.keys()) | set(pred.keys()))
     print(f"Evaluating {len(all_doc_ids)} documents...")
@@ -269,23 +340,66 @@ def evaluate(
             kind = spec["kind"]
             if kind == "enum":
                 s = score_enum(gdoc.get(fid), pdoc.get(fid))  # type: ignore
+                field_scores[fid].append(float(s))
+                # enums: skip cov/spec/chamfer (or set to None)
             elif kind == "date":
                 s = score_date(gdoc.get(fid), pdoc.get(fid))  # type: ignore
+                field_scores[fid].append(float(s))
             elif kind == "text":
-                s = score_text(gdoc.get(fid), pdoc.get(fid), scorer)  # type: ignore
+                # treat text as singleton lists to reuse the same embedding metrics
+                gv = [gdoc.get(fid)] if gdoc.get(fid) else []  # type: ignore
+                pv = [pdoc.get(fid)] if pdoc.get(fid) else []  # type: ignore
+                avg_best, cov, specf, cham = compute_list_metrics(gv, pv, scorer, show_matches, doc_id, fid)
+                # keep original scalar score for backwards compat (cosine on strings)
+                s_scalar = score_text(gdoc.get(fid), pdoc.get(fid), scorer)  # type: ignore
+                field_scores[fid].append(float(s_scalar))
+                field_cov[fid].append(cov)
+                field_spec[fid].append(specf)
+                field_chamfer[fid].append(cham)
             else:
-                gvals = gdoc.get(fid) or []
-                pvals = pdoc.get(fid) or []
-                s = score_list(gvals, pvals, scorer, show_matches, doc_id, fid)  # type: ignore
-            field_scores[fid].append(float(s))
+                # 'list'
+                gvals = gdoc.get(fid) or []  # type: ignore
+                pvals = pdoc.get(fid) or []  # type: ignore
+                avg_best, cov, specf, cham = compute_list_metrics(gvals, pvals, scorer, show_matches, doc_id, fid)
+                # keep original scalar score (avg_best) for backwards compat
+                field_scores[fid].append(float(avg_best))
+                field_cov[fid].append(cov)
+                field_spec[fid].append(specf)
+                field_chamfer[fid].append(cham)
 
+
+        # existing per-field averages:
     for fid in FIELD_IDS:
         scores = field_scores[fid]
         avg_score = (sum(scores) / len(scores)) if scores else 0.0
         field_stats[fid] = {"average_score": avg_score, "num_documents": len(scores)}
 
+    # NEW: per-field embedding metric averages
+    emb_field_stats: Dict[str, Dict[str, float]] = {}
+    for fid in FIELD_IDS:
+        covs = field_cov[fid]
+        specs = field_spec[fid]
+        chams = field_chamfer[fid]
+        emb_field_stats[fid] = {
+            "soft_coverage": (sum(covs) / len(covs)) if covs else 0.0,
+            "soft_specificity": (sum(specs) / len(specs)) if specs else 0.0,
+            "chamfer_symmetric": (sum(chams) / len(chams)) if chams else 0.0,
+            "num_documents": len(covs) if covs else 0  # aligns with lists/text only
+        }
+
+
+    # overall (old)
     all_scores = [s for arr in field_scores.values() for s in arr]
     overall_average = (sum(all_scores) / len(all_scores)) if all_scores else 0.0
+
+    # NEW overall for embedding metrics (only across fields where we computed them)
+    all_cov = [x for fid in FIELD_IDS for x in field_cov[fid]]
+    all_spec = [x for fid in FIELD_IDS for x in field_spec[fid]]
+    all_cham = [x for fid in FIELD_IDS for x in field_chamfer[fid]]
+    overall_cov = (sum(all_cov) / len(all_cov)) if all_cov else 0.0
+    overall_spec = (sum(all_spec) / len(all_spec)) if all_spec else 0.0
+    overall_cham = (sum(all_cham) / len(all_cham)) if all_cham else 0.0
+
 
     return {
         "config": {
@@ -295,8 +409,17 @@ def evaluate(
         },
         "overall_average_score": overall_average,
         "field_scores": field_stats,
+        "embedding_metrics": {
+            "overall": {
+                "soft_coverage": overall_cov,
+                "soft_specificity": overall_spec,
+                "chamfer_symmetric": overall_cham
+            },
+            "per_field": emb_field_stats
+        },
         "total_comparisons": len(all_scores)
     }
+
 
 # ------------------------
 # CLI

@@ -1,68 +1,86 @@
 [
   {
-    "incident_type": "ATTACK",
-    "text": "GUATEMALA CITY, 19 AUG 89 -- GUATEMALAN ARMY TROOPS KILLED NINE PEASANTS BY MISTAKE ON 17 AUGUST. THE SOLDIERS MISTOOK THE PEASANTS, WHO WERE CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS, WITH A REBEL COLUMN. THE INCIDENT TOOK PLACE WHEN NORTHEASTERN COBAN BASE TROOPS ATTACKED THE CIVILIAN PATROL. THE ATTACK RESULTED IN 9 INDIAN PEASANTS KILLED AND 3 WOUNDED, INCLUDING A 17-YEAR-OLD.",
+    "incidentType": "BOMBING",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "ricardo alfonso castellar, mayor of achi, in the northern department of bolivar, who was kidnapped on 5 january, apparently by army of national liberation (eln) guerrillas, was found dead today, according to authorities. ... the group was traveling in a 4-wheel drive vehicle between cucuta and the rural area known as campanario when their vehicle was blown up by four explosive charges that detonated on the highway.",
     "answers": {
-      "PerpInd": ["GUATEMALAN ARMY TROOPS", "SOLDIERS", "NORTHEASTERN COBAN BASE TROOPS"],
-      "PerpOrg": ["GUATEMALAN ARMY"],
-      "Target": [],
-      "Victim": ["PEASANTS", "CIVIL SELF-DEFENSE PATROL (PAC) MEMBERS", "CIVILIAN PATROL", "INDIAN PEASANTS", "17-YEAR-OLD"],
-      "Weapon": []
+      "incidentDate": null,
+      "incidentLocation": "between cucuta and the rural area known as campanario",
+      "perpetratorIndividual": ["guerilla column"],
+      "perpetratorOrganization": ["army of national liberation (eln)", "eln"],
+      "target": ["4-wheel drive vehicle"],
+      "victim": ["carlos julio torrado", "torrado's son, william", "gustavo jacome quintero", "jairo ortega"],
+      "weapon": ["four explosive charges", "explosive charges"]
     }
   },
   {
-    "incident_type": "BOMBING",
-    "text": "CARACAS, 27 OCT 89 -- FIVE VENEZUELAN SOLDIERS WERE KILLED AT THE BORDER WITH COLOMBIA. COLOMBIAN GUERRILLAS PERPETRATED AN ATTACK WITH VERY POWERFUL EXPLOSIVES AGAINST A NATIONAL GUARD JEEP. THE EXPLOSIVES THAT KILLED THE FIVE SOLDIERS WERE BURIED IN A ROAD AND SET OFF BY REMOTE CONTROL AS THE MILITARY VEHICLE PASSED BY.",
+    "incidentType": "BOMBING",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "a ucr (radical civic union) buenos aires province committee spokesman today reported that a ucr district headquarters in buenos aires province was \"completely destroyed by a bomb explosion.\" the destroyed ucr headquarters is in the moreno district of buenos aires.",
     "answers": {
-      "PerpInd": ["COLOMBIAN GUERRILLAS"],
-      "PerpOrg": [],
-      "Target": ["NATIONAL GUARD JEEP", "MILITARY VEHICLE"],
-      "Victim": ["SOLDIERS"],
-      "Weapon": ["VERY POWERFUL EXPLOSIVES", "EXPLOSIVES"]
+      "incidentDate": null,
+      "incidentLocation": "moreno district of buenos aires",
+      "perpetratorIndividual": [],
+      "perpetratorOrganization": [],
+      "target": ["ucr district headquarters", "ucr headquarters"],
+      "victim": [],
+      "weapon": ["bomb explosion", "bomb"]
     }
   },
   {
-    "incident_type": "ATTACK",
-    "text": "BOGOTA, 16 SEP 89 -- TWO NATIONAL POLICE OFFICERS WERE SHOT TO DEATH AS THEY PASSED BY ON A MOTORCYCLE. THE CRIMINALS INTERCEPTED SERGEANT CARLOS JULIO BONILLA AND CORPORAL LUIS ALBERTO CHAVEZ. THE PAID ASSASSINS FLED IN A MOTORCYCLE. ELSEWHERE, SEVERAL ARMED INDIVIDUALS SHOT REPEATEDLY AT THE NEWSPAPER EL SIGLO'S FACILITIES.",
+    "incidentType": "BOMBING",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "official sources reported several guerrilla attacks the evening of 9 january and this morning. alleged guerrilla urban commandos launched two highpower bombs against a car dealership in downtown san salvador this morning. later, urban commandos bombed two electricity facilities in different places in san salvador.",
     "answers": {
-      "PerpInd": ["CRIMINALS", "PAID ASSASSINS", "ARMED INDIVIDUALS"],
-      "PerpOrg": [],
-      "Target": ["NEWSPAPER EL SIGLO'S FACILITIES"],
-      "Victim": ["NATIONAL POLICE OFFICERS", "SERGEANT CARLOS JULIO BONILLA", "CORPORAL LUIS ALBERTO CHAVEZ"],
-      "Weapon": []
+      "incidentDate": null,
+      "incidentLocation": "san salvador",
+      "perpetratorIndividual": ["guerrilla urban commandos"],
+      "perpetratorOrganization": [],
+      "target": ["car dealership", "electricity facilities"],
+      "victim": [],
+      "weapon": ["highpower bombs"]
     }
   },
   {
-    "incident_type": "BOMBING", 
-    "text": "SAN SALVADOR, 19 APR 89 -- ATTORNEY GENERAL ROBERTO GARCIA ALVARADO WAS KILLED WHEN A BOMB PLACED BY URBAN GUERRILLAS ON HIS VEHICLE EXPLODED. AN INDIVIDUAL PLACED A BOMB ON THE ROOF OF THE ARMORED VEHICLE. GUERRILLAS ATTACKED MERINO'S HOME WITH EXPLOSIVES.",
+    "incidentType": "BOMBING",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "two bomb attacks were carried out in la paz last night... the first bomb attack occurred in front of the planning and economic coordination ministry... a bomb was placed outside government house in the parking lot used by cabinet ministers.",
     "answers": {
-      "PerpInd": ["URBAN GUERRILLAS", "INDIVIDUAL", "GUERRILLAS"],
-      "PerpOrg": [],
-      "Target": ["VEHICLE", "ARMORED VEHICLE", "MERINO'S HOME"],
-      "Victim": ["ROBERTO GARCIA ALVARADO"],
-      "Weapon": ["BOMB", "EXPLOSIVES"]
+      "incidentDate": null,
+      "incidentLocation": "la paz",
+      "perpetratorIndividual": [],
+      "perpetratorOrganization": ["zarate willka liberation armed forces"],
+      "target": ["planning and economic coordination ministry", "government house"],
+      "victim": [],
+      "weapon": ["dynamite sticks", "bomb"]
     }
   },
   {
-    "incident_type": "KIDNAPPING",
-    "text": "LIMA, 5 OCT 89 -- HECTOR DELGADO PARKER WAS KIDNAPPED IN DOWNTOWN LIMA BY A COMMANDO OF THE TUPAC AMARU REVOLUTIONARY MOVEMENT (MRTA). AS A RESULT OF THE TERRORIST ACTION, DELGADO'S DRIVER WAS KILLED, AND DELGADO'S BODYGUARD WAS SERIOUSLY WOUNDED.",
+    "incidentType": "KIDNAPPING",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "the mnr reports the disappearance and kidnapping of mnr assistant secretary general hector oqueli colindres in guatemala city today, 12 january. according to reports, oqueli and his companion gilda flores were abducted by heavily armed men as they were heading to la aurora airport.",
     "answers": {
-      "PerpInd": ["COMMANDO"],
-      "PerpOrg": ["TUPAC AMARU REVOLUTIONARY MOVEMENT", "MRTA"],
-      "Target": [],
-      "Victim": ["HECTOR DELGADO PARKER", "DELGADO'S DRIVER", "DELGADO'S BODYGUARD"],
-      "Weapon": []
+      "incidentDate": null,
+      "incidentLocation": "guatemala city",
+      "perpetratorIndividual": ["heavily armed men"],
+      "perpetratorOrganization": [],
+      "target": [],
+      "victim": ["hector oqueli colindres", "gilda flores"],
+      "weapon": []
     }
   },
   {
-    "incident_type": "ATTACK",
-    "text": "MANAGUA, 15 JUN 89 -- CONTRAS FIRED MORTARS AT A FARMING COOPERATIVE NEAR ESTELI. THE REBELS LAUNCHED AN ATTACK USING AUTOMATIC WEAPONS AGAINST THE COMMUNITY CENTER. THREE COOPERATIVE MEMBERS WERE WOUNDED IN THE ASSAULT.",
+    "incidentType": "ATTACK",
+    "incidentStage": "ACCOMPLISHED",
+    "text": "authorities reported that former peruvian defense minister general enrique lopez albujar died today in lima as a consequence of a terrorist attack. he was riddled with bullets by three young individuals as he was getting out of his car in an open parking lot in the residential neighborhood of san isidro.",
     "answers": {
-      "PerpInd": ["CONTRAS", "REBELS"],
-      "PerpOrg": [],
-      "Target": ["FARMING COOPERATIVE", "COMMUNITY CENTER"],
-      "Victim": ["COOPERATIVE MEMBERS"],
-      "Weapon": ["MORTARS", "AUTOMATIC WEAPONS"]
+      "incidentDate": null,
+      "incidentLocation": "lima",
+      "perpetratorIndividual": ["three young individuals"],
+      "perpetratorOrganization": [],
+      "target": [],
+      "victim": ["enrique lopez albujar"],
+      "weapon": ["bullets"]
     }
   }
 ]
