@@ -1,0 +1,78 @@
+\section{Results – Strategy S3: Multi-LLM Consensus (Full)}
+\label{sec:eval-s3}
+
+The \textbf{S3: Multi-LLM Consensus (Full)} strategy runs multiple LLMs on the full document and aggregates with a verification/consensus step.
+We evaluate three variants:
+\textbf{S3.0} = no few-shot examples on the original MUC-4 dataset;
+\textbf{S3.1} = with few-shot examples on the original dataset;
+\textbf{S3.2} = with few-shot examples on a speech-style variant.
+
+\subsection*{Headline Results}
+
+\begin{table}[H]
+    \centering
+    \caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$).}
+    \label{tab:s3-variants-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+        \midrule
+        S3.0 (no few-shot, orig) & 0.602 & 0.481 & 0.121 & 0.601 & 0.713 & 0.246 & 0.319 & 0.706 \\
+        S3.1 (few-shot, orig)    & \textbf{0.641} & 0.521 & 0.120 & 0.638 & \textbf{0.743} & \textbf{0.208} & 0.295 & \textbf{0.740} \\
+        S3.2 (few-shot, speech)  & 0.624 & \textbf{0.524} & \textbf{0.100} & 0.630 & 0.728 & 0.251 & \textbf{0.289} & 0.738 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{Per-field (reference for S3.1).}
+Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \texttt{perpetratorIndividual} remains hardest; \texttt{incidentLocation} improves vs.\ single-pass.
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for S3.1 ($N{=}100$).}
+    \label{tab:s3-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Avg.\ Score & \#Docs \\
+        \midrule
+        incidentType & 0.510 & 100 \\
+        incidentDate & 0.730 & 100 \\
+        incidentLocation & 0.554 & 100 \\
+        incidentStage & 0.730 & 100 \\
+        perpetratorIndividual & 0.561 & 100 \\
+        perpetratorOrganization & 0.756 & 100 \\
+        target & 0.570 & 100 \\
+        victim & 0.567 & 100 \\
+        weapon & 0.793 & 100 \\
+        \midrule
+        \textbf{Overall (OBS)} & \textbf{0.641} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency}
+
+\begin{table}[h]
+    \centering
+    \caption{Latency statistics for S3 variants (seconds).}
+    \label{tab:s3-latency-all}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        S3.0 (no few-shot, orig) & 31.47 & 57.79 & 63.02 & 87.16 & 34.83 & 14.85 & 87.24 \\
+        S3.1 (few-shot, orig)    & \textbf{59.39} & \textbf{93.15} & \textbf{98.77} & \textbf{118.28} & \textbf{61.09} & 18.13 & \textbf{164.96} \\
+        S3.2 (few-shot, speech)  & 53.45 & 84.15 & 93.31 & 104.99 & 54.55 & \textbf{22.01} & 113.26 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Consensus cuts hallucinations and improves calibration.} Relative to iterative S2.1, S3.1 lowers HR (0.301$\rightarrow$0.208) and raises FDA (0.718$\rightarrow$0.743), with higher OBS (+0.022) at a modest MR increase (0.267$\rightarrow$0.295). This reflects better confidence alignment from cross-model agreement.
+    \item \textbf{Competitive with the best single-pass accuracy.} Against S1.1, S3.1 is close on OBS (0.641 vs.\ 0.644) but improves NES (0.521 vs.\ 0.504), suggesting stronger content quality on gold-nonempty fields; MR also improves (0.295 vs.\ 0.313), while HR is slightly higher than S1.1’s very conservative rate (0.208 vs.\ 0.180).
+    \item \textbf{Speech-style robustness holds.} S3.2 maintains NES leadership among S3 variants (0.524) and strong RFA (0.738), with MR the lowest (0.289). Compared to S1.2, S3.2 trades a small OBS deficit (0.624 vs.\ 0.626) for better NES (+0.016) and similar FDA (0.728 vs.\ 0.727).
+    \item \textbf{Field patterns persist.} \texttt{perpetratorOrganization}/\texttt{weapon} remain easiest; \texttt{perpetratorIndividual} continues to lag due to sparse, ambiguous references; \texttt{incidentLocation} benefits from full-context cross-checking (S3.1: 0.554 baseline) vs.\ S1’s single pass.
+    \item \textbf{Latency cost is real but tails are reasonable.} S3.1 has higher median and mean than S1.1, yet a shorter extreme tail than S1.1 (p99 118.3\,s vs.\ 134.9\,s). S3.0 offers a faster consensus baseline when few-shot is unavailable.
+\end{itemize}

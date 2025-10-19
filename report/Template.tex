@@ -18,6 +18,7 @@
 \usepackage{acronym}
 \usepackage{multicol}
 \KOMAoptions{parskip=half}
+ \usepackage{amsmath}
 
 \usepackage{tikz}
 \usepackage{tabularx}
@@ -139,16 +140,24 @@
 \mainmatter
 
 \chapter{Introduction}
+\label{chap:introduction}
 \input{src/chapters/introduction}
 
 \chapter{Analysis}
+\label{chap:analysis}
 \input{src/chapters/analysis/analysis}
 
 \chapter{Concept}
+\label{chap:concept}
 \input{src/chapters/concept/concept}
 
 \chapter{Implementation}
+\label{chap:implementation}
 \input{src/chapters/implementation/implementation}
+
+\chapter{Evaluation}
+\label{chap:evaluation}
+\input{src/chapters/evaluation/evaluation}
 
 % Add more chapters as needed...
 % \chapter{Concept}

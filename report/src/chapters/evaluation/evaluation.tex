@@ -1,0 +1,16 @@
+The goal of this chapter is to evaluate the proposed \textit{Invox} system and analyze its performance across multiple extraction strategies using the \textbf{MUC-4 benchmark dataset}. The evaluation aims to measure how effectively the system transforms unstructured, noisy text into structured templates under real-world conditions. To this end, the assessment focuses on the dimensions of \textbf{accuracy}, \textbf{consistency}, \textbf{latency}, \textbf{cost}, and \textbf{modularity}, in direct correspondence with the requirements defined in Chapter~\ref{chap:analysis}.
+
+Unlike traditional information extraction evaluations that rely on strict lexical overlap, the MUC-4 dataset poses a distinctive challenge: both the gold standard and system predictions may include \textit{multiple valid fillers} per slot, expressed through paraphrases or partial phrases. A purely string-based comparison would therefore underestimate performance. To account for this, all evaluations employ an \textbf{embedding-based semantic framework} in which cosine similarity between gold and predicted values captures conceptual correctness rather than surface form matching. This provides a fairer, more robust measure of information extraction quality.
+
+The chapter proceeds as follows. Section~\ref{sec:eval-dataset} introduces the MUC-4 dataset and the preprocessing pipeline applied prior to evaluation. Section~\ref{sec:eval-metrics} defines the semantic similarity metrics and auxiliary measures such as latency and cost. Section~\ref{sec:eval-setup} describes the experimental setup and the evaluated strategies. Sections~\ref{sec:eval-results}--\ref{sec:eval-comparative} present quantitative and qualitative results, followed by a summary that relates the findings to the original design requirements.
+
+\input{src/chapters/evaluation/dataset_details}
+\input{src/chapters/evaluation/evaluation_metrics}
+\input{src/chapters/evaluation/experimental_setup}
+\input{src/chapters/evaluation/langextract_result}
+\input{src/chapters/evaluation/s1_result}
+\input{src/chapters/evaluation/s2_result}
+\input{src/chapters/evaluation/s3_result}
+\input{src/chapters/evaluation/s4_result}
+\input{src/chapters/evaluation/summary}
+

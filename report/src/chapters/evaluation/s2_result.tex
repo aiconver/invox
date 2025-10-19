@@ -1,0 +1,78 @@
+\section{Results – Strategy S2: Iterative Single-Field}
+\label{sec:eval-s2}
+
+The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially, invoking the LLM once per slot.
+We evaluate three S2 variants:
+\textbf{S2.0} = no few-shot examples on the original MUC-4 dataset;
+\textbf{S2.1} = with few-shot examples on the original dataset;
+\textbf{S2.2} = with few-shot examples on a modified dataset that mimics speech-style transcripts.
+
+\subsection*{Headline Results}
+
+\begin{table}[h]
+    \centering
+    \caption{Headline metrics for S2 variants on MUC-4 ($N{=}100$).}
+    \label{tab:s2-variants-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+        \midrule
+        S2.0 (no few-shot, orig) & 0.590 & 0.560 & 0.029 & 0.608 & 0.709 & 0.373 & \textbf{0.226} & 0.724 \\
+        S2.1 (few-shot, orig)    & \textbf{0.619} & \textbf{0.555} & \textbf{0.064} & \textbf{0.639} & \textbf{0.718} & \textbf{0.301} & 0.267 & \textbf{0.758} \\
+        S2.2 (few-shot, speech)  & 0.595 & 0.544 & 0.051 & 0.631 & 0.700 & 0.341 & 0.267 & 0.742 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{Per-field (reference for S2.1).}
+\texttt{perpetratorOrganization} and \texttt{weapon} are strongest; \texttt{perpetratorIndividual} remains difficult; \texttt{incidentLocation} benefits from per-slot prompting.
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for S2.1 ($N{=}100$).}
+    \label{tab:s2-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Avg.\ Score & \#Docs \\
+        \midrule
+        incidentType & 0.520 & 100 \\
+        incidentDate & 0.550 & 100 \\
+        incidentLocation & 0.597 & 100 \\
+        incidentStage & 0.700 & 100 \\
+        perpetratorIndividual & 0.564 & 100 \\
+        perpetratorOrganization & 0.738 & 100 \\
+        target & 0.608 & 100 \\
+        victim & 0.543 & 100 \\
+        weapon & 0.751 & 100 \\
+        \midrule
+        \textbf{Overall (OBS)} & \textbf{0.619} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency}
+
+\begin{table}[H]
+    \centering
+    \caption{Latency statistics for S2 variants (seconds).}
+    \label{tab:s2-latency-all}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        S2.0 (no few-shot, orig) & 19.97 & 32.24 & 37.69 & 49.26 & 21.48 & 9.01 & 53.76 \\
+        S2.1 (few-shot, orig)    & 25.35 & 42.48 & 46.68 & 71.52 & 28.58 & 13.60 & 80.28 \\
+        S2.2 (few-shot, speech)  & 24.07 & 36.93 & 42.81 & 52.53 & 25.83 & 12.51 & 59.36 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Few-shot improves accuracy and calibrates fills.} S2.1 vs.\ S2.0: OBS +0.029, SF1 +0.031; hallucinations drop substantially (HR 0.373$\rightarrow$0.301) with a small FDA gain (0.709$\rightarrow$0.718). Misses rise (MR 0.226$\rightarrow$0.267), indicating a shift toward more conservative fills.
+    \item \textbf{Iterative prompting helps location.} S2.1 attains \texttt{incidentLocation} 0.597 (baseline regime), noticeably higher than S1’s single-pass numbers, consistent with field-focused instructions improving locality grounding.
+    \item \textbf{Speech-style robustness with mild cost.} S2.2 maintains competitive OBS/SF1 (0.595/0.631) and similar MR to S2.1, but with lower FDA (0.700) and higher HR (0.341). RFA remains strong (0.742), suggesting good quality when both sides produce values, but overall more cautious/variable fill decisions on spoken-like inputs.
+    \item \textbf{Persistent hard spot: \texttt{perpetratorIndividual}.} Scores remain low across variants due to sparse gold and ambiguous mentions; even with per-slot focus, recall lags compared to \texttt{weapon} and \texttt{perpetratorOrganization}.
+    \item \textbf{Latency–quality profile.} All S2 variants are faster than the best S1 accuracy setting (S1.1). S2.0 is the speed leader (p50 $\sim$20\,s/doc) but has higher HR; S2.1 delivers the best accuracy at a moderate latency increase; S2.2 offers a middle ground for speech-like text with shorter tails than S1.1.
+\end{itemize}

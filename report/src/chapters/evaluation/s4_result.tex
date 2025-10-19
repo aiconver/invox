@@ -1,0 +1,78 @@
+\section{Results – Strategy S4: Multi-LLM Per-Field}
+\label{sec:eval-s4}
+
+The \textbf{S4: Multi-LLM Per-Field} strategy applies consensus at the slot level: each field is extracted by multiple models and consolidated via a field-aware verifier. We evaluate:
+\textbf{S4.0} = no few-shot on the original MUC-4 dataset;
+\textbf{S4.1} = few-shot on the original dataset;
+\textbf{S4.2} = few-shot on a speech-style variant.
+
+\subsection*{Headline Results}
+
+\begin{table}[h]
+    \centering
+    \caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$).}
+    \label{tab:s4-variants-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+        \midrule
+        S4.0 (no few-shot, orig) & 0.549 & \textbf{0.628} & \textbf{-0.080} & 0.589 & 0.693 & \textbf{0.551} & \textbf{0.112} & 0.708 \\
+        S4.1 (few-shot, orig)    & \textbf{0.579} & 0.624 & -0.044 & \textbf{0.613} & \textbf{0.709} & 0.476 & 0.144 & \textbf{0.728} \\
+        S4.2 (few-shot, speech)  & 0.572 & 0.612 & -0.040 & 0.592 & 0.704 & 0.479 & 0.150 & 0.719 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{Per-field (reference for S4.1).}
+Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndividual} remains hardest; \texttt{weapon} is lower than S1/S3.
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for S4.1 ($N{=}100$).}
+    \label{tab:s4-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Avg.\ Score & \#Docs \\
+        \midrule
+        incidentType & 0.440 & 100 \\
+        incidentDate & 0.370 & 100 \\
+        incidentLocation & 0.641 & 100 \\
+        incidentStage & 0.720 & 100 \\
+        perpetratorIndividual & 0.585 & 100 \\
+        perpetratorOrganization & 0.644 & 100 \\
+        target & 0.550 & 100 \\
+        victim & 0.572 & 100 \\
+        weapon & 0.692 & 100 \\
+        \midrule
+        \textbf{Overall (OBS)} & \textbf{0.579} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency}
+
+\begin{table}[H]
+    \centering
+    \caption{Latency statistics for S4 variants (seconds).}
+    \label{tab:s4-latency-all}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        S4.0 (no few-shot, orig) & 125.14 & 157.96 & 166.02 & 177.27 & 128.64 & 97.08 & 179.00 \\
+        S4.1 (few-shot, orig)    & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
+        S4.2 (few-shot, speech)  & \textbf{127.23} & \textbf{159.02} & \textbf{175.50} & \textbf{192.16} & \textbf{131.15} & \textbf{84.42} & \textbf{218.22} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Per-field consensus is aggressive: high NES, negative EAI.} All S4 variants show NES $\geq$ 0.612 with \emph{negative} EAI (e.g., S4.1: $-0.044$), meaning they excel when gold is nonempty but overfill when gold is empty. This matches the high HR (0.476–0.551) coupled with very low MR (0.112–0.150).
+    \item \textbf{Few-shot moderates overfilling and lifts quality.} S4.1 vs.\ S4.0 raises OBS (+0.030) and SF1 (+0.025), reduces HR (0.551$\rightarrow$0.476), and slightly increases MR (0.112$\rightarrow$0.144) — shifting toward more calibrated fills while keeping RFA high (0.728).
+    \item \textbf{Speech-style robustness is steady but cautious.} S4.2 keeps strong NES (0.612) and similar FDA (0.704) to S4.1, with a small OBS/SF1 drop and modestly higher MR (0.150). RFA remains solid (0.719), indicating good quality when both sides fill.
+    \item \textbf{Field-level effects.} \texttt{incidentLocation} benefits most from per-slot consensus (S4.1: 0.641), surpassing single-pass baselines. \texttt{weapon} lags S1/S3 (0.692 in S4.1), suggesting per-field voting can over-accept marginal mentions; \texttt{perpetratorIndividual} remains the hardest across strategies.
+    \item \textbf{Compared to S3 (full-document consensus).} S4.1 has much higher NES (0.624 vs.\ 0.521 for S3.1) but lower OBS (0.579 vs.\ 0.641) due to higher HR. In short: S4 is great when the slot truly exists, but its aggressiveness hurts overall scoring when gold is empty.
+    \item \textbf{Latency is the trade-off frontier.} S4 is the slowest family by design (p50 $\approx$ 122–127\,s/doc; tails reaching 160–190\,s). If throughput matters, S3.1 offers a better accuracy–latency balance; if maximizing filled content on nonempty fields is key, S4.1 is attractive with careful post-filters.
+\end{itemize}

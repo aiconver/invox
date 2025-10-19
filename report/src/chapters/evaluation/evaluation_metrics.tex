@@ -1,0 +1,79 @@
+\section{Evaluation Metrics}
+\label{sec:eval-metrics}
+
+We evaluate \textit{Invox} along complementary axes: (i) semantic accuracy under paraphrase and set-size mismatch, (ii) behavior under typed schema constraints, and (iii) operational efficiency. 
+Because MUC-4 slots often admit paraphrases or near-synonyms, we use embedding-based measurements for text and list fields, while keeping exact comparison for typed slots (enums, dates).
+To disentangle empty-field effects, we report results in two regimes:
+\emph{baseline} (standard scoring, where gold-empty $\wedge$ pred-empty contributes positively) and 
+\emph{gold-nonempty-only} (scores computed \emph{only} when the gold slot is nonempty).
+
+\subsection{Embedding-Based Accuracy (R2)}
+\label{subsec:emb-acc}
+
+For text and list-valued slots, we compare unordered sets of fillers using sentence embeddings (\texttt{all-MiniLM-L6-v2}) and cosine similarity. 
+Let $G=\{g_i\}$ and $P=\{p_j\}$ be the gold and predicted sets. 
+We define gold-anchored recall and prediction-anchored precision surrogates:
+\begin{align}
+\text{SoftCoverage}   &= \frac{1}{|G|}\sum_{i}\max_{j}\ \cos\!\big(\mathrm{enc}(g_i),\,\mathrm{enc}(p_j)\big), \\
+\text{SoftSpecificity} &= \frac{1}{|P|}\sum_{j}\max_{i}\ \cos\!\big(\mathrm{enc}(p_j),\,\mathrm{enc}(g_i)\big).
+\end{align}
+
+Their symmetric mean gives a threshold-free Chamfer similarity,
+\[
+\text{Chamfer} \;=\; \tfrac{1}{2}\big(\text{SoftCoverage}+\text{SoftSpecificity}\big),
+\]
+and we also report a \emph{Soft-F1} (\textbf{SF1}) as the harmonic mean of SoftCoverage and SoftSpecificity:
+\[
+\text{SF1} \;=\; \frac{2\,\text{SoftCoverage}\cdot\text{SoftSpecificity}}{\text{SoftCoverage}+\text{SoftSpecificity}}.
+\]
+For \textbf{enums} and \textbf{dates}, we use \emph{exact} scoring (match = 1, otherwise 0), aligning with the typed nature of these slots. 
+Free-form \textbf{locations} are treated as text (singletons) and scored via embeddings.
+
+\paragraph{Two scoring regimes.} 
+We compute all scores twice: (i) \textbf{baseline} (standard), and (ii) \textbf{gold-nonempty-only} (ignores any (doc,slot) where the gold is empty). 
+This separation isolates true content quality from empty-field advantages.
+
+\subsection{Decision Quality Under Typed Constraints (R1)}
+\label{subsec:consistency}
+
+Beyond similarity, we evaluate the model's \emph{fill decision} with a presence matrix over four outcomes per slot: 
+gold-empty/pred-empty, gold-empty/pred-nonempty, gold-nonempty/pred-empty, gold-nonempty/pred-nonempty. 
+From this we derive compact decision metrics:
+\begin{itemize}
+  \item \textbf{FDA} (Fill-Decision Accuracy): fraction of cases where the empty vs.\ nonempty choice matches gold.
+  \item \textbf{HR} (Hallucination Rate): $\Pr(\text{pred nonempty} \mid \text{gold empty})$.
+  \item \textbf{MR} (Missing Rate): $\Pr(\text{pred empty} \mid \text{gold nonempty})$.
+  \item \textbf{RFA} (Required-Fill Accuracy): average slot score \emph{conditioned} on gold-nonempty \emph{and} pred-nonempty, capturing content quality when the model commits to a fill.
+\end{itemize}
+To summarize empty-field sensitivity we report the \textbf{Empty Advantage Index (EAI)}:
+\[
+\text{EAI} \;=\; \text{OBS} - \text{NES},
+\]
+where \textbf{OBS} is the overall baseline score and \textbf{NES} is the overall score in the gold-nonempty-only regime (\S\ref{sec:results}). 
+Higher EAI indicates stronger reliance on empty$\leftrightarrow$empty matches.
+
+
+
+\subsection{Latency and Cost at Inference (R6)}
+\label{subsec:latency-cost}
+
+Operational efficiency is measured per document from \texttt{timing.duration\_ms}, reporting p50 (median), p90, p95, p99, mean, min, and max. 
+When available, we also estimate cost from API token usage (prompts, completions, and embeddings), reported as USD per document. 
+Because retrieval and embedding are lightweight relative to decoding, schema- and example-guided approaches remain compatible with near real-time use.
+
+\subsection{User Correction and Human-in-the-Loop Reliability (R4)}
+\label{subsec:correction}
+
+Although MUC-4 does not capture interactive editing, \textit{Invox} surfaces all auto-filled fields for review with typed widgets (date pickers, enum selectors, multi-value inputs). 
+This design safely combines ``empty-when-uncertain'' behavior with rapid human confirmation, preserving downstream data quality.
+
+\subsection{Modularity and Extensibility (R5)}
+\label{subsec:modularity}
+
+The architecture decouples retrieval, prompting, decoding, and verification into swappable modules. 
+We evaluate alternative extraction strategies under the same metrics (OBS/NES/EAI, SF1/Chamfer, FDA/HR/MR/RFA, latency), enabling targeted optimization. 
+Because slots are declarative (descriptions, types, allowed values), new domains or fields integrate without changing the evaluation stack.
+
+\paragraph{Summary.}
+Our protocol reports (i) \textbf{content similarity} (SoftCoverage, SoftSpecificity, Chamfer, SF1), (ii) \textbf{decision quality} (FDA, HR, MR, RFA) with an empty-field sensitivity index (EAI), under both \textbf{baseline} and \textbf{gold-nonempty-only} regimes, and (iii) \textbf{operational efficiency} (latency, cost). 
+Together these satisfy requirements on accuracy (R2), consistency (R1), domain alignment (R3), modularity (R5), operational efficiency (R6), and human oversight (R4) in a single, coherent evaluation framework.

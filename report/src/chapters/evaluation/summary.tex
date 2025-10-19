@@ -1,0 +1,63 @@
+\section{Comparative Analysis of Strategies}
+\label{sec:eval-comparative}
+
+We compare four \textit{Invox} strategies—S1 (single-pass), S2 (iterative per-field), S3 (full-document consensus), and S4 (per-field consensus)—along \textbf{semantic accuracy} (R2), \textbf{latency} (R6), and \textbf{modularity} (R5). 
+All numbers below use the few-shot, original MUC-4 setting for each strategy.
+
+\subsection*{Quantitative Comparison}
+
+\begin{table}[h]
+    \centering
+    \caption{Macro comparison (clean text; few-shot original).}
+    \label{tab:strategy-comparison}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Strategy & OBS & NES & EAI & SF1 & FDA & HR & MR \\
+        \midrule
+        S1.1: Single-Pass          & \textbf{0.644} & 0.504 & 0.140 & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 \\
+        S2.1: Iterative per-field  & 0.619 & \textbf{0.555} & \textbf{0.064} & 0.639 & 0.718 & 0.301 & 0.267 \\
+        S3.1: Full consensus       & 0.641 & 0.521 & 0.120 & 0.638 & 0.743 & 0.208 & 0.295 \\
+        S4.1: Per-field consensus  & 0.579 & \textbf{0.624} & \textbf{-0.044} & 0.613 & 0.709 & 0.476 & \textbf{0.144} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\noindent\textit{Embedding alignment (baseline regime):} Chamfer (sym.) — S1.1: 0.642; S2.1: 0.639; S3.1: 0.638; S4.1: 0.613.
+
+\subsection*{Latency Comparison (R6)}
+
+\begin{table}[h]
+    \centering
+    \caption{Latency profile (seconds; clean text).}
+    \label{tab:latency-comparison}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Strategy & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        S1.1: Single-Pass          & 55.91 & 93.01 & 108.40 & 134.93 & 57.34 & 14.54 & 163.79 \\
+        S2.1: Iterative per-field  & \textbf{25.35} & 42.48 & 46.68 & 71.52 & 28.58 & 13.60 & 80.28 \\
+        S3.1: Full consensus       & 59.39 & 93.15 & 98.77 & 118.28 & 61.09 & 18.13 & 164.96 \\
+        S4.1: Per-field consensus  & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Best overall accuracy on clean text:} \underline{S1.1} leads OBS (0.644) and SF1 (0.642), with the lowest HR (0.180) and the highest FDA (0.746). Strong default when you want accuracy with minimal orchestration.
+    \item \textbf{Quality when gold is nonempty:} \underline{S4.1} tops NES (0.624) and has the lowest MR (0.144), but does so via aggressive filling (HR 0.476), lowering its OBS.
+    \item \textbf{Calibration via consensus:} \underline{S3.1} is near S1.1 on OBS (0.641 vs.\ 0.644) while improving NES (0.521 vs.\ 0.504) and FDA (0.743), and cutting HR vs.\ S2.1 (0.208 vs.\ 0.301). A strong choice when you want additional stability without a huge latency jump over S1.
+    \item \textbf{Throughput leader with solid accuracy:} \underline{S2.1} is the fastest (p50 25.35s) and improves field grounding (e.g., location), trading a modest OBS drop and higher HR for speed and interpretability.
+    \item \textbf{Latency hierarchy:} S2.1 \(\rightarrow\) S1.1 \(\approx\) S3.1 \(\rightarrow\) S4.1. Use S4.1 only when maximizing fills on known-present slots is key and you can post-filter to curb overfilling.
+\end{itemize}
+
+
+\subsection*{Summary}
+
+\begin{itemize}
+    \item \textbf{S1.1} = best single-model accuracy and calibration on clean text.
+    \item \textbf{S3.1} = consensus-calibrated stability with near-S1 accuracy.
+    \item \textbf{S2.1} = best latency with competitive accuracy and clearer per-field control.
+    \item \textbf{S4.1} = highest NES/lowest MR but overfills; apply verification/post-filters.
+\end{itemize}

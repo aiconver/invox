@@ -1,0 +1,100 @@
+\section{Results – LangExtract Baseline (S5)}
+\label{sec:eval-langextract}
+
+\textbf{LangExtract} is an open-source, LLM-powered Python library for schema-constrained extraction. 
+In our pipeline it serves as a deterministic orchestration wrapper around model calls (strict JSON schema, span grounding).
+
+\subsection*{Quantitative Results}
+
+\begin{table}[H]
+    \centering
+    \caption{Headline metrics for LangExtract on MUC-4 ($N{=}100$ documents).}
+    \label{tab:langextract-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        OBS & NES & EAI & SF1\,(base) & SF1\,(nonempty) & FDA & HR & MR & RFA \\
+        \midrule
+        0.684 & 0.502 & 0.182 & 0.653 & 0.406 & 0.756 & 0.088 & 0.369 & 0.796 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for LangExtract (baseline regime; $N{=}100$).}
+    \label{tab:langextract-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Average Score & \#Docs \\
+        \midrule
+        incidentType & 0.880 & 100 \\
+        incidentDate & 0.570 & 100 \\
+        incidentLocation & 0.512 & 100 \\
+        incidentStage & 0.830 & 100 \\
+        perpetratorIndividual & 0.719 & 100 \\
+        perpetratorOrganization & 0.681 & 100 \\
+        target & 0.523 & 100 \\
+        victim & 0.596 & 100 \\
+        weapon & 0.844 & 100 \\
+        \midrule
+        \textbf{Overall Average (OBS)} & \textbf{0.684} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Embedding metrics (overall) for LangExtract.}
+    \label{tab:langextract-embed-overall}
+    \begin{tabular}{lccc}
+        \toprule
+        Regime & Soft-Coverage & Soft-Specificity & Chamfer (Sym.) \\
+        \midrule
+        Baseline & 0.646 & 0.661 & 0.653 \\
+        Gold-nonempty-only & 0.391 & 0.421 & 0.406 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field embedding metrics for LangExtract (baseline; text/list fields).}
+    \label{tab:langextract-embed-perfield}
+    \begin{tabular}{lccc}
+        \toprule
+        Field & Soft-Coverage & Soft-Specificity & Chamfer \\
+        \midrule
+        incidentLocation & 0.512 & 0.512 & 0.512 \\
+        perpetratorIndividual & 0.719 & 0.730 & 0.724 \\
+        perpetratorOrganization & 0.681 & 0.679 & 0.680 \\
+        target & 0.523 & 0.531 & 0.527 \\
+        victim & 0.596 & 0.660 & 0.628 \\
+        weapon & 0.844 & 0.854 & 0.849 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency Analysis}
+
+\begin{table}[H]
+    \centering
+    \caption{Latency statistics for LangExtract (seconds).}
+    \label{tab:langextract-latency}
+    \begin{tabular}{lccccccc}
+        \toprule
+        p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        21.15 & 57.61 & 65.39 & 99.19 & 27.03 & 1.95 & 109.84 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Strong, conservative filler.} Very low HR (0.088) and high RFA (0.796): when it fills, it’s usually good; it avoids over-filling.
+    \item \textbf{Nonempty quality lags.} The gap (EAI $=0.182$) shows reliance on empty$\leftrightarrow$empty matches; NES (0.502) and SF1\,(nonempty) (0.406) are notably lower.
+    \item \textbf{Field skew.} Best on \texttt{incidentType}/\texttt{weapon}/\texttt{stage}; weaker on \texttt{target}, \texttt{location}, and especially \texttt{perpetratorOrganization} under gold-nonempty evaluation.
+    \item \textbf{Dates under-filled.} Gold-nonempty \texttt{incidentDate} averaged 0.000 and the confusion table shows abstention when gold is nonempty (43 misses), explaining part of the MR (0.369).
+    \item \textbf{Runtime is moderate.} Median $\sim$21\,s with a long tail; practical for batch or async passes.
+\end{itemize}

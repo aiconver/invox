@@ -1,0 +1,78 @@
+\section{Results – Strategy S1: Single-Pass Full Input}
+\label{sec:eval-s1}
+
+The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 slots in a single LLM call. 
+We evaluate three S1 variants: 
+\textbf{S1.0} = no few-shot examples on the original MUC-4 dataset; 
+\textbf{S1.1} = with few-shot examples on the original dataset; 
+\textbf{S1.2} = with few-shot examples on a modified MUC-4 dataset that mimics speech-style transcripts.
+
+\subsection*{Headline Results}
+
+\begin{table}[h]
+    \centering
+    \caption{Headline metrics for S1 variants on MUC-4 ($N{=}100$).}
+    \label{tab:s1-variants-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+        \midrule
+        S1.0 (no few-shot, orig) & 0.601 & 0.469 & 0.132 & 0.604 & 0.713 & 0.233 & 0.329 & 0.700 \\
+        S1.1 (few-shot, orig)    & \textbf{0.644} & 0.504 & \textbf{0.140} & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 & 0.733 \\
+        S1.2 (few-shot, speech)  & 0.626 & \textbf{0.508} & 0.118 & 0.631 & 0.727 & 0.226 & \textbf{0.311} & \textbf{0.738} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\paragraph{Per-field (reference for S1.1).}
+\texttt{perpetratorOrganization} and \texttt{weapon} lead; \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain harder.
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for S1.1 ($N{=}100$).}
+    \label{tab:s1-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Avg.\ Score & \#Docs \\
+        \midrule
+        incidentType & 0.510 & 100 \\
+        incidentDate & 0.760 & 100 \\
+        incidentLocation & 0.516 & 100 \\
+        incidentStage & 0.710 & 100 \\
+        perpetratorIndividual & 0.584 & 100 \\
+        perpetratorOrganization & 0.752 & 100 \\
+        target & 0.592 & 100 \\
+        victim & 0.563 & 100 \\
+        weapon & 0.807 & 100 \\
+        \midrule
+        \textbf{Overall (OBS)} & \textbf{0.644} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency}
+
+\begin{table}[H]
+    \centering
+    \caption{Latency statistics for S1 variants (seconds).}
+    \label{tab:s1-latency-all}
+    \begin{tabular}{lccccccc}
+        \toprule
+        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        S1.0 (no few-shot, orig) & 25.04 & 46.49 & 51.82 & 66.12 & 28.17 & 6.51 & 78.65 \\
+        S1.1 (few-shot, orig)    & \textbf{55.91} & \textbf{93.01} & \textbf{108.40} & \textbf{134.93} & \textbf{57.34} & 14.54 & \textbf{163.79} \\
+        S1.2 (few-shot, speech)  & 49.36 & 69.30 & 77.84 & 86.79 & 47.89 & \textbf{16.85} & 102.50 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Insights}
+
+\begin{itemize}
+    \item \textbf{Few-shot boosts the single-pass baseline.} Moving from S1.0 to S1.1 improves OBS (+0.043) and SF1 (+0.038), increases FDA (0.713$\rightarrow$0.746), and cuts HR (0.233$\rightarrow$0.180). Gains concentrate in entity-rich fields (\texttt{perpetratorOrganization}, \texttt{weapon}) and reduce empty-field errors.
+    \item \textbf{Speech-style inputs remain robust.} S1.2 trails S1.1 modestly on OBS/SF1 but achieves the best NES (0.508) and RFA (0.738), indicating strong content quality when gold is nonempty and both sides fill. Its lower EAI (0.118) suggests less dependence on empty-field advantage.
+    \item \textbf{Decision behavior stabilizes with few-shot.} Few-shot lowers hallucination rate (HR) and raises fill-decision accuracy (FDA). S1.2 keeps FDA competitive (0.727) with the lowest missing rate (MR{=}0.311, tie within rounding), despite noisier inputs.
+    \item \textbf{Consistent hard spots.} \texttt{perpetratorIndividual} remains the most difficult (sparse gold, high MR in nonempty regime); \texttt{incidentLocation} shows moderate improvements but stays challenging compared to \texttt{weapon}/\texttt{perpetratorOrganization}.
+    \item \textbf{Latency–quality trade-off and overall choice.} S1.0 is fastest (p50 $\sim$25\,s/doc) but least accurate. S1.1 is the strongest accuracy baseline on clean text (p50 $\sim$56\,s/doc) at higher latency. S1.2 offers a middle ground for speech-like inputs—near S1.1 quality with shorter tails (p99 86.8\,s vs.\ 134.9\,s)—and is a sensible default when spoken-text robustness matters.
+\end{itemize}
