@@ -1,49 +1,29 @@
 #!/usr/bin/env python3
 """
-MUC-4 evaluator (camelCase schema)
+MUC-4 evaluator (camelCase schema) — dual regimes + headline metrics
+
+New summary metrics (overall):
+- OBS  : Overall Baseline Score (regimes.baseline.overall_average_score)
+- NES  : Non-Empty Score (regimes.gold_nonempty_only.overall_average_score)
+- EAI  : Empty Advantage Index (OBS - NES)
+- SF1  : Soft-F1 for both regimes (harmonic mean of soft_coverage & soft_specificity)
+- FDA  : Fill-Decision Accuracy (correct empty/non-empty decisions / all decisions)
+- HR   : Hallucination Rate (pred non-empty | gold empty)
+- MR   : Missing Rate (pred empty | gold non-empty)
+- RFA  : Required-Fill Accuracy (avg score when gold & pred are both non-empty)
+
+Adds a second evaluation regime that *excludes* fields where the gold value is empty:
+- baseline: current behavior (empty gold vs empty pred yields score 1.0)
+- gold_nonempty_only: include (doc, field) only if gold is nonempty
+
+Also reports a per-field presence matrix to see empty/non-empty behavior.
 
 Usage:
   python muc4_eval.py --gold path/to/gold.json --pred path/to/pred.json \
-    [--embed_model all-MiniLM-L6-v2] [--pretty] [--show-matches]
+    [--embed_model all-MiniLM-L6-v2] [--pretty] [--show-matches] [--overall-only]
 
-Gold (array):
-[
-  {
-    "docid": "DOC_ID",
-    "doctext": "...",
-    "templates": [{
-      "incidentType": "BOMBING",
-      "incidentDate": "1989-12-20" | null,
-      "incidentLocation": "BOLIVIA: LA PAZ (CITY)",
-      "incidentStage": "ACCOMPLISHED",
-      "perpetratorIndividual": [...],
-      "perpetratorOrganization": [...],
-      "target": [...],
-      "victim": [...],
-      "weapon": [...]
-    }]
-  }
-]
-
-Pred (array):
-[
-  {
-    "id": "DOC_ID",
-    "answers": {
-      "incidentType": "BOMBING",
-      "incidentDate": "1989-12-20" | null,
-      "incidentLocation": "LA PAZ",
-      "incidentStage": "ACCOMPLISHED",
-      "perpetratorIndividual": [...],
-      "perpetratorOrganization": [...],
-      "target": [...],
-      "victim": [...],
-      "weapon": [...]
-    }
-  }
-]
-
-pip install sentence-transformers
+Requires:
+  pip install sentence-transformers
 """
 import argparse
 import json
@@ -74,6 +54,7 @@ FIELD_SPECS = {
 FIELD_IDS = list(FIELD_SPECS.keys())
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 
+
 # ------------------------
 # Helpers
 # ------------------------
@@ -94,6 +75,19 @@ def _as_string_list(v) -> List[str]:
                 out.extend([str(x).strip() for x in item if isinstance(x, str) and str(x).strip()])
         return out
     return []
+
+def _is_empty_value(kind: str, value) -> bool:
+    """True if 'value' is considered empty for this field kind."""
+    if kind == "list":
+        return not value  # [] or None
+    if kind == "date":
+        return (value is None) or (isinstance(value, str) and not value.strip())
+    # enum/text
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return (value.strip() == "")
+    return False
 
 def load_gold(path: Path) -> Dict[str, Dict[str, object]]:
     data = json.loads(path.read_text(encoding="utf-8"))
@@ -119,7 +113,6 @@ def load_gold(path: Path) -> Dict[str, Dict[str, object]]:
         gold[did] = row
     return gold
 
-# change signature:
 def load_pred(path: Path) -> Tuple[Dict[str, Dict[str, object]], Dict[str, float]]:
     data = json.loads(path.read_text(encoding="utf-8"))
     pred: Dict[str, Dict[str, object]] = {}
@@ -143,7 +136,7 @@ def load_pred(path: Path) -> Tuple[Dict[str, Dict[str, object]], Dict[str, float
         if isinstance(row.get("incidentDate"), str) and not DATE_RE.match(row["incidentDate"]):  # type: ignore
             row["incidentDate"] = None
 
-        # ⬇️ capture latency
+        # latency
         lat = d.get("meta", {}).get("timing", {}).get("duration_ms")
         if isinstance(lat, (int, float)) and np.isfinite(lat):
             latency_ms[d["id"]] = float(lat)
@@ -151,8 +144,6 @@ def load_pred(path: Path) -> Tuple[Dict[str, Dict[str, object]], Dict[str, float
         pred[d["id"]] = row
 
     return pred, latency_ms
-
-
 
 def compute_latency_stats(latency_ms: Dict[str, float]) -> Dict[str, float]:
     if not latency_ms:
@@ -213,7 +204,6 @@ class EmbeddingScorer:
 # Embedding metrics helpers
 # ------------------------
 def soft_coverage(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: List[str]) -> float:
-    # gold-anchored: avg of max sim(g -> any pred)
     if not gold_vals:
         return 1.0 if not pred_vals else 0.0
     if not pred_vals:
@@ -222,7 +212,6 @@ def soft_coverage(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: Li
     return float(np.mean(np.max(S, axis=1)))
 
 def soft_specificity(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals: List[str]) -> float:
-    # pred-anchored: avg of max sim(p -> any gold)
     if not pred_vals:
         return 1.0 if not gold_vals else 0.0
     if not gold_vals:
@@ -237,7 +226,7 @@ def chamfer_symmetric(scorer: "EmbeddingScorer", gold_vals: List[str], pred_vals
 
 
 # ------------------------
-# Per-field scoring
+# Per-field scoring primitives
 # ------------------------
 def score_enum(gold: Optional[str], pred: Optional[str]) -> float:
     g = (gold or "").strip().upper()
@@ -256,24 +245,6 @@ def score_date(gold: Optional[str], pred: Optional[str]) -> float:
 def score_text(gold: Optional[str], pred: Optional[str], scorer: EmbeddingScorer) -> float:
     return scorer.cosine_similarity(gold or "", pred or "")
 
-def score_list(gold: List[str], pred: List[str], scorer: EmbeddingScorer, show_matches: bool, doc_id: str, field: str):
-    matches, avg = scorer.best_matches(gold, pred)
-    if show_matches and (gold or pred):
-        print(f"\nDoc {doc_id} | Field {field}")
-        if not gold and not pred:
-            print("  (both empty)")
-        else:
-            for g, p, s in matches:
-                arrow = "->" if p else "-> [no prediction]"
-                print(f"  Gold '{g}' {arrow} '{p}'  (score: {s:.3f})")
-            if not gold and pred:
-                print("  NOTE: gold empty, predictions present -> field score = 0.0")
-            if gold and not pred:
-                print("  NOTE: predictions empty -> field score = 0.0")
-        print(f"  Field doc-score: {avg:.3f}")
-    return avg
-
-
 def compute_list_metrics(
     gold_vals: List[str],
     pred_vals: List[str],
@@ -282,15 +253,7 @@ def compute_list_metrics(
     doc_id: str,
     field: str,
 ) -> Tuple[float, float, float, float]:
-    """
-    Returns:
-      avg_best (gold-anchored best-match average)  -- this matches your current list scoring
-      coverage (gold-anchored)
-      specificity (pred-anchored)
-      chamfer (symmetric avg of coverage & specificity)
-    """
-    # avg_best for backwards-compat is the same as coverage when both non-empty,
-    # but we preserve your empty-handling by reusing best_matches().
+    """Returns (avg_best, coverage, specificity, chamfer)."""
     matches, avg_best = scorer.best_matches(gold_vals, pred_vals)
     coverage = soft_coverage(scorer, gold_vals, pred_vals)
     specificity = soft_specificity(scorer, gold_vals, pred_vals)
@@ -314,7 +277,7 @@ def compute_list_metrics(
 
 
 # ------------------------
-# Evaluation
+# Evaluation (dual regimes + RFA + decision metrics)
 # ------------------------
 def evaluate(
     gold: Dict[str, Dict[str, object]],
@@ -323,14 +286,37 @@ def evaluate(
     show_matches: bool = False
 ) -> Dict:
     scorer = EmbeddingScorer(embed_model)
-    field_scores: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
-    field_stats: Dict[str, Dict[str, float]] = {}
-    field_cov: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
-    field_spec: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
-    field_chamfer: Dict[str, List[float]] = {f: [] for f in FIELD_IDS}
-
     all_doc_ids = sorted(set(gold.keys()) | set(pred.keys()))
     print(f"Evaluating {len(all_doc_ids)} documents...")
+
+    # Aggregators for both regimes
+    regimes = {
+        "baseline": {
+            "field_scores": {f: [] for f in FIELD_IDS},
+            "field_cov":    {f: [] for f in FIELD_IDS},
+            "field_spec":   {f: [] for f in FIELD_IDS},
+            "field_cham":   {f: [] for f in FIELD_IDS},
+        },
+        "gold_nonempty_only": {
+            "field_scores": {f: [] for f in FIELD_IDS},
+            "field_cov":    {f: [] for f in FIELD_IDS},
+            "field_spec":   {f: [] for f in FIELD_IDS},
+            "field_cham":   {f: [] for f in FIELD_IDS},
+        }
+    }
+
+    # Presence matrix per-field
+    presence = {
+        f: {
+            "gold_empty_pred_empty": 0,
+            "gold_empty_pred_nonempty": 0,
+            "gold_nonempty_pred_empty": 0,
+            "gold_nonempty_pred_nonempty": 0,
+        } for f in FIELD_IDS
+    }
+
+    # Scores only when both sides are non-empty (for RFA)
+    rfa_scores: List[float] = []
 
     for doc_id in all_doc_ids:
         gdoc = gold.get(doc_id, {})
@@ -338,68 +324,171 @@ def evaluate(
 
         for fid, spec in FIELD_SPECS.items():
             kind = spec["kind"]
-            if kind == "enum":
-                s = score_enum(gdoc.get(fid), pdoc.get(fid))  # type: ignore
-                field_scores[fid].append(float(s))
-                # enums: skip cov/spec/chamfer (or set to None)
-            elif kind == "date":
-                s = score_date(gdoc.get(fid), pdoc.get(fid))  # type: ignore
-                field_scores[fid].append(float(s))
-            elif kind == "text":
-                # treat text as singleton lists to reuse the same embedding metrics
-                gv = [gdoc.get(fid)] if gdoc.get(fid) else []  # type: ignore
-                pv = [pdoc.get(fid)] if pdoc.get(fid) else []  # type: ignore
-                avg_best, cov, specf, cham = compute_list_metrics(gv, pv, scorer, show_matches, doc_id, fid)
-                # keep original scalar score for backwards compat (cosine on strings)
-                s_scalar = score_text(gdoc.get(fid), pdoc.get(fid), scorer)  # type: ignore
-                field_scores[fid].append(float(s_scalar))
-                field_cov[fid].append(cov)
-                field_spec[fid].append(specf)
-                field_chamfer[fid].append(cham)
+            gval = gdoc.get(fid)
+            pval = pdoc.get(fid)
+
+            gold_empty = _is_empty_value(kind, gval)
+            pred_empty = _is_empty_value(kind, pval)
+
+            # Update presence matrix
+            if gold_empty and pred_empty:
+                presence[fid]["gold_empty_pred_empty"] += 1
+            elif gold_empty and not pred_empty:
+                presence[fid]["gold_empty_pred_nonempty"] += 1
+            elif (not gold_empty) and pred_empty:
+                presence[fid]["gold_nonempty_pred_empty"] += 1
             else:
-                # 'list'
-                gvals = gdoc.get(fid) or []  # type: ignore
-                pvals = pdoc.get(fid) or []  # type: ignore
+                presence[fid]["gold_nonempty_pred_nonempty"] += 1
+
+            # --- Compute scores/metrics once per field (per doc)
+            if kind == "enum":
+                s = score_enum(gval, pval)
+                regimes["baseline"]["field_scores"][fid].append(float(s))
+                if not gold_empty:
+                    regimes["gold_nonempty_only"]["field_scores"][fid].append(float(s))
+                if (not gold_empty) and (not pred_empty):
+                    rfa_scores.append(float(s))
+
+            elif kind == "date":
+                s = score_date(gval, pval)
+                regimes["baseline"]["field_scores"][fid].append(float(s))
+                if not gold_empty:
+                    regimes["gold_nonempty_only"]["field_scores"][fid].append(float(s))
+                if (not gold_empty) and (not pred_empty):
+                    rfa_scores.append(float(s))
+
+            elif kind == "text":
+                gv = [gval] if (gval is not None and str(gval).strip()) else []
+                pv = [pval] if (pval is not None and str(pval).strip()) else []
+
+                avg_best, cov, specf, cham = compute_list_metrics(gv, pv, scorer, show_matches, doc_id, fid)
+                s_scalar = score_text(gval, pval, scorer)
+
+                # Baseline
+                regimes["baseline"]["field_scores"][fid].append(float(s_scalar))
+                regimes["baseline"]["field_cov"][fid].append(cov)
+                regimes["baseline"]["field_spec"][fid].append(specf)
+                regimes["baseline"]["field_cham"][fid].append(cham)
+
+                # Gold-nonempty-only
+                if not gold_empty:
+                    regimes["gold_nonempty_only"]["field_scores"][fid].append(float(s_scalar))
+                    regimes["gold_nonempty_only"]["field_cov"][fid].append(cov)
+                    regimes["gold_nonempty_only"]["field_spec"][fid].append(specf)
+                    regimes["gold_nonempty_only"]["field_cham"][fid].append(cham)
+
+                if (not gold_empty) and (not pred_empty):
+                    rfa_scores.append(float(s_scalar))
+
+            else:  # list
+                gvals = gval or []
+                pvals = pval or []
                 avg_best, cov, specf, cham = compute_list_metrics(gvals, pvals, scorer, show_matches, doc_id, fid)
-                # keep original scalar score (avg_best) for backwards compat
-                field_scores[fid].append(float(avg_best))
-                field_cov[fid].append(cov)
-                field_spec[fid].append(specf)
-                field_chamfer[fid].append(cham)
 
+                regimes["baseline"]["field_scores"][fid].append(float(avg_best))
+                regimes["baseline"]["field_cov"][fid].append(cov)
+                regimes["baseline"]["field_spec"][fid].append(specf)
+                regimes["baseline"]["field_cham"][fid].append(cham)
 
-        # existing per-field averages:
-    for fid in FIELD_IDS:
-        scores = field_scores[fid]
-        avg_score = (sum(scores) / len(scores)) if scores else 0.0
-        field_stats[fid] = {"average_score": avg_score, "num_documents": len(scores)}
+                if not gold_empty:
+                    regimes["gold_nonempty_only"]["field_scores"][fid].append(float(avg_best))
+                    regimes["gold_nonempty_only"]["field_cov"][fid].append(cov)
+                    regimes["gold_nonempty_only"]["field_spec"][fid].append(specf)
+                    regimes["gold_nonempty_only"]["field_cham"][fid].append(cham)
 
-    # NEW: per-field embedding metric averages
-    emb_field_stats: Dict[str, Dict[str, float]] = {}
-    for fid in FIELD_IDS:
-        covs = field_cov[fid]
-        specs = field_spec[fid]
-        chams = field_chamfer[fid]
-        emb_field_stats[fid] = {
-            "soft_coverage": (sum(covs) / len(covs)) if covs else 0.0,
-            "soft_specificity": (sum(specs) / len(specs)) if specs else 0.0,
-            "chamfer_symmetric": (sum(chams) / len(chams)) if chams else 0.0,
-            "num_documents": len(covs) if covs else 0  # aligns with lists/text only
+                if (not gold_empty) and (not pred_empty):
+                    rfa_scores.append(float(avg_best))
+
+    # ---- Aggregate to stats for both regimes
+    def summarize_regime(agg: Dict) -> Dict:
+        field_scores = agg["field_scores"]
+        field_cov = agg["field_cov"]
+        field_spec = agg["field_spec"]
+        field_cham = agg["field_cham"]
+
+        field_stats = {}
+        for fid in FIELD_IDS:
+            scores = field_scores[fid]
+            avg_score = (sum(scores) / len(scores)) if scores else 0.0
+            field_stats[fid] = {
+                "average_score": avg_score,
+                "num_documents": len(scores)
+            }
+
+        emb_field_stats = {}
+        for fid in FIELD_IDS:
+            covs = field_cov[fid]
+            specs = field_spec[fid]
+            chams = field_cham[fid]
+            emb_field_stats[fid] = {
+                "soft_coverage": (sum(covs) / len(covs)) if covs else 0.0,
+                "soft_specificity": (sum(specs) / len(specs)) if specs else 0.0,
+                "chamfer_symmetric": (sum(chams) / len(chams)) if chams else 0.0,
+                "num_documents": len(covs) if covs else 0
+            }
+
+        all_scores = [s for arr in field_scores.values() for s in arr]
+        overall_average = (sum(all_scores) / len(all_scores)) if all_scores else 0.0
+
+        all_cov = [x for fid in FIELD_IDS for x in agg["field_cov"][fid]]
+        all_spec = [x for fid in FIELD_IDS for x in agg["field_spec"][fid]]
+        all_cham = [x for fid in FIELD_IDS for x in agg["field_cham"][fid]]
+        overall_cov = (sum(all_cov) / len(all_cov)) if all_cov else 0.0
+        overall_spec = (sum(all_spec) / len(all_spec)) if all_spec else 0.0
+        overall_cham = (sum(all_cham) / len(all_cham)) if all_cham else 0.0
+
+        return {
+            "overall_average_score": overall_average,
+            "field_scores": field_stats,
+            "embedding_metrics": {
+                "overall": {
+                    "soft_coverage": overall_cov,
+                    "soft_specificity": overall_spec,
+                    "chamfer_symmetric": overall_cham
+                },
+                "per_field": emb_field_stats
+            },
+            "total_comparisons": len(all_scores)
         }
 
+    baseline_summary = summarize_regime(regimes["baseline"])
+    nonempty_summary = summarize_regime(regimes["gold_nonempty_only"])
 
-    # overall (old)
-    all_scores = [s for arr in field_scores.values() for s in arr]
-    overall_average = (sum(all_scores) / len(all_scores)) if all_scores else 0.0
+    # ---- Decision metrics from presence
+    totals = {"ge_pe":0,"ge_pn":0,"gn_pe":0,"gn_pn":0}
+    for f, m in presence.items():
+        totals["ge_pe"] += m["gold_empty_pred_empty"]
+        totals["ge_pn"] += m["gold_empty_pred_nonempty"]
+        totals["gn_pe"] += m["gold_nonempty_pred_empty"]
+        totals["gn_pn"] += m["gold_nonempty_pred_nonempty"]
 
-    # NEW overall for embedding metrics (only across fields where we computed them)
-    all_cov = [x for fid in FIELD_IDS for x in field_cov[fid]]
-    all_spec = [x for fid in FIELD_IDS for x in field_spec[fid]]
-    all_cham = [x for fid in FIELD_IDS for x in field_chamfer[fid]]
-    overall_cov = (sum(all_cov) / len(all_cov)) if all_cov else 0.0
-    overall_spec = (sum(all_spec) / len(all_spec)) if all_spec else 0.0
-    overall_cham = (sum(all_cham) / len(all_cham)) if all_cham else 0.0
+    denom_all = sum(totals.values()) or 1
+    denom_gold_empty = (totals["ge_pe"] + totals["ge_pn"]) or 1
+    denom_gold_nonempty = (totals["gn_pe"] + totals["gn_pn"]) or 1
 
+    FDA = (totals["ge_pe"] + totals["gn_pn"]) / denom_all
+    HR  = totals["ge_pn"] / denom_gold_empty
+    MR  = totals["gn_pe"] / denom_gold_nonempty
+    RFA = (sum(rfa_scores) / len(rfa_scores)) if rfa_scores else 0.0
+
+    # ---- Headline summary
+    def _sf1_from(regime_overall: Dict[str, float]) -> float:
+        cov = float(regime_overall.get("soft_coverage", 0.0))
+        spec = float(regime_overall.get("soft_specificity", 0.0))
+        return 0.0 if (cov + spec) == 0.0 else (2.0 * cov * spec) / (cov + spec)
+
+    OBS = baseline_summary["overall_average_score"]
+    NES = nonempty_summary["overall_average_score"]
+    EAI = OBS - NES
+
+    SF1_baseline = _sf1_from(baseline_summary["embedding_metrics"]["overall"])
+    SF1_nonempty = _sf1_from(nonempty_summary["embedding_metrics"]["overall"])
+
+    summary = {
+        "baseline": {"OBS": OBS, "SF1": SF1_baseline},
+        "gold_nonempty_only": {"NES": NES, "SF1": SF1_nonempty},
+        "decision_metrics": {"EAI": EAI, "FDA": FDA, "HR": HR, "MR": MR, "RFA": RFA}
+    }
 
     return {
         "config": {
@@ -407,17 +496,12 @@ def evaluate(
             "embed_model": embed_model,
             "fields": FIELD_IDS
         },
-        "overall_average_score": overall_average,
-        "field_scores": field_stats,
-        "embedding_metrics": {
-            "overall": {
-                "soft_coverage": overall_cov,
-                "soft_specificity": overall_spec,
-                "chamfer_symmetric": overall_cham
-            },
-            "per_field": emb_field_stats
+        "summary": summary,
+        "regimes": {
+            "baseline": baseline_summary,
+            "gold_nonempty_only": nonempty_summary
         },
-        "total_comparisons": len(all_scores)
+        "empty_field_analysis": presence  # lets you see when model predicts when gold is empty, etc.
     }
 
 
@@ -425,12 +509,13 @@ def evaluate(
 # CLI
 # ------------------------
 def main():
-    ap = argparse.ArgumentParser(description="MUC-4 evaluator for camelCase schema.")
+    ap = argparse.ArgumentParser(description="MUC-4 evaluator for camelCase schema (dual regimes + headline metrics).")
     ap.add_argument("--gold", required=True, help="Gold JSON")
     ap.add_argument("--pred", required=True, help="Pred JSON")
     ap.add_argument("--embed_model", default="all-MiniLM-L6-v2", help="Sentence-Transformers model")
     ap.add_argument("--pretty", action="store_true", help="Pretty-print JSON output")
     ap.add_argument("--show-matches", action="store_true", help="Print gold→best-pred matches for list fields")
+    ap.add_argument("--overall-only", action="store_true", help="Print only summary + latency (omit field-level details)")
     args = ap.parse_args()
 
     print("Loading gold standard...")
@@ -441,13 +526,24 @@ def main():
 
     results = evaluate(gold, pred, embed_model=args.embed_model, show_matches=args.show_matches)
 
-    # ⬇️ attach latency summary
+    # attach latency summary
     results["latency_ms"] = compute_latency_stats(latency)
+
+    # optionally slim output
+    if args.overall_only:
+        slim = {
+            "config": results["config"],
+            "summary": results["summary"],
+            "latency_ms": results["latency_ms"],
+        }
+        payload = slim
+    else:
+        payload = results
 
     print("\n" + "="*50)
     print("EVALUATION RESULTS")
     print("="*50)
-    print(json.dumps(results, indent=2 if args.pretty else None))
+    print(json.dumps(payload, indent=2 if args.pretty else None))
 
 if __name__ == "__main__":
     main()

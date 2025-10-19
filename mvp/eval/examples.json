@@ -14,48 +14,6 @@
     }
   },
   {
-    "incidentType": "BOMBING",
-    "incidentStage": "ACCOMPLISHED",
-    "text": "a ucr (radical civic union) buenos aires province committee spokesman today reported that a ucr district headquarters in buenos aires province was \"completely destroyed by a bomb explosion.\" the destroyed ucr headquarters is in the moreno district of buenos aires.",
-    "answers": {
-      "incidentDate": null,
-      "incidentLocation": "moreno district of buenos aires",
-      "perpetratorIndividual": [],
-      "perpetratorOrganization": [],
-      "target": ["ucr district headquarters", "ucr headquarters"],
-      "victim": [],
-      "weapon": ["bomb explosion", "bomb"]
-    }
-  },
-  {
-    "incidentType": "BOMBING",
-    "incidentStage": "ACCOMPLISHED",
-    "text": "official sources reported several guerrilla attacks the evening of 9 january and this morning. alleged guerrilla urban commandos launched two highpower bombs against a car dealership in downtown san salvador this morning. later, urban commandos bombed two electricity facilities in different places in san salvador.",
-    "answers": {
-      "incidentDate": null,
-      "incidentLocation": "san salvador",
-      "perpetratorIndividual": ["guerrilla urban commandos"],
-      "perpetratorOrganization": [],
-      "target": ["car dealership", "electricity facilities"],
-      "victim": [],
-      "weapon": ["highpower bombs"]
-    }
-  },
-  {
-    "incidentType": "BOMBING",
-    "incidentStage": "ACCOMPLISHED",
-    "text": "two bomb attacks were carried out in la paz last night... the first bomb attack occurred in front of the planning and economic coordination ministry... a bomb was placed outside government house in the parking lot used by cabinet ministers.",
-    "answers": {
-      "incidentDate": null,
-      "incidentLocation": "la paz",
-      "perpetratorIndividual": [],
-      "perpetratorOrganization": ["zarate willka liberation armed forces"],
-      "target": ["planning and economic coordination ministry", "government house"],
-      "victim": [],
-      "weapon": ["dynamite sticks", "bomb"]
-    }
-  },
-  {
     "incidentType": "KIDNAPPING",
     "incidentStage": "ACCOMPLISHED",
     "text": "the mnr reports the disappearance and kidnapping of mnr assistant secretary general hector oqueli colindres in guatemala city today, 12 january. according to reports, oqueli and his companion gilda flores were abducted by heavily armed men as they were heading to la aurora airport.",

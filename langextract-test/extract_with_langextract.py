@@ -107,7 +107,7 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--examples-per-type", type=int, default=1)
     ap.add_argument("--example-max-per-field", type=int, default=1)
-    ap.add_argument("--model-id", default="gemini-2.0-flash-lite")
+    ap.add_argument("--model-id", default="gemini-2.5-flash")
     ap.add_argument("--api-key", default=os.getenv("LANGEXTRACT_API_KEY"))
     ap.add_argument("--extraction-passes", type=int, default=1)
     ap.add_argument("--max-workers", type=int, default=8)
