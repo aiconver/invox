@@ -184,6 +184,46 @@ We evaluate three S2 variants:
 \label{fig:s2-latency-bar}
 \end{figure}
 
+
+\subsection*{Cost Analysis (S2: Single-Field Iterative)}
+
+\textbf{Assumptions.} We extract each of the $F{=}9$ MUC-4 slots with a separate \textit{GPT-5} call. 
+Per field (average): $i_f{=}1{,}500$ input tokens, $o_f{=}50$ output tokens. 
+Verification with \textit{GPT-5-mini} is done \emph{once per record} (not per field) with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. 
+If audio is used, add Whisper transcription for $D$ minutes (once per record).
+
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.
+
+\textbf{Formula.}
+\[
+\text{Cost}_{\text{S2}} =
+\underbrace{
+\sum_{f=1}^{F}\!\left(\frac{i_f}{10^6}p_{\text{in}}+\frac{o_f}{10^6}p_{\text{out}}\right)
+}_{\text{per-field extraction on GPT-5}}
++
+\underbrace{
+\frac{V_{\text{in}}}{10^6}p^{(\text{mini})}_{\text{in}}+\frac{V_{\text{out}}}{10^6}p^{(\text{mini})}_{\text{out}}
+}_{\text{single verification on GPT-5-mini}}
++0.006\cdot D
+\]
+
+\textbf{Per-record (no audio).}
+\[
+9\times\Big(
+\underbrace{\tfrac{1500}{10^6}\!\cdot\!1.25}_{\$0.001875}
++\underbrace{\tfrac{50}{10^6}\!\cdot\!10.00}_{\$0.000500}
+\Big)
++\underbrace{\tfrac{1000}{10^6}\!\cdot\!0.25}_{\$0.000250}
++\underbrace{\tfrac{100}{10^6}\!\cdot\!2.00}_{\$0.000200}
+=\mathbf{\$0.02183}\ (\approx 2.18\text{¢/doc})
+\]
+
+\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.02183+0.006=\mathbf{\$0.02783}$ (\(\approx 2.78\,\text{¢}\)).
+
+\textbf{Takeaway.} With these settings, S2 costs \(\approx 3.03\times\) S1 (\$0.02183 vs.\ \$0.00720 per doc, no audio), driven by the $F$ separate extraction calls; verification once per record keeps the verifier overhead small.
+
+
+
 \subsection*{Insights}
 
 \begin{itemize}

@@ -189,6 +189,38 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 \label{fig:s3-latency-bar}
 \end{figure}
 
+
+\subsection*{Cost Analysis (S3: Multi-LLM Consensus, Full Input)}
+
+\textbf{Assumptions.} Two parallel extractions on the full input: one with \textit{GPT-5} and one with \textit{Gemini~2.5~Pro}, each using $I{=}3{,}000$ input tokens and $O{=}300$ output tokens. A single arbiter/verification step runs on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. If audio is used, add Whisper transcription for $D$ minutes (once per record).
+
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M; GPT-5-mini: input \$0.25/M, output \$2.00/M; Gemini~2.5~Pro (prompts $\le$200k): input \$1.25/M, output \$10.00/M; Whisper: \$0.006/min.\footnote{Official pricing pages: OpenAI API pricing for GPT-5/mini and Whisper; Google AI Gemini API pricing for Gemini~2.5~Pro.}
+
+\textbf{Formula.}
+\[
+\text{Cost}_{\text{S3}} =
+\Big(\tfrac{I}{10^6}p_{\text{in}}^{(5)}+\tfrac{O}{10^6}p_{\text{out}}^{(5)}\Big)
++\Big(\tfrac{I}{10^6}p_{\text{in}}^{(\text{Gemini})}+\tfrac{O}{10^6}p_{\text{out}}^{(\text{Gemini})}\Big)
++\Big(\tfrac{V_{\text{in}}}{10^6}p_{\text{in}}^{(\text{mini})}+\tfrac{V_{\text{out}}}{10^6}p_{\text{out}}^{(\text{mini})}\Big)
++0.006\cdot D
+\]
+
+\textbf{Per-record (no audio).}
+\[
+\begin{aligned}
+\text{GPT-5 extract: } & \tfrac{3000}{10^6}\!\cdot\!1.25 + \tfrac{300}{10^6}\!\cdot\!10.00 = \mathbf{\$0.00675} \\
+\text{Gemini~2.5~Pro extract: } & \tfrac{3000}{10^6}\!\cdot\!1.25 + \tfrac{300}{10^6}\!\cdot\!10.00 = \mathbf{\$0.00675} \\
+\text{mini arbiter: } & \tfrac{1000}{10^6}\!\cdot\!0.25 + \tfrac{100}{10^6}\!\cdot\!2.00 = \mathbf{\$0.00045} \\
+\textbf{Total: } & \mathbf{\$0.01395}\ (\approx 1.40\text{¢/doc})
+\end{aligned}
+\]
+
+\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.01395+0.006=\mathbf{\$0.01995}$ (\(\approx 2.00\,\text{¢}\)).
+
+\textbf{Takeaway.} With GPT-5 and Gemini~2.5~Pro voting plus a GPT-5-mini arbiter, S3 costs \(\approx 1.94\times\) S1 (\$0.01395 vs.\ \$0.00720, no audio), reflecting the dual full-input passes while keeping the arbiter overhead small.
+
+
+
 \subsection*{Insights}
 
 \begin{itemize}

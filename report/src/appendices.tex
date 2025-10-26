@@ -166,3 +166,39 @@ This appendix provides comprehensive numerical results for all strategy variants
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection*{Costs Comparison (Tabular)}
+
+\begin{table}[H]
+\centering
+\caption{Per-document cost (¢) vs.\ audio duration $D$ (minutes). Totals follow $\text{cost}(D)=\text{base}+0.60D$.}
+\label{tab:cost-vs-audio}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Strategy & $D{=}0$ & $D{=}1$ & $D{=}2$ & $D{=}5$ & $D{=}10$ \\
+\midrule
+S1.1 (Single-pass)         & 0.720 & 1.320 & 1.920 & 3.720 & 6.720 \\
+S2.1 (Iterative per-field) & 2.183 & 2.783 & 3.383 & 5.183 & 8.183 \\
+S3.1 (Full consensus)      & 1.395 & 1.995 & 2.595 & 4.395 & 7.395 \\
+S4.1 (Per-field consensus) & 4.320 & 4.920 & 5.520 & 7.320 & 10.320 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Cost decomposition at $D{=}1$ minute (¢ per document).}
+\label{tab:cost-decomp-d1}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Strategy & LLM (base) & Whisper (1 min) & Total \\
+\midrule
+S1.1 (Single-pass)         & 0.720 & 0.600 & 1.320 \\
+S2.1 (Iterative per-field) & 2.183 & 0.600 & 2.783 \\
+S3.1 (Full consensus)      & 1.395 & 0.600 & 1.995 \\
+S4.1 (Per-field consensus) & 4.320 & 0.600 & 4.920 \\
+\bottomrule
+\end{tabular}
+\end{table}

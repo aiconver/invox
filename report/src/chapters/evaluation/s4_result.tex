@@ -185,6 +185,43 @@ Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndivid
 \label{fig:s4-latency-bar}
 \end{figure}
 
+
+\subsection*{Cost Analysis (S4: Multi-LLM Per-Field Consensus)}
+
+\textbf{Assumptions.} For each of the $F{=}9$ fields, we run two parallel extractions—\textit{GPT-5} and \textit{Gemini~2.5~Pro}—with per-field averages $i_f{=}1{,}500$ input tokens and $o_f{=}50$ output tokens. A single arbiter/verification step per record runs on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. If audio is used, add Whisper transcription for $D$ minutes (once per record).
+
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. Gemini~2.5~Pro: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.
+
+\textbf{Formula.}
+\[
+\text{Cost}_{\text{S4}} =
+\sum_{f=1}^{F}\!\Big[
+\underbrace{\tfrac{i_f}{10^6}p_{\text{in}}^{(5)} + \tfrac{o_f}{10^6}p_{\text{out}}^{(5)}}_{\text{GPT-5 per field}}
++
+\underbrace{\tfrac{i_f}{10^6}p_{\text{in}}^{(\text{Gemini})} + \tfrac{o_f}{10^6}p_{\text{out}}^{(\text{Gemini})}}_{\text{Gemini per field}}
+\Big]
++\underbrace{\tfrac{V_{\text{in}}}{10^6}p_{\text{in}}^{(\text{mini})}+\tfrac{V_{\text{out}}}{10^6}p_{\text{out}}^{(\text{mini})}}_{\text{single arbiter}}
++0.006\cdot D
+\]
+
+\textbf{Per-record (no audio).}
+\[
+\begin{aligned}
+\text{Per field (GPT-5): } & \tfrac{1500}{10^6}\!\cdot\!1.25 + \tfrac{50}{10^6}\!\cdot\!10.00 = \$0.002375 \\
+\text{Per field (Gemini): } & \tfrac{1500}{10^6}\!\cdot\!1.25 + \tfrac{50}{10^6}\!\cdot\!10.00 = \$0.002375 \\
+\text{Both models per field: } & \$0.00475 \\
+\text{Across }F{=}9\text{ fields: } & 9 \times 0.00475 = \$0.04275 \\
+\text{Arbiter (mini, once): } & \tfrac{1000}{10^6}\!\cdot\!0.25 + \tfrac{100}{10^6}\!\cdot\!2.00 = \$0.00045 \\
+\textbf{Total: } & \mathbf{\$0.04320}\ (\approx 4.32\text{¢/doc})
+\end{aligned}
+\]
+
+\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.04320+0.006=\mathbf{\$0.04920}$ (\(\approx 4.92\,\text{¢}\)).
+
+\textbf{Takeaway.} At these settings, S4 costs $\approx 6.0\times$ S1 (\$0.04320 vs.\ \$0.00720, no audio) and $\approx 2.0\times$ S2 (\$0.04320 vs.\ \$0.02183), driven by per-field dual-model passes; the single-record arbiter keeps verification overhead small.
+
+
+
 \subsection*{Insights}
 
 \begin{itemize}

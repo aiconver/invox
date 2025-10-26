@@ -185,6 +185,32 @@ We evaluate three S1 variants:
 \label{fig:s1-latency-bar}
 \end{figure}
 
+\subsection*{Cost Analysis (S1: Single-Pass Full Input)}
+
+\textbf{Assumptions.} Extraction on \textit{GPT-5} with $I{=}3{,}000$ input tokens and $O{=}300$ output tokens; verification on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. If audio is used, add Whisper transcription for $D$ minutes.
+
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.\footnote{OpenAI GPT-5 and GPT-5-mini pricing; Whisper API pricing. See OpenAI: \texttt{openai.com/gpt-5} and \textit{Introducing ChatGPT and Whisper APIs} (Apr 24, 2024).}
+
+\textbf{Formula.}
+\[
+\text{Cost}=\frac{I}{10^6}p_{\text{in}}+\frac{O}{10^6}p_{\text{out}}
++\frac{V_{\text{in}}}{10^6}p^{(\text{mini})}_{\text{in}}
++\frac{V_{\text{out}}}{10^6}p^{(\text{mini})}_{\text{out}}
++0.006\cdot D
+\]
+
+\textbf{Per-record (no audio).}
+\[
+\underbrace{\tfrac{3000}{10^6}\!\cdot\!1.25}_{\$0.00375}
++\underbrace{\tfrac{300}{10^6}\!\cdot\!10.00}_{\$0.00300}
++\underbrace{\tfrac{1000}{10^6}\!\cdot\!0.25}_{\$0.00025}
++\underbrace{\tfrac{100}{10^6}\!\cdot\!2.00}_{\$0.00020}
+=\mathbf{\$0.00720}\ (\approx 0.72\text{¢/doc})
+\]
+\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.00720+0.006=\mathbf{\$0.01320}$ (\(\approx 1.32\,\text{¢}\)).
+\textbf{Takeaway.} At these token sizes, S1’s LLM cost is $\sim\$0.0072$ per document; Whisper adds a simple linear \$0.006 per audio minute.
+
+
 \subsection*{Insights}
 
 \begin{itemize}

@@ -10,7 +10,7 @@ All numbers below use the few-shot, original MUC-4 setting for each strategy.
 % \usepackage{pgfplots}
 % \pgfplotsset{compat=1.18}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}
   \begin{axis}[
@@ -97,7 +97,7 @@ All numbers below use the few-shot, original MUC-4 setting for each strategy.
 \noindent\textit{Embedding alignment (baseline regime):} Chamfer (sym.) — S1.1: 0.642; S2.1: 0.639; S3.1: 0.638; S4.1: 0.613.
 
 \subsection*{Latency Comparison (R6)}
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}
   \begin{axis}[
@@ -179,6 +179,51 @@ All numbers below use the few-shot, original MUC-4 setting for each strategy.
 \end{tikzpicture}
 \caption{Latency profile (seconds; clean text).}
 \label{fig:latency-comparison-bar}
+\end{figure}
+
+\subsection*{Costs Comparison}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15.5cm, height=8.6cm,
+    xlabel={Audio duration $D$ (minutes)},
+    ylabel={Total cost (¢/doc)},
+    xmin=0, xmax=10,
+    ymin=0, ymax=11,
+    grid=both,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    domain=0:10,
+    samples=2, % straight lines
+  ]
+
+  % Base LLM costs (¢): S1=0.72, S2=2.183, S3=1.395, S4=4.32
+  % Whisper = 0.60¢ per minute -> cost(D) = base + 0.60*D
+
+  \addplot+[thick, mark=*, mark options={solid}, color=blue]  {0.72  + 0.60*x};
+  \addlegendentry{S1.1 (Single-pass)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=orange] {2.183 + 0.60*x};
+  \addlegendentry{S2.1 (Iterative per-field)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=green!50!black] {1.395 + 0.60*x};
+  \addlegendentry{S3.1 (Full consensus)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=red] {4.32  + 0.60*x};
+  \addlegendentry{S4.1 (Per-field consensus)}
+
+  % Optional: annotate intercepts at D=0
+  \node[anchor=west, font=\footnotesize] at (axis cs:0.1,0.80) {0.72};
+  \node[anchor=west, font=\footnotesize] at (axis cs:0.1,2.26) {2.183};
+  \node[anchor=west, font=\footnotesize] at (axis cs:0.1,1.47) {1.395};
+  \node[anchor=west, font=\footnotesize] at (axis cs:0.1,4.40) {4.32};
+
+  \end{axis}
+\end{tikzpicture}
+\caption{Cost trend vs.\ audio duration: $\text{cost}(D)=\text{base}+0.60D$ (¢/doc), with base = \{S1: 0.72, S2: 2.183, S3: 1.395, S4: 4.32\}.}
+\label{fig:cost-trend-audio}
 \end{figure}
 
 
