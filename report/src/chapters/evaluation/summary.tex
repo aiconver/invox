@@ -6,41 +6,181 @@ All numbers below use the few-shot, original MUC-4 setting for each strategy.
 
 \subsection*{Quantitative Comparison}
 
-\begin{table}[h]
-    \centering
-    \caption{Macro comparison (clean text; few-shot original).}
-    \label{tab:strategy-comparison}
-    \begin{tabular}{lccccccc}
-        \toprule
-        Strategy & OBS & NES & EAI & SF1 & FDA & HR & MR \\
-        \midrule
-        S1.1: Single-Pass          & \textbf{0.644} & 0.504 & 0.140 & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 \\
-        S2.1: Iterative per-field  & 0.619 & \textbf{0.555} & \textbf{0.064} & 0.639 & 0.718 & 0.301 & 0.267 \\
-        S3.1: Full consensus       & 0.641 & 0.521 & 0.120 & 0.638 & 0.743 & 0.208 & 0.295 \\
-        S4.1: Per-field consensus  & 0.579 & \textbf{0.624} & \textbf{-0.044} & 0.613 & 0.709 & 0.476 & \textbf{0.144} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+% Add to your preamble:
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.18}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=16cm,
+    height=9cm,
+    ybar,
+    bar width=8pt,
+    ylabel={Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Metrics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={OBS, NES, EAI, SF1, FDA, HR, MR},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=-0.1,
+    ymax=0.8,
+    ytick={-0.1, 0, 0.2, 0.4, 0.6, 0.8},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.18)},
+      anchor=north,
+      legend columns=2,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.12,
+  ]
+  
+  % S1.1: Single-Pass - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (OBS, 0.644)
+    (NES, 0.504)
+    (EAI, 0.140)
+    (SF1, 0.642)
+    (FDA, 0.746)
+    (HR, 0.180)
+    (MR, 0.313)
+  };
+  \addlegendentry{S1.1: Single-Pass}
+  
+  % S2.1: Iterative per-field - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (OBS, 0.619)
+    (NES, 0.555)
+    (EAI, 0.064)
+    (SF1, 0.639)
+    (FDA, 0.718)
+    (HR, 0.301)
+    (MR, 0.267)
+  };
+  \addlegendentry{S2.1: Iterative per-field}
+  
+  % S3.1: Full consensus - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (OBS, 0.641)
+    (NES, 0.521)
+    (EAI, 0.120)
+    (SF1, 0.638)
+    (FDA, 0.743)
+    (HR, 0.208)
+    (MR, 0.295)
+  };
+  \addlegendentry{S3.1: Full consensus}
+  
+  % S4.1: Per-field consensus - Red
+  \addplot[fill=red!60, draw=red!80!black] coordinates {
+    (OBS, 0.579)
+    (NES, 0.624)
+    (EAI, -0.044)
+    (SF1, 0.613)
+    (FDA, 0.709)
+    (HR, 0.476)
+    (MR, 0.144)
+  };
+  \addlegendentry{S4.1: Per-field consensus}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Macro comparison (clean text; few-shot original).}
+\label{fig:strategy-comparison-bar}
+\end{figure}
 
 \noindent\textit{Embedding alignment (baseline regime):} Chamfer (sym.) — S1.1: 0.642; S2.1: 0.639; S3.1: 0.638; S4.1: 0.613.
 
 \subsection*{Latency Comparison (R6)}
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=16cm,
+    height=9cm,
+    ybar,
+    bar width=8pt,
+    ylabel={Latency (seconds)},
+    ylabel style={font=\small\bfseries},
+    xlabel={Statistics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={p50, p90, p95, p99, Mean, Min, Max},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=180,
+    ytick={0, 30, 60, 90, 120, 150, 180},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.18)},
+      anchor=north,
+      legend columns=2,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.12,
+  ]
+  
+  % S1.1: Single-Pass - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (p50, 55.91)
+    (p90, 93.01)
+    (p95, 108.40)
+    (p99, 134.93)
+    (Mean, 57.34)
+    (Min, 14.54)
+    (Max, 163.79)
+  };
+  \addlegendentry{S1.1: Single-Pass}
+  
+  % S2.1: Iterative per-field - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (p50, 25.35)
+    (p90, 42.48)
+    (p95, 46.68)
+    (p99, 71.52)
+    (Mean, 28.58)
+    (Min, 13.60)
+    (Max, 80.28)
+  };
+  \addlegendentry{S2.1: Iterative per-field}
+  
+  % S3.1: Full consensus - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (p50, 59.39)
+    (p90, 93.15)
+    (p95, 98.77)
+    (p99, 118.28)
+    (Mean, 61.09)
+    (Min, 18.13)
+    (Max, 164.96)
+  };
+  \addlegendentry{S3.1: Full consensus}
+  
+  % S4.1: Per-field consensus - Red
+  \addplot[fill=red!60, draw=red!80!black] coordinates {
+    (p50, 121.81)
+    (p90, 143.39)
+    (p95, 155.16)
+    (p99, 164.08)
+    (Mean, 124.98)
+    (Min, 98.10)
+    (Max, 168.81)
+  };
+  \addlegendentry{S4.1: Per-field consensus}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Latency profile (seconds; clean text).}
+\label{fig:latency-comparison-bar}
+\end{figure}
 
-\begin{table}[h]
-    \centering
-    \caption{Latency profile (seconds; clean text).}
-    \label{tab:latency-comparison}
-    \begin{tabular}{lccccccc}
-        \toprule
-        Strategy & p50 & p90 & p95 & p99 & Mean & Min & Max \\
-        \midrule
-        S1.1: Single-Pass          & 55.91 & 93.01 & 108.40 & 134.93 & 57.34 & 14.54 & 163.79 \\
-        S2.1: Iterative per-field  & \textbf{25.35} & 42.48 & 46.68 & 71.52 & 28.58 & 13.60 & 80.28 \\
-        S3.1: Full consensus       & 59.39 & 93.15 & 98.77 & 118.28 & 61.09 & 18.13 & 164.96 \\
-        S4.1: Per-field consensus  & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
 
 \subsection*{Insights}
 

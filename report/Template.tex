@@ -25,8 +25,10 @@
 \usepackage{array}
 \usepackage{makecell}
 
-\usepackage{graphicx} % for \resizebox
-\usepackage{tikz}
+\usepackage{pgfplots}
+\usepgfplotslibrary{polar}
+
+\usepackage{graphicx}
 \usetikzlibrary{arrows.meta,positioning,fit,backgrounds}
 
 \renewcommand{\arraystretch}{1.4}
@@ -159,10 +161,15 @@
 \label{chap:evaluation}
 \input{src/chapters/evaluation/evaluation}
 
-% Add more chapters as needed...
-% \chapter{Concept}
-% \chapter{Implementation}
-% ...
+% =======================
+% APPENDICES GO HERE
+% =======================
+\appendix
+
+\chapter{Detailed Experimental Results}
+\label{appendix:detailed-results}
+\input{src/appendices}
+
 
 % =====================================================
 % BACKMATTER: Bibliography, Index, etc.

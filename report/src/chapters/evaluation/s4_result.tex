@@ -7,21 +7,84 @@ The \textbf{S4: Multi-LLM Per-Field} strategy applies consensus at the slot leve
 \textbf{S4.2} = few-shot on a speech-style variant.
 
 \subsection*{Headline Results}
+% Add to your preamble:
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.18}
 
-\begin{table}[h]
-    \centering
-    \caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$).}
-    \label{tab:s4-variants-headline}
-    \begin{tabular}{lcccccccc}
-        \toprule
-        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
-        \midrule
-        S4.0 (no few-shot, orig) & 0.549 & \textbf{0.628} & \textbf{-0.080} & 0.589 & 0.693 & \textbf{0.551} & \textbf{0.112} & 0.708 \\
-        S4.1 (few-shot, orig)    & \textbf{0.579} & 0.624 & -0.044 & \textbf{0.613} & \textbf{0.709} & 0.476 & 0.144 & \textbf{0.728} \\
-        S4.2 (few-shot, speech)  & 0.572 & 0.612 & -0.040 & 0.592 & 0.704 & 0.479 & 0.150 & 0.719 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Metrics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={OBS, NES, EAI, SF1, FDA, HR, MR, RFA},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=-0.1,
+    ymax=0.8,
+    ytick={-0.1, 0, 0.2, 0.4, 0.6, 0.8},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S4.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (OBS, 0.549)
+    (NES, 0.628)
+    (EAI, -0.080)
+    (SF1, 0.589)
+    (FDA, 0.693)
+    (HR, 0.551)
+    (MR, 0.112)
+    (RFA, 0.708)
+  };
+  \addlegendentry{S4.0 (no few-shot, orig)}
+  
+  % S4.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (OBS, 0.579)
+    (NES, 0.624)
+    (EAI, -0.044)
+    (SF1, 0.613)
+    (FDA, 0.709)
+    (HR, 0.476)
+    (MR, 0.144)
+    (RFA, 0.728)
+  };
+  \addlegendentry{S4.1 (few-shot, orig)}
+  
+  % S4.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (OBS, 0.572)
+    (NES, 0.612)
+    (EAI, -0.040)
+    (SF1, 0.592)
+    (FDA, 0.704)
+    (HR, 0.479)
+    (MR, 0.150)
+    (RFA, 0.719)
+  };
+  \addlegendentry{S4.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$).}
+\label{fig:s4-variants-bar}
+\end{figure}
 
 \paragraph{Per-field (reference for S4.1).}
 Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndividual} remains hardest; \texttt{weapon} is lower than S1/S3.
@@ -50,21 +113,77 @@ Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndivid
 \end{table}
 
 \subsection*{Latency}
-
-\begin{table}[H]
-    \centering
-    \caption{Latency statistics for S4 variants (seconds).}
-    \label{tab:s4-latency-all}
-    \begin{tabular}{lccccccc}
-        \toprule
-        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
-        \midrule
-        S4.0 (no few-shot, orig) & 125.14 & 157.96 & 166.02 & 177.27 & 128.64 & 97.08 & 179.00 \\
-        S4.1 (few-shot, orig)    & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
-        S4.2 (few-shot, speech)  & \textbf{127.23} & \textbf{159.02} & \textbf{175.50} & \textbf{192.16} & \textbf{131.15} & \textbf{84.42} & \textbf{218.22} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Latency (seconds)},
+    ylabel style={font=\small\bfseries},
+    xlabel={Statistics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={p50, p90, p95, p99, Mean, Min, Max},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=240,
+    ytick={0, 40, 80, 120, 160, 200, 240},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S4.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (p50, 125.14)
+    (p90, 157.96)
+    (p95, 166.02)
+    (p99, 177.27)
+    (Mean, 128.64)
+    (Min, 97.08)
+    (Max, 179.00)
+  };
+  \addlegendentry{S4.0 (no few-shot, orig)}
+  
+  % S4.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (p50, 121.81)
+    (p90, 143.39)
+    (p95, 155.16)
+    (p99, 164.08)
+    (Mean, 124.98)
+    (Min, 98.10)
+    (Max, 168.81)
+  };
+  \addlegendentry{S4.1 (few-shot, orig)}
+  
+  % S4.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (p50, 127.23)
+    (p90, 159.02)
+    (p95, 175.50)
+    (p99, 192.16)
+    (Mean, 131.15)
+    (Min, 84.42)
+    (Max, 218.22)
+  };
+  \addlegendentry{S4.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Latency statistics for S4 variants (seconds).}
+\label{fig:s4-latency-bar}
+\end{figure}
 
 \subsection*{Insights}
 

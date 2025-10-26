@@ -9,20 +9,81 @@ We evaluate three S1 variants:
 
 \subsection*{Headline Results}
 
-\begin{table}[h]
-    \centering
-    \caption{Headline metrics for S1 variants on MUC-4 ($N{=}100$).}
-    \label{tab:s1-variants-headline}
-    \begin{tabular}{lcccccccc}
-        \toprule
-        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
-        \midrule
-        S1.0 (no few-shot, orig) & 0.601 & 0.469 & 0.132 & 0.604 & 0.713 & 0.233 & 0.329 & 0.700 \\
-        S1.1 (few-shot, orig)    & \textbf{0.644} & 0.504 & \textbf{0.140} & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 & 0.733 \\
-        S1.2 (few-shot, speech)  & 0.626 & \textbf{0.508} & 0.118 & 0.631 & 0.727 & 0.226 & \textbf{0.311} & \textbf{0.738} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Metrics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={OBS, NES, EAI, SF1, FDA, HR, MR, RFA},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=0.8,
+    ytick={0, 0.2, 0.4, 0.6, 0.8},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S1.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (OBS, 0.601)
+    (NES, 0.469)
+    (EAI, 0.132)
+    (SF1, 0.604)
+    (FDA, 0.713)
+    (HR, 0.233)
+    (MR, 0.329)
+    (RFA, 0.700)
+  };
+  \addlegendentry{S1.0 (no few-shot, orig)}
+  
+  % S1.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (OBS, 0.644)
+    (NES, 0.504)
+    (EAI, 0.140)
+    (SF1, 0.642)
+    (FDA, 0.746)
+    (HR, 0.180)
+    (MR, 0.313)
+    (RFA, 0.733)
+  };
+  \addlegendentry{S1.1 (few-shot, orig)}
+  
+  % S1.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (OBS, 0.626)
+    (NES, 0.508)
+    (EAI, 0.118)
+    (SF1, 0.631)
+    (FDA, 0.727)
+    (HR, 0.226)
+    (MR, 0.311)
+    (RFA, 0.738)
+  };
+  \addlegendentry{S1.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Headline metrics for S1 variants on MUC-4 ($N{=}100$).}
+\label{fig:s1-variants-bar}
+\end{figure}
 
 \paragraph{Per-field (reference for S1.1).}
 \texttt{perpetratorOrganization} and \texttt{weapon} lead; \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain harder.
@@ -52,20 +113,77 @@ We evaluate three S1 variants:
 
 \subsection*{Latency}
 
-\begin{table}[H]
-    \centering
-    \caption{Latency statistics for S1 variants (seconds).}
-    \label{tab:s1-latency-all}
-    \begin{tabular}{lccccccc}
-        \toprule
-        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
-        \midrule
-        S1.0 (no few-shot, orig) & 25.04 & 46.49 & 51.82 & 66.12 & 28.17 & 6.51 & 78.65 \\
-        S1.1 (few-shot, orig)    & \textbf{55.91} & \textbf{93.01} & \textbf{108.40} & \textbf{134.93} & \textbf{57.34} & 14.54 & \textbf{163.79} \\
-        S1.2 (few-shot, speech)  & 49.36 & 69.30 & 77.84 & 86.79 & 47.89 & \textbf{16.85} & 102.50 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Latency (seconds)},
+    ylabel style={font=\small\bfseries},
+    xlabel={Statistics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={p50, p90, p95, p99, Mean, Min, Max},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=180,
+    ytick={0, 30, 60, 90, 120, 150, 180},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S1.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (p50, 25.04)
+    (p90, 46.49)
+    (p95, 51.82)
+    (p99, 66.12)
+    (Mean, 28.17)
+    (Min, 6.51)
+    (Max, 78.65)
+  };
+  \addlegendentry{S1.0 (no few-shot, orig)}
+  
+  % S1.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (p50, 55.91)
+    (p90, 93.01)
+    (p95, 108.40)
+    (p99, 134.93)
+    (Mean, 57.34)
+    (Min, 14.54)
+    (Max, 163.79)
+  };
+  \addlegendentry{S1.1 (few-shot, orig)}
+  
+  % S1.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (p50, 49.36)
+    (p90, 69.30)
+    (p95, 77.84)
+    (p99, 86.79)
+    (Mean, 47.89)
+    (Min, 16.85)
+    (Max, 102.50)
+  };
+  \addlegendentry{S1.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Latency statistics for S1 variants (seconds).}
+\label{fig:s1-latency-bar}
+\end{figure}
 
 \subsection*{Insights}
 

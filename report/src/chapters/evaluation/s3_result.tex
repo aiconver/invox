@@ -9,20 +9,85 @@ We evaluate three variants:
 
 \subsection*{Headline Results}
 
-\begin{table}[H]
-    \centering
-    \caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$).}
-    \label{tab:s3-variants-headline}
-    \begin{tabular}{lcccccccc}
-        \toprule
-        Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
-        \midrule
-        S3.0 (no few-shot, orig) & 0.602 & 0.481 & 0.121 & 0.601 & 0.713 & 0.246 & 0.319 & 0.706 \\
-        S3.1 (few-shot, orig)    & \textbf{0.641} & 0.521 & 0.120 & 0.638 & \textbf{0.743} & \textbf{0.208} & 0.295 & \textbf{0.740} \\
-        S3.2 (few-shot, speech)  & 0.624 & \textbf{0.524} & \textbf{0.100} & 0.630 & 0.728 & 0.251 & \textbf{0.289} & 0.738 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+% Add to your preamble:
+% \usepackage{pgfplots}
+% \pgfplotsset{compat=1.18}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Metrics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={OBS, NES, EAI, SF1, FDA, HR, MR, RFA},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=0.8,
+    ytick={0, 0.2, 0.4, 0.6, 0.8},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S3.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (OBS, 0.602)
+    (NES, 0.481)
+    (EAI, 0.121)
+    (SF1, 0.601)
+    (FDA, 0.713)
+    (HR, 0.246)
+    (MR, 0.319)
+    (RFA, 0.706)
+  };
+  \addlegendentry{S3.0 (no few-shot, orig)}
+  
+  % S3.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (OBS, 0.641)
+    (NES, 0.521)
+    (EAI, 0.120)
+    (SF1, 0.638)
+    (FDA, 0.743)
+    (HR, 0.208)
+    (MR, 0.295)
+    (RFA, 0.740)
+  };
+  \addlegendentry{S3.1 (few-shot, orig)}
+  
+  % S3.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (OBS, 0.624)
+    (NES, 0.524)
+    (EAI, 0.100)
+    (SF1, 0.630)
+    (FDA, 0.728)
+    (HR, 0.251)
+    (MR, 0.289)
+    (RFA, 0.738)
+  };
+  \addlegendentry{S3.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$).}
+\label{fig:s3-variants-bar}
+\end{figure}
+
 
 \paragraph{Per-field (reference for S3.1).}
 Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \texttt{perpetratorIndividual} remains hardest; \texttt{incidentLocation} improves vs.\ single-pass.
@@ -52,20 +117,77 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 
 \subsection*{Latency}
 
-\begin{table}[h]
-    \centering
-    \caption{Latency statistics for S3 variants (seconds).}
-    \label{tab:s3-latency-all}
-    \begin{tabular}{lccccccc}
-        \toprule
-        Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
-        \midrule
-        S3.0 (no few-shot, orig) & 31.47 & 57.79 & 63.02 & 87.16 & 34.83 & 14.85 & 87.24 \\
-        S3.1 (few-shot, orig)    & \textbf{59.39} & \textbf{93.15} & \textbf{98.77} & \textbf{118.28} & \textbf{61.09} & 18.13 & \textbf{164.96} \\
-        S3.2 (few-shot, speech)  & 53.45 & 84.15 & 93.31 & 104.99 & 54.55 & \textbf{22.01} & 113.26 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=9cm,
+    ybar,
+    bar width=7pt,
+    ylabel={Latency (seconds)},
+    ylabel style={font=\small\bfseries},
+    xlabel={Statistics},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={p50, p90, p95, p99, Mean, Min, Max},
+    xtick=data,
+    xticklabel style={font=\small},
+    ymin=0,
+    ymax=180,
+    ytick={0, 30, 60, 90, 120, 150, 180},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={
+      at={(0.5,-0.15)},
+      anchor=north,
+      legend columns=3,
+      font=\small,
+      /tikz/every even column/.append style={column sep=0.5cm}
+    },
+    enlarge x limits=0.15,
+  ]
+  
+  % S3.0 (no few-shot, orig) - Blue
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (p50, 31.47)
+    (p90, 57.79)
+    (p95, 63.02)
+    (p99, 87.16)
+    (Mean, 34.83)
+    (Min, 14.85)
+    (Max, 87.24)
+  };
+  \addlegendentry{S3.0 (no few-shot, orig)}
+  
+  % S3.1 (few-shot, orig) - Orange
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (p50, 59.39)
+    (p90, 93.15)
+    (p95, 98.77)
+    (p99, 118.28)
+    (Mean, 61.09)
+    (Min, 18.13)
+    (Max, 164.96)
+  };
+  \addlegendentry{S3.1 (few-shot, orig)}
+  
+  % S3.2 (few-shot, speech) - Green
+  \addplot[fill=green!60!black, draw=green!80!black] coordinates {
+    (p50, 53.45)
+    (p90, 84.15)
+    (p95, 93.31)
+    (p99, 104.99)
+    (Mean, 54.55)
+    (Min, 22.01)
+    (Max, 113.26)
+  };
+  \addlegendentry{S3.2 (few-shot, speech)}
+  
+  \end{axis}
+\end{tikzpicture}
+\caption{Latency statistics for S3 variants (seconds).}
+\label{fig:s3-latency-bar}
+\end{figure}
 
 \subsection*{Insights}
 
