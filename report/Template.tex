@@ -20,7 +20,10 @@
 \usepackage{acronym}
 \usepackage{multicol}
 \KOMAoptions{parskip=half}
- \usepackage{amsmath}
+\usepackage{amsmath}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc} % if not default
+\usepackage{microtype}   % reduces overfull boxes
 
 \usepackage{tikz}
 \usepackage{tabularx}
@@ -107,7 +110,7 @@
   \vspace{1cm}
   Submitted by: Huzefa Ismail Jadliwala\\
   Student ID: 806286\\
-  Date: 07.07.2025\\
+  Date: 15.12.2025\\
   \vspace{0.3cm}\\
   Internal Supervising tutor: Verena Traubinger \\
   External Supervising tutor: Dr. Christoph Carl Kling \\
@@ -162,6 +165,14 @@
 \chapter{Evaluation}
 \label{chap:evaluation}
 \input{src/chapters/evaluation/evaluation}
+
+\chapter{Conclusion}
+\label{chap:conclusion}
+\input{src/chapters/conclusion}
+
+\chapter{Future Work}
+\label{chap:future-work}
+\input{src/chapters/future_work}
 
 % =======================
 % APPENDICES GO HERE

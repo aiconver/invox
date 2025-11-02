@@ -1,0 +1,26 @@
+% --- Chapter 6: Future Work (Section 6.6) ---
+
+Building on the contributions and limits above, several next steps stand out.
+
+\noindent\textbf{Real-World Speech Validation and Domain Expansion.}
+Evaluate the full pipeline on real audio from target settings (factory reports, clinical handovers, mixed-language speech). Collect at least 500 annotated clips across domains and audio conditions. Bucket by WER and measure effects on extraction (F1, NES, HR/MR). Calibrate Whisper confidence vs.\ downstream quality. Include a controlled error study (substitutions, deletions, insertions). Use evidence-span annotation with agreement checks and ensure GDPR-compliant handling.
+
+\medskip
+
+\noindent\textbf{User Studies and Human-in-the-Loop Evaluation.}
+Run a 4--6 week study with 10--15 trained users and counterbalanced tasks. Log time to complete, correction rates/types, and VER confidence; collect SUS and NASA-TLX pre/post. Analyze with paired tests or mixed-effects; report effect sizes and CIs. Feed correction logs back: update retrieval, refine prompts, tighten schema rules.
+
+\medskip
+
+\noindent\textbf{Adaptive Strategy Selection and Continuous Learning.}
+Since no single strategy is best (see Sec.~5.9), train a router that picks a strategy using text features (length, diversity, sentence count), schema difficulty, role/urgency, and predicted cost/latency. Start with gradient-boosted trees on past (\textit{input}, \textit{strategy}, \textit{outcome}) tuples. Evaluate offline, then A/B test vs.\ the best fixed strategy at equal cost. For continuous improvement: review low-confidence or high-disagreement cases; after corrections, refresh retrieval, refine prompts, tighten validators; periodically fine-tune domain adapters. Target a 20--30\% correction drop over 12 weeks.
+
+\medskip
+
+\noindent\textbf{Technical Enhancements.}
+\begin{itemize}
+  \item \textbf{Ablations:} compare with/without retrieval and alternative validation; report $\Delta$F1, $\Delta$latency, $\Delta$cost, plus RFA, HR, MR.
+  \item \textbf{Explainability:} return $(\textit{value},\textit{evidence\_span},\textit{confidence})$; highlight spans and add brief “Why?” notes; include a residual-info channel.
+  \item \textbf{Cost optimization:} distill the strongest setup into a smaller model for routine use; compare accuracy at matched cost.
+  \item \textbf{Multimodal:} add image/video/telemetry alongside audio/text; time-align signals and evaluate on inspection photos and imaging reports.
+\end{itemize}

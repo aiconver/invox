@@ -1,0 +1,72 @@
+% --- Chapter 6: Conclusion (Sections 6.1--6.5) ---
+
+This chapter summarizes what was built and learned, the limits of the work, and where future efforts should focus. The goal of the thesis was to design and evaluate a modular, multi-agent system that turns unstructured speech and text into structured templates. Compared with single, end-to-end models, the proposed design aims to improve accuracy, transparency, adaptability, and user control, while making diagnosis and iteration easier.
+
+\section{Summary of Contributions} % 6.1
+
+\textbf{Invox: a modular multi-agent pipeline.}
+This thesis introduces \textbf{Invox}, a system with five agents that each handle a well-defined stage: Speech-to-Text (STT), Retrieval-Augmented Generation (RAG), Information Extraction (IE), Consistency Formatting (CF), and Verification (VER). This separation of concerns reduces brittleness, makes failures easier to locate, and allows targeted upgrades (for example, swapping the IE model or tightening VER) without redesigning the entire pipeline. The design supports arbitrary template schemas through declarative field definitions, enabling domain portability.
+
+\textbf{Four orchestration strategies.}
+Four strategies were implemented to trade off cost, speed, and quality in different ways: S1 (single pass over the full input), S2 (per-field extraction), S3 (multi-model consensus on the full document), and S4 (multi-model consensus per field). Each strategy addresses a distinct deployment goal: S1 for cost efficiency, S2 for low latency, S3 for robustness, and S4 for recall when fields are known to be present.
+
+\textbf{Evaluation that captures meaning and decisions.}
+Exact match was complemented with embedding-based scores (for example, Soft-F1) to capture semantic correctness, together with decision metrics that reflect deployment behavior: fill-decision accuracy (when to fill vs.\ abstain), hallucination rate, missing rate, and required-fill accuracy. These measures highlight where outputs are semantically correct despite wording differences and where abstention policies matter.
+
+\textbf{Cost and latency profiling.}
+End-to-end cost and latency were profiled for each strategy on MUC-4 (N = 100), reporting median latencies and per-document costs to show practical budget and throughput requirements. Combined with accuracy metrics, these profiles form a strategy selection guide.
+
+\textbf{Requirements-driven design.}
+Six requirements (R1--R6) guided the system: consistency, extraction quality, transparency, user correction, learning and adaptation, and usability. Each agent and evaluation choice was tied back to one or more of these requirements.
+
+\section{Key Findings} % 6.2
+
+\textbf{No single strategy is best.}
+On MUC-4, S1.1 delivered the best overall balance: OBS = 0.644, low hallucination (HR = 0.180), and strong fill decisions (FDA = 0.746). S2.1 was the fastest (median 25.35 s) with competitive accuracy (OBS = 0.619). S3.1 provided stable, consensus-calibrated outputs (OBS = 0.641, FDA = 0.743) and lower hallucination than S2, which is valuable in safety-critical settings. S4.1 achieved the highest quality when gold values exist (NES = 0.624, MR = 0.144) but tended to overfill when slots were empty (HR = 0.476), so post-filtering is needed. Strategy choice should therefore be driven by constraints: cost, latency, risk tolerance, and whether fields are expected to be present.
+
+\textbf{RAG helps consistently.}
+Across S1--S4, adding few-shot examples via retrieval improved overall accuracy by about 3--4 points and reduced hallucination by about 5--7 points, with only a small additional cost relative to LLM inference. Gains were strongest for entity-heavy fields such as \texttt{perpetratorOrganization} and \texttt{weapon}.
+
+\textbf{Speech-style inputs remain strong.}
+When MUC-4 documents were converted into speech-like transcripts (with disfluencies and informal phrasing), performance declined only slightly. For example, S1.2 retained about 97\% of S1.1’s OBS (0.626 vs.\ 0.644). Consensus strategies remained robust, and per-field strategies did not show a consistent advantage on this input type. This indicates tolerance to lexical and structural variability typical of spoken input, even without modeling real ASR errors.
+
+\textbf{Embedding metrics capture meaning beyond exact words.}
+Soft-F1 and related measures recognized near-synonyms (for example, “guerrillas” vs.\ “rebel forces”) that exact match would mark as incorrect. S1.1 and S3.1 aligned best with gold meanings by these metrics. The Empty Advantage Index (EAI = OBS $-$ NES) helped separate content quality from correct abstention: S1.1 showed a balanced reliance on abstention; S4.1’s negative EAI reflected strong quality when fields are nonempty but aggressive filling otherwise.
+
+\textbf{Costs scale with complexity; field patterns are stable.}
+Per-document cost ranked as S1 (\$0.0072) $<$ S3 (\$0.0140) $<$ S2 (\$0.0218) $<$ S4 (\$0.0432). Latency showed a similar order (S2 fastest, S4 slowest). Whisper transcription adds a predictable, duration-based cost. By field, \texttt{perpetratorOrganization} and \texttt{weapon} scored highest (roughly 0.7--0.8), while \texttt{perpetratorIndividual} lagged (around 0.56--0.58) due to sparse gold references and ambiguous mentions. Per-field strategies (S2/S4) tended to perform better on location fields, supporting focused, field-specific reasoning.
+
+\section{Limitations} % 6.3
+
+\textbf{Scope and generalizability.}
+The main results rely on a single dataset (MUC-4 newswire), which limits external validity for domains such as healthcare, manufacturing, and administrative workflows. Speech-style transcripts control semantics but do not model real ASR errors or confidence calibration, so end-to-end speech robustness is only partially assessed.
+
+\textbf{Statistical depth.}
+Point estimates are reported for N = 100 documents without confidence intervals, multiple runs, or significance tests. Comparative claims are therefore indicative rather than conclusive, especially where differences are small.
+
+\textbf{Methodological gaps.}
+RAG gains were quantified (zero-shot vs.\ few-shot), but the added value of CF and VER was not isolated. Embedding-based metrics track paraphrase similarity but can blur distinct concepts; a human-judgment validation was not included.
+
+\textbf{Operational and ethical readiness.}
+The system was not load-tested for concurrent users or evaluated for rate limits and horizontal scaling. Security and compliance practices (for example, encryption, retention, audit logging) and robustness to prompt injection remain to be implemented. Fairness aspects (for example, accent, dialect, and gender effects) were not audited.
+
+\section{Implications for Practice} % 6.4
+
+\textbf{When a modular design is the right fit.}
+Adopt a modular pipeline when templates have more than five varied fields, when traceability and auditability are required, when multiple roles contribute, or when vocabularies evolve. The agent split makes it easier to monitor, upgrade, and debug individual stages.
+
+\textbf{When a single model may suffice.}
+If there are fewer than five simple fields, corrections are rare, and budgets or latency targets are tight, a single-model approach can be practical.
+
+\textbf{Picking a strategy.}
+If latency must be under roughly 30 seconds, start with S2. If the budget is under \$0.01 per document, S1 is typically best. For safety-critical use, prefer S3 for consensus robustness. To maximize recall on required fields, use S4 with post-filtering for empty slots.
+
+\textbf{Pre-production checklist.}
+Validate the schema with real cases; seed RAG with at least 100 high-quality examples; monitor low-confidence fields and high-disagreement cases; train users for 2--3 hours on evidence highlighting and correction flows; define a manual fallback; ensure privacy compliance and audit for bias; and track cost and latency with simple dashboards.
+
+\textbf{Cost example.}
+A 15-minute report at \$25 per hour, 200 times per month, costs about \$1{,}250 of labor. Invox S1 adds about \$0.013 per document (about \$2.60 total for 200) plus about \$50 of infrastructure, suggesting savings near \$1{,}197 per month in this scenario, excluding setup and oversight.
+
+\section{Conclusion} % 6.5
+
+Modular multi-agent systems provide transparency, adaptability, and maintainability that single end-to-end models often lack. In the experiments conducted for this thesis, S1 optimizes cost, S2 optimizes speed, S3 improves robustness through consensus, and S4 maximizes recall when fields are known to be present. Embedding-based evaluation better captures semantic correctness than exact match alone, particularly for paraphrases and varied phrasing. Such systems should support, not replace, human expertise: the objective is to reduce repetitive entry, surface evidence clearly, and enable experts to focus on interpretation and decisions.
