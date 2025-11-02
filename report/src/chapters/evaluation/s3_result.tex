@@ -219,6 +219,38 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 
 \textbf{Takeaway.} With GPT-5 and Gemini~2.5~Pro voting plus a GPT-5-mini arbiter, S3 costs \(\approx 1.94\times\) S1 (\$0.01395 vs.\ \$0.00720, no audio), reflecting the dual full-input passes while keeping the arbiter overhead small.
 
+\subsection*{Consistency (Formatting \& Style)}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar=0pt,
+    bar width=10pt,
+    ymin=0, ymax=1.05,
+    ylabel={Score},
+    symbolic x coords={S3.0,S3.1,S3.2},
+    xtick=data,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    enlarge x limits=0.20,
+    nodes near coords,
+    nodes near coords align={vertical},
+  ]
+    % FPR_overall
+    \addplot coordinates {(S3.0,0.910) (S3.1,0.920) (S3.2,0.910)};
+    \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
+
+    % SC_macro
+    \addplot coordinates {(S3.0,0.691) (S3.1,0.724) (S3.2,0.702)};
+    \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+  \end{axis}
+\end{tikzpicture}
+\caption{Consistency (S3 variants): schema formatting vs.\ input-aware style.}
+\label{fig:s3-consistency}
+\end{figure}
 
 
 \subsection*{Insights}

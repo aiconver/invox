@@ -89,6 +89,21 @@ In our pipeline it serves as a deterministic orchestration wrapper around model 
     \end{tabular}
 \end{table}
 
+
+\subsection*{Consistency Summary}
+\begin{table}[H]
+  \centering
+  \caption{Consistency (two-score) — schema format vs. style uniformity.}
+  \begin{tabular}{lcc}
+    \toprule
+    Strategy & $\mathrm{FPR}_{\text{overall}}\uparrow$ & $\mathrm{SC}_{\text{macro}}\uparrow$ \\
+    \midrule
+    \textbf{LangExtract (S5)} & \textbf{1.000} & \textbf{0.709} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+\emph{Note:} $\mathrm{FPR}_{\text{overall}}$ is schema-only (empty allowed by schema counts as pass). $\mathrm{SC}_{\text{macro}}$ is input-aware style (masked char-3gram cosine).
+
 \subsection*{Insights}
 
 \begin{itemize}

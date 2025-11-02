@@ -221,6 +221,40 @@ Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndivid
 \textbf{Takeaway.} At these settings, S4 costs $\approx 6.0\times$ S1 (\$0.04320 vs.\ \$0.00720, no audio) and $\approx 2.0\times$ S2 (\$0.04320 vs.\ \$0.02183), driven by per-field dual-model passes; the single-record arbiter keeps verification overhead small.
 
 
+\subsection*{Consistency (Formatting \& Style)}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar=0pt,
+    bar width=10pt,
+    ymin=0, ymax=1.05,
+    ylabel={Score},
+    symbolic x coords={S4.0,S4.1,S4.2},
+    xtick=data,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    enlarge x limits=0.20,
+    nodes near coords,
+    nodes near coords align={vertical},
+  ]
+    % FPR_overall
+    \addplot coordinates {(S4.0,0.870) (S4.1,0.940) (S4.2,0.940)};
+    \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
+
+    % SC_macro
+    \addplot coordinates {(S4.0,0.6599) (S4.1,0.6881) (S4.2,0.6815)};
+    \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+  \end{axis}
+\end{tikzpicture}
+\caption{Consistency (S4 variants): schema formatting vs.\ input-aware style.}
+\label{fig:s4-consistency}
+\end{figure}
+
+
 
 \subsection*{Insights}
 

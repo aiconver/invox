@@ -53,6 +53,32 @@ where \textbf{OBS} is the overall baseline score and \textbf{NES} is the overall
 Higher EAI indicates stronger reliance on empty$\leftrightarrow$empty matches.
 
 
+\subsection{Consistency (R1-core): Two-Score Summary}
+\label{subsec:r1-consistency-core}
+
+\paragraph{Overall formatting.}
+A record passes a slot’s lints if type/enums/regex (dates), and list hygiene hold. 
+Overall format quality is the fraction of records with \emph{all} slots passing:
+\[
+\mathrm{FPR}_{\text{overall}} \;=\; \frac{1}{N}\sum_{n=1}^{N}\mathbf{1}\{\forall f\in\mathcal{F}:\ \text{lint\_pass}(x^{(n)}_f)\}.
+\]
+
+\paragraph{Overall style.}
+Per (doc,slot) we compute an input-aware style score $s^{(n)}_f$:
+\[
+s^{(n)}_f=\begin{cases}
+1,& \text{gold empty}\ \wedge\ \text{pred empty}\\
+0,& \text{gold empty}\ \wedge\ \text{pred nonempty}\\
+0,& \text{gold nonempty}\ \wedge\ \text{pred empty}\\
+\cos\big(\phi(\mathrm{mask}(\text{pred})),\,\phi(\mathrm{mask}(\mathrm{exemplar}_f))\big),& \text{gold nonempty}\ \wedge\ \text{pred nonempty}
+\end{cases}
+\]
+where $\mathrm{mask}$ maps letters$\!\to\!T$, digits$\!\to\!D$, keeps punctuation; $\phi$ is a normalized char-3gram TF vector; locations use the max over canonical forms and list slots treat each item as a single $T$. 
+We report the macro style score:
+\[
+\mathrm{SC}_{\text{macro}} \;=\; \frac{1}{|\mathcal{F}|}\sum_{f\in\mathcal{F}}\left(\frac{1}{N}\sum_{n=1}^{N} s^{(n)}_f\right).
+\]
+
 
 \subsection{Latency and Cost at Inference (R6)}
 \label{subsec:latency-cost}

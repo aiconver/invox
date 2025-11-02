@@ -223,6 +223,39 @@ If audio is used, add Whisper transcription for $D$ minutes (once per record).
 \textbf{Takeaway.} With these settings, S2 costs \(\approx 3.03\times\) S1 (\$0.02183 vs.\ \$0.00720 per doc, no audio), driven by the $F$ separate extraction calls; verification once per record keeps the verifier overhead small.
 
 
+\subsection*{Consistency (Formatting \& Style)}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar=0pt,
+    bar width=10pt,
+    ymin=0, ymax=1.05,
+    ylabel={Score},
+    symbolic x coords={S2.0,S2.1,S2.2},
+    xtick=data,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    enlarge x limits=0.20,
+    nodes near coords,
+    nodes near coords align={vertical},
+  ]
+    % FPR_overall
+    \addplot coordinates {(S2.0,0.970) (S2.1,0.950) (S2.2,0.940)};
+    \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
+
+    % SC_macro
+    \addplot coordinates {(S2.0,0.672) (S2.1,0.683) (S2.2,0.666)};
+    \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+  \end{axis}
+\end{tikzpicture}
+\caption{Consistency (S2 variants): schema formatting vs.\ input-aware style.}
+\label{fig:s2-consistency}
+\end{figure}
+
 
 \subsection*{Insights}
 

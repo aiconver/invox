@@ -226,6 +226,44 @@ All numbers below use the few-shot, original MUC-4 setting for each strategy.
 \label{fig:cost-trend-audio}
 \end{figure}
 
+\subsection*{Cross-Strategy Consistency (Format \& Style)}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=16cm,
+    height=8cm,
+    ybar=0pt,
+    bar width=12pt,
+    ymin=0, ymax=1.05,
+    ylabel={Score},
+    symbolic x coords={S1.1,S2.1,S3.1,S4.1,S5},
+    xtick=data,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    enlarge x limits=0.18,
+    nodes near coords,
+    nodes near coords align={vertical},
+  ]
+    % FPR_overall (schema formatting pass rate)
+    \addplot[fill=gray!35, draw=black!60] coordinates {
+      (S1.1,0.960) (S2.1,0.950) (S3.1,0.920) (S4.1,0.940) (S5,1.000)
+    };
+    \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
+
+    % SC_macro (style consistency)
+    \addplot[fill=blue!35, draw=blue!70!black] coordinates {
+      (S1.1,0.724) (S2.1,0.683) (S3.1,0.724) (S4.1,0.6881) (S5,0.709)
+    };
+    \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+  \end{axis}
+\end{tikzpicture}
+\caption{Consistency across strategies: schema formatting pass rate and input-aware style uniformity.}
+\label{fig:consistency-cross-strategy}
+\end{figure}
+
+
 
 \subsection*{Insights}
 

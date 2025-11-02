@@ -210,6 +210,39 @@ We evaluate three S1 variants:
 \textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.00720+0.006=\mathbf{\$0.01320}$ (\(\approx 1.32\,\text{¢}\)).
 \textbf{Takeaway.} At these token sizes, S1’s LLM cost is $\sim\$0.0072$ per document; Whisper adds a simple linear \$0.006 per audio minute.
 
+\subsection*{Consistency (Formatting \& Style)}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar=0pt,
+    bar width=10pt,
+    ymin=0, ymax=1.05,
+    ylabel={Score},
+    symbolic x coords={S1.0,S1.1,S1.2},
+    xtick=data,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
+    enlarge x limits=0.20,
+    nodes near coords,
+    nodes near coords align={vertical},
+  ]
+    % FPR_overall
+    \addplot coordinates {(S1.0,0.910) (S1.1,0.960) (S1.2,0.930)};
+    \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
+
+    % SC_macro
+    \addplot coordinates {(S1.0,0.692) (S1.1,0.724) (S1.2,0.700)};
+    \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+  \end{axis}
+\end{tikzpicture}
+\caption{Consistency (S1 variants): schema formatting vs.\ input-aware style.}
+\label{fig:s1-consistency}
+\end{figure}
+
 
 \subsection*{Insights}
 

@@ -202,3 +202,65 @@ S4.1 (Per-field consensus) & 4.320 & 0.600 & 4.920 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection*{Consistency Metrics (Formatting \& Style)}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S1 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s1-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S1.0 (no few-shot, orig) & 0.910 & 0.9889 & 0.6919 \\
+ S1.1 (few-shot, orig)    & \textbf{0.960} & \textbf{0.9956} & \textbf{0.7239} \\
+ S1.2 (few-shot, speech)  & 0.930 & 0.9911 & 0.7002 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S2 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s2-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S2.0 (no few-shot, orig) & \textbf{0.970} & \textbf{0.9967} & 0.6718 \\
+ S2.1 (few-shot, orig)    & 0.950 & 0.9944 & \textbf{0.6828} \\
+ S2.2 (few-shot, speech)  & 0.940 & 0.9933 & 0.6655 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S3 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s3-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S3.0 (no few-shot, orig) & 0.910 & 0.9889 & 0.6907 \\
+ S3.1 (few-shot, orig)    & \textbf{0.920} & \textbf{0.9911} & \textbf{0.7243} \\
+ S3.2 (few-shot, speech)  & 0.910 & 0.9889 & 0.7022 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S4 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s4-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S4.0 (no few-shot, orig) & 0.870 & 0.9856 & 0.6599 \\
+ S4.1 (few-shot, orig)    & \textbf{0.940} & \textbf{0.9933} & \textbf{0.6881} \\
+ S4.2 (few-shot, speech)  & \textbf{0.940} & \textbf{0.9933} & 0.6815 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
