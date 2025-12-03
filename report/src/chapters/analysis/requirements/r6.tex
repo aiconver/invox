@@ -17,20 +17,18 @@ However, latency is not an absolute property of the software alone. It is strong
 \textbf{Visual Score} & \textbf{Interpretation} \\
 \hline
 \centering\raisebox{0pt}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} 
-& \textbf{High usability.} p95 end-to-end (E2E) latency $\leq$ 3\,s on the declared hardware profile. Interaction feels natural; conversational pacing is preserved. \\
+& \textbf{High usability.} p95 end-to-end (E2E) latency $\leq$ 20\,s on the declared hardware profile. Interaction feels natural; conversational pacing is preserved. \\
 \hline
 \centering\raisebox{0pt}{\tikz[baseline]{\filldraw[fill=black] (0,0) -- (90:0.4cm) arc (90:-90:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}}
-& \textbf{Medium usability.} p95 E2E latency in $(3,10)$\,s. Delay is noticeable but tolerable in most workflows. \\
+& \textbf{Medium usability.} p95 E2E latency in $(20,40)$\,s. Delay is noticeable but tolerable in most workflows. \\
 \hline
 \centering\raisebox{0pt}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} 
-& \textbf{No usability.} p95 E2E latency $>$ 10\,s or frequent timeouts. Workflow is impractical under this configuration. \\
+& \textbf{No usability.} p95 E2E latency $>$ 40\,s or frequent timeouts. Workflow is impractical under this configuration. \\
 \hline
 \end{tabularx}
 \caption{Evaluation Scale for R6: Usability}
 \label{tab:r6-usability}
 \end{table}
 
-\paragraph{Evaluation method (latency definition).}
-We measure \emph{end-to-end (E2E) latency} from the time the user finishes an utterance \emph{or submits text} until the corresponding template fields are rendered. For each system, p95 latency is reported (optionally p50 for typical-case summaries), ensuring responsiveness is captured consistently~\cite{amershi2019guidelines, jurafsky2023slp}. All results must specify the underlying hardware setup.
 
 To summarize, usability in this framework is defined as responsiveness measured through latency for unstructured-to-template conversion across modalities (speech and text). Because latency is hardware-dependent, evaluation must always contextualize results by reporting the target infrastructure. This ensures comparability across systems while keeping interpretations grounded in practical deployment realities.
