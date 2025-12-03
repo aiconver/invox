@@ -33,6 +33,8 @@ The system must deliver prompt, near–real-time feedback so interaction feels n
 
 These six requirements were identified based on the challenges discussed in Chapter 1 and are aligned with recent work on natural language processing, conversational interfaces, and intelligent form-filling systems. Each of the following sections will examine one requirement in detail. We explain what the requirement means, why it matters, and illustrate it with examples. For each requirement, we also define assessment standards that help evaluate how well the system satisfies the requirement in practice.  
 
+To make these requirements more concrete, Figure~\ref{fig:form-filling-example} shows a practical usage scenario of the Invox framework. On the left, the user provides a natural language description, which the assistant processes into a structured template on the right. Some fields are automatically filled with extracted values, while others remain highlighted as incomplete and require user clarification. This illustration highlights the central challenges addressed by the requirements: ensuring consistent representation of entries (R1), accurately extracting relevant details (R2), providing transparency about what was filled and why (R3), enabling user correction of missing or incorrect fields (R4), creating a foundation for gradual learning and adaptation over time (R5), and maintaining responsiveness so updates appear promptly during interaction (R6).
+
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{images/form-filling-example.png}
@@ -51,7 +53,6 @@ These six requirements were identified based on the challenges discussed in Chap
 \end{figure}
 
 
-To make these requirements more concrete, Figure~\ref{fig:form-filling-example} shows a practical usage scenario of the Invox framework. On the left, the user provides a natural language description, which the assistant processes into a structured template on the right. Some fields are automatically filled with extracted values, while others remain highlighted as incomplete and require user clarification. This illustration highlights the central challenges addressed by the requirements: ensuring consistent representation of entries (R1), accurately extracting relevant details (R2), providing transparency about what was filled and why (R3), enabling user correction of missing or incorrect fields (R4), creating a foundation for gradual learning and adaptation over time (R5), and maintaining responsiveness so updates appear promptly during interaction (R6).
 
 \subsection{R1: Consistency}
 \input{src/chapters/analysis/requirements/r1} 
