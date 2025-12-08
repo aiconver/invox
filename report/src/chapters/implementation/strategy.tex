@@ -1,205 +1,47 @@
 \section{Strategy Implementation}
 \label{sec:impl-strategies}
 
-This section details the technical realization of the four architectural strategies introduced in Section~\ref{sec:architectural-strategies}. While the conceptual trade-offs were established previously, this section focuses on the concrete implementation patterns, code organization, and execution flows that differentiate each strategy in practice.
+This section details the technical realization of the four architectural strategies introduced in Section~\ref{sec:architectural-strategies}. While the conceptual trade-offs were established previously, the focus here is on how each strategy is implemented in practice: how transcripts and few-shot examples are prepared, how language models are invoked, and how results are merged and verified. Concrete TypeScript sketches of the core functions are provided in Appendix~\ref{app:strategy-impl}.
 
 \subsection{S1 Implementation: Single-Pass Full-Input}
 \label{subsec:impl-s1}
 
-The S1 strategy is implemented through the \texttt{singleLlmAllField} function, which orchestrates a linear pipeline with minimal branching.
+The S1 strategy is implemented by the \texttt{singleLlmAllField} function, which orchestrates a linear pipeline with minimal branching. The function first combines any existing transcript with the new input into a single \emph{combined transcript}, preserving prior context while clearly marking the latest segment. It then retrieves up to three few-shot examples via the RAG agent, using the combined transcript and current field schema to select representative historical cases.
 
-\textbf{Execution Flow:}
-\begin{verbatim}
-// Core S1 implementation
-export async function singleLlmAllField(
-  input: GetFilledTemplateInput
-): Promise<GetFilledTemplateResult> {
-  // 1. Combine transcripts
-  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
-  
-  // 2. Retrieve few-shot examples
-  const fewShots = await getFewShotsFromTranscript(combinedTranscript, fields, 3);
-  
-  // 3. Single LLM call for all fields
-  const schema = z.object(/* comprehensive field schema */);
-  const result = await generateObject({
-    model: openai(modelName),
-    schema,
-    prompt: buildComprehensivePrompt(fields, oldText, newText, fewShots),
-  });
-  
-  // 4. Process results
-  const filled = processAllFields(result.object, fields, currentValues);
-  const verified = await runVerifier(combinedTranscript, fields, filled);
-  
-  return { filled: verified, model: modelName, transcript: transcriptData };
-}
-\end{verbatim}
+All target fields are modelled in a single Zod schema that captures types, enumeration options, and requiredness constraints. A comprehensive prompt is then constructed, containing task instructions, field definitions, current values and lock flags, the old and new transcripts, and the retrieved examples. This prompt is passed to a single \texttt{generateObject} call, which returns a structured candidate output for all fields at once. The result is post-processed by a normalization step that applies the CF agent’s rules and a verification step that runs the verifier in single-candidate mode. The function finally returns a \texttt{GetFilledTemplateResult} containing the verified field values, the model identifier, and a reference to the transcript used for extraction.
 
-\textbf{Key Implementation Characteristics:}
-\begin{itemize}
-    \item \textbf{Single Schema Definition:} One Zod schema encompassing all template fields
-    \item \textbf{Unified Prompt Construction:} Single prompt containing all field definitions and examples
-    \item \textbf{Batch Processing:} All fields processed simultaneously in normalization and verification
-    \item \textbf{Minimal Orchestration:} Straightforward sequential execution without parallelization logic
-\end{itemize}
+In implementation terms, S1 is characterized by a single schema definition, a unified prompt that contains the entire template specification and few-shot context, and batch-style post-processing where all fields are normalized and verified together. Orchestration is intentionally minimal: execution proceeds sequentially without explicit parallelization logic, which keeps the control flow simple at the cost of less granular error isolation.
 
 \subsection{S2 Implementation: Iterative Single-Field}
 \label{subsec:impl-s2}
 
-The S2 strategy is implemented through \texttt{singleLlmOneField}, which introduces field-level parallelism and individual error handling.
+The S2 strategy is implemented via the \texttt{singleLlmOneField} function, which introduces field-level parallelism and individual error handling. As in S1, the function prepares a combined transcript and retrieves a small set of few-shot examples. However, instead of building one global prompt, S2 constructs a separate field-specific prompt for each template field. These prompts include only the information relevant to the respective field: its type, allowed values, guidelines, and a filtered subset of few-shot examples that actually populated that field in the past.
 
-\textbf{Execution Flow:}
-\begin{verbatim}
-export async function singleLlmOneField(
-  input: GetFilledTemplateInput
-): Promise<GetFilledTemplateResult> {
-  const fewShots = await getFewShotsFromTranscript(combinedTranscript, fields, 3);
-  
-  // Parallel field processing with individual error boundaries
-  const tasks = fields.map(field => 
-    runField({
-      field,
-      oldText, newText,
-      fewShots,
-      current: currentValues?.[field.id],
-      modelName,
-    }).catch(error => {
-      // Field-level error recovery
-      return [field.id, getFallbackField(field, currentValues)];
-    })
-  );
-  
-  const entries = await Promise.all(tasks);
-  return {
-    filled: Object.fromEntries(entries),
-    model: modelName,
-    transcript: transcriptData,
-  };
-}
-\end{verbatim}
+The implementation maps each field to an asynchronous \texttt{runField} call, which encapsulates the construction of the field-specific prompt, the invocation of the LLM with a simple schema (typically \texttt{\{value, confidence\}}), and the normalization and lock-aware merging of the resulting value. All field tasks are then executed concurrently using \texttt{Promise.all}. Each task is wrapped in an individual \texttt{try\slash catch} block so that failures such as timeouts or parsing errors affect only the corresponding field. In case of failure, the strategy falls back to a sensible default derived from the current value.
 
-\textbf{Key Implementation Characteristics:}
-\begin{itemize}
-    \item \textbf{Field-Specific Prompts:} Individual prompts per field with filtered few-shot examples
-    \item \textbf{Parallel Execution:} \texttt{Promise.all} for concurrent field processing
-    \item \textbf{Individual Error Boundaries:} Try-catch blocks around each field extraction
-    \item \textbf{Selective RAG Filtering:} Field-specific example selection from retrieved few-shots
-\end{itemize}
+As a result, S2 is defined by field-specific prompts, parallel execution of independent field extractors, and per-field error boundaries. This design improves robustness compared to S1 because a malformed response for one field does not invalidate the entire template. It also allows selective use of RAG: examples are filtered on a per-field basis, so the few-shot context is closely aligned with the extraction target.
 
 \subsection{S3 Implementation: Multi-LLM Consensus}
 \label{subsec:impl-s3}
 
-The S3 strategy is implemented through \texttt{dualLlmAllField}, introducing model-level parallelism and consensus verification.
+The S3 strategy is implemented by the \texttt{dualLlmAllField} function, which introduces model-level parallelism and an explicit consensus phase. After preparing the combined transcript, few-shot examples, and a global schema as in S1, the strategy constructs a single comprehensive prompt and passes it to two different models in parallel, typically GPT-4 and Gemini~2.0 Flash. Both calls use the same schema and prompt, ensuring that differences in the outputs reflect model behaviour rather than prompt variation.
 
-\textbf{Execution Flow:}
-\begin{verbatim}
-export async function dualLlmAllField(
-  input: GetFilledTemplateInput
-): Promise<GetFilledTemplateResult> {
-  // Parallel model execution
-  const [gptResult, geminiResult] = await Promise.all([
-    generateObject({ model: openai(gptModel), schema, prompt }),
-    generateObject({ model: google(geminiModel), schema, prompt })
-  ]);
-  
-  // Consensus verification
-  const verified = await runEnsembleVerifier({
-    combinedTranscript,
-    fields,
-    currentValues,
-    gpt: buildCandidate(gptResult.object, fields, currentValues),
-    gemini: buildCandidate(geminiResult.object, fields, currentValues),
-  });
-  
-  return {
-    filled: verified.filled,
-    model: `ensemble:${gptModel}+${geminiModel}`,
-    transcript: transcriptData,
-  };
-}
-\end{verbatim}
+The two structured candidate outputs are then converted into a common internal representation and forwarded to the ensemble verifier. The verifier’s \texttt{runEnsembleVerifier} function receives both candidates, the transcript, the field schema, and the current values, and applies rule-based checks together with a judge LLM to decide, for each field, whether to keep the GPT value, the Gemini value, a merged combination (for multi-value fields), or the pre-existing value. The final result is returned as a filled-template structure, together with an aggregated confidence map and decision records.
 
-\textbf{Key Implementation Characteristics:}
-\begin{itemize}
-    \item \textbf{Model Parallelism:} Concurrent execution of multiple LLM providers
-    \item \textbf{Consensus Engine:} Specialized verifier with judge LLM for candidate selection
-    \item \textbf{Decision Tracking:} Structured logging of model choices and rationales
-    \item \textbf{Provider Abstraction:} Unified interface for different model providers
-\end{itemize}
+Implementation-wise, S3 is characterized by parallel execution of multiple model providers behind a unified interface, a dedicated consensus engine that encapsulates judge logic and decision tracking, and structured logging of ensemble decisions and rationales. The function reports the effective model as an ensemble identifier (e.g., \texttt{ensemble:gpt4+gemini}), making the configuration transparent in evaluation and monitoring.
 
 \subsection{S4 Implementation: Multi-LLM Per-Field}
 \label{subsec:impl-s4}
 
-The S4 strategy is implemented through \texttt{multiLlmOneField}, combining field-level and model-level parallelism with granular consensus.
+The S4 strategy is implemented using the \texttt{multiLlmOneField} function, which combines the field-wise decomposition of S2 with the multi-model ensemble of S3. Instead of issuing one ensemble call over all fields, S4 performs an ensemble extraction separately for each field. For every field in the schema, the function prepares a field-specific prompt, calls both GPT and Gemini with that prompt, and then passes their candidate values to a per-field verifier.
 
-\textbf{Execution Flow:}
-\begin{verbatim}
-export async function multiLlmOneField(
-  input: GetFilledTemplateInput
-): Promise<GetFilledTemplateResult> {
-  const results: [string, FilledField][] = [];
-  
-  // Sequential field processing (rate limit avoidance)
-  for (const field of fields) {
-    const entry = await runOneFieldWithEnsemble({
-      field,
-      oldText, newText,
-      fewShots,
-      current: currentValues?.[field.id],
-      gptModel, geminiModel, verifierModel,
-    });
-    results.push(entry);
-  }
-  
-  return {
-    filled: Object.fromEntries(results),
-    model: `ensemble-per-field:${gptModel}+${geminiModel}`,
-    transcript: transcriptData,
-  };
-}
-\end{verbatim}
+In the reference implementation, fields are processed sequentially to avoid triggering rate limits across providers and to keep per-field logging straightforward. Each iteration calls a helper such as \texttt{runOneFieldWithEnsemble}, which bundles prompt construction, model invocations, per-field consensus, and normalization into a single operation and returns a key–value pair representing the final \texttt{FilledField}. The main function accumulates these entries and returns the aggregated \texttt{filled} map together with an ensemble-per-field model identifier.
 
-\textbf{Key Implementation Characteristics:}
-\begin{itemize}
-    \item \textbf{Sequential Field Processing:} Rate-limited execution to avoid API throttling
-    \item \textbf{Per-Field Ensemble:} Multiple models per individual field
-    \item \textbf{Granular Verification:} Field-specific judge prompts for precise decision making
-    \item \textbf{Complex Error Handling:} Multi-level recovery for both field and model failures
-\end{itemize}
+S4 is therefore defined by sequential, field-level ensemble extraction, per-field judge prompts that can incorporate highly specific constraints, and multi-level error handling that can recover from both field failures and model-specific issues. This yields the highest robustness and flexibility at the cost of increased computational expense and wall-clock latency.
 
 \subsection{Strategy Orchestration Infrastructure}
-\label{subsec:impl-orchestration}
+\label{subsec:impl-orchestration-strategies}
 
-The strategy selection and execution is managed through a unified orchestrator that provides consistent interfaces across all approaches.
+Strategy selection and execution are encapsulated by a dedicated \texttt{StrategyOrchestrator} abstraction, which provides a uniform entry point for all four approaches. The orchestrator exposes a single method, such as \texttt{executeStrategy}, that accepts a \texttt{ProcessingRequest} and returns a \texttt{FinalTemplate}. Internally, it resolves the configured strategy identifier (S1--S4) into a concrete strategy implementation object that conforms to a common \texttt{StrategyImplementation} interface with an \texttt{execute} method.
 
-\textbf{Orchestrator Interface:}
-\begin{verbatim}
-class StrategyOrchestrator {
-  async executeStrategy(
-    input: ProcessingRequest
-  ): Promise<FinalTemplate> {
-    const strategyImpl = this.getStrategyImplementation(input.strategy);
-    return await strategyImpl.execute(input);
-  }
-  
-  private getStrategyImplementation(strategy: Strategy): StrategyImplementation {
-    switch (strategy) {
-      case "S1": return new SinglePassStrategy();
-      case "S2": return new IterativeStrategy(); 
-      case "S3": return new MultiModelFullStrategy();
-      case "S4": return new MultiModelSlotStrategy();
-    }
-  }
-}
-\end{verbatim}
-
-\textbf{Common Infrastructure:}
-\begin{itemize}
-    \item \textbf{Unified Error Handling:} Consistent error types and recovery patterns across strategies
-    \item \textbf{Telemetry Integration:} Standardized logging of performance metrics and decision points
-    \item \textbf{Configuration Management:} Environment-based strategy configuration and model selection
-    \item \textbf{Result Serialization:} Consistent output formatting regardless of strategy complexity
-\end{itemize}
-
-The implementation maintains architectural consistency while allowing each strategy to optimize for different operational constraints, providing a flexible foundation for empirical evaluation across diverse deployment scenarios.
+This infrastructure ensures that error handling, telemetry, and configuration management are consistent across strategies. Exceptions are normalized into a shared error type, and each strategy emits structured logs for latency, token usage, and verifier decisions via a common telemetry layer. Model names, temperature settings, and provider-specific options are injected through environment-based configuration, allowing deployments to switch models or adjust ensembles without code changes. Finally, all strategies serialize their output into the same \texttt{FinalTemplate} format, so evaluation and downstream consumers do not need to be aware of which strategy produced a given result. A simplified TypeScript sketch of the \texttt{StrategyOrchestrator} and its factory method is included in Appendix~\ref{app:strategy-impl}.

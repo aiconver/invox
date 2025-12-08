@@ -132,3 +132,268 @@ class Orchestrator {
 }
 \end{lstlisting}
 
+
+\section{Strategy Function Implementations}
+\label{app:strategy-impl}
+
+This section provides simplified TypeScript sketches of the four strategy functions and the strategy-level orchestrator described in Section~\ref{sec:impl-strategies}. The listings are not intended as production-ready code, but as an executable illustration of the control flow.
+
+\subsection*{S1: \texttt{singleLlmAllField}}
+
+\begin{lstlisting}[language=Java, caption={Core S1 implementation sketch (\texttt{singleLlmAllField})}, label={lst:s1-impl}]
+export async function singleLlmAllField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const {
+    oldText,
+    newText,
+    fields,
+    currentValues,
+    modelName,
+    transcriptData,
+  } = input;
+
+  // 1. Combine transcripts
+  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  
+  // 2. Retrieve few-shot examples
+  const fewShots = await getFewShotsFromTranscript(
+    combinedTranscript,
+    fields,
+    3
+  );
+  
+  // 3. Single LLM call for all fields
+  const schema = z.object(/* comprehensive field schema */);
+  const result = await generateObject({
+    model: openai(modelName),
+    schema,
+    prompt: buildComprehensivePrompt(
+      fields,
+      oldText,
+      newText,
+      fewShots
+    ),
+  });
+  
+  // 4. Process results
+  const filled = processAllFields(
+    result.object,
+    fields,
+    currentValues
+  );
+  const verified = await runVerifier(
+    combinedTranscript,
+    fields,
+    filled
+  );
+  
+  return {
+    filled: verified,
+    model: modelName,
+    transcript: transcriptData,
+  };
+}
+\end{lstlisting}
+
+\subsection*{S2: \texttt{singleLlmOneField}}
+
+\begin{lstlisting}[language=Java, caption={Core S2 implementation sketch (\texttt{singleLlmOneField})}, label={lst:s2-impl}]
+export async function singleLlmOneField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const {
+    oldText,
+    newText,
+    fields,
+    currentValues,
+    modelName,
+    transcriptData,
+  } = input;
+
+  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+
+  // Retrieve few-shot examples once
+  const fewShots = await getFewShotsFromTranscript(
+    combinedTranscript,
+    fields,
+    3
+  );
+  
+  // Parallel field processing with individual error boundaries
+  const tasks = fields.map(field =>
+    runField({
+      field,
+      oldText,
+      newText,
+      fewShots,
+      current: currentValues?.[field.id],
+      modelName,
+    }).catch(error => {
+      // Field-level error recovery
+      return [field.id, getFallbackField(field, currentValues)];
+    })
+  );
+  
+  const entries = await Promise.all(tasks);
+
+  return {
+    filled: Object.fromEntries(entries),
+    model: modelName,
+    transcript: transcriptData,
+  };
+}
+\end{lstlisting}
+
+\subsection*{S3: \texttt{dualLlmAllField}}
+
+\begin{lstlisting}[language=Java, caption={Core S3 implementation sketch (\texttt{dualLlmAllField})}, label={lst:s3-impl}]
+export async function dualLlmAllField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const {
+    oldText,
+    newText,
+    fields,
+    currentValues,
+    gptModel,
+    geminiModel,
+    transcriptData,
+  } = input;
+
+  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const fewShots = await getFewShotsFromTranscript(
+    combinedTranscript,
+    fields,
+    3
+  );
+
+  const schema = z.object(/* comprehensive field schema */);
+  const prompt = buildComprehensivePrompt(
+    fields,
+    oldText,
+    newText,
+    fewShots
+  );
+
+  // Parallel model execution
+  const [gptResult, geminiResult] = await Promise.all([
+    generateObject({ model: openai(gptModel), schema, prompt }),
+    generateObject({ model: google(geminiModel), schema, prompt }),
+  ]);
+  
+  // Build candidates
+  const gptCandidate = buildCandidate(
+    gptResult.object,
+    fields,
+    currentValues
+  );
+  const geminiCandidate = buildCandidate(
+    geminiResult.object,
+    fields,
+    currentValues
+  );
+
+  // Consensus verification
+  const verified = await runEnsembleVerifier({
+    combinedTranscript,
+    fields,
+    currentValues,
+    gpt: gptCandidate,
+    gemini: geminiCandidate,
+  });
+  
+  return {
+    filled: verified.filled,
+    model: `ensemble:${gptModel}+${geminiModel}`,
+    transcript: transcriptData,
+  };
+}
+\end{lstlisting}
+
+\subsection*{S4: \texttt{multiLlmOneField}}
+
+\begin{lstlisting}[language=Java, caption={Core S4 implementation sketch (\texttt{multiLlmOneField})}, label={lst:s4-impl}]
+export async function multiLlmOneField(
+  input: GetFilledTemplateInput
+): Promise<GetFilledTemplateResult> {
+  const {
+    oldText,
+    newText,
+    fields,
+    currentValues,
+    gptModel,
+    geminiModel,
+    verifierModel,
+    transcriptData,
+  } = input;
+
+  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const fewShots = await getFewShotsFromTranscript(
+    combinedTranscript,
+    fields,
+    3
+  );
+
+  const results: [string, FilledField][] = [];
+  
+  // Sequential field processing (rate limit avoidance)
+  for (const field of fields) {
+    const entry = await runOneFieldWithEnsemble({
+      field,
+      oldText,
+      newText,
+      fewShots,
+      current: currentValues?.[field.id],
+      gptModel,
+      geminiModel,
+      verifierModel,
+    });
+    results.push(entry);
+  }
+  
+  return {
+    filled: Object.fromEntries(results),
+    model: `ensemble-per-field:${gptModel}+${geminiModel}`,
+    transcript: transcriptData,
+  };
+}
+\end{lstlisting}
+
+\subsection*{\texttt{StrategyOrchestrator} Sketch}
+
+\begin{lstlisting}[language=Java, caption={Strategy-level orchestrator sketch}, label={lst:strategy-orchestrator}]
+class StrategyOrchestrator {
+  constructor(
+    private readonly singlePass: SinglePassStrategy,
+    private readonly iterative: IterativeStrategy,
+    private readonly multiModelFull: MultiModelFullStrategy,
+    private readonly multiModelSlot: MultiModelSlotStrategy
+  ) {}
+
+  async executeStrategy(
+    input: ProcessingRequest
+  ): Promise<FinalTemplate> {
+    const impl = this.getStrategyImplementation(input.strategy);
+    return await impl.execute(input);
+  }
+  
+  private getStrategyImplementation(
+    strategy: Strategy
+  ): StrategyImplementation {
+    switch (strategy) {
+      case "S1":
+        return this.singlePass;
+      case "S2":
+        return this.iterative;
+      case "S3":
+        return this.multiModelFull;
+      case "S4":
+        return this.multiModelSlot;
+      default:
+        throw new Error(`Unknown strategy: ${strategy}`);
+    }
+  }
+}
+\end{lstlisting}
+
