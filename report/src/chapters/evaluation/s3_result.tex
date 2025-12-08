@@ -1,17 +1,7 @@
 \section{Results – Strategy S3: Multi-LLM Consensus (Full)}
 \label{sec:eval-s3}
 
-The \textbf{S3: Multi-LLM Consensus (Full)} strategy runs multiple LLMs on the full document and aggregates with a verification/consensus step.
-We evaluate three variants:
-\textbf{S3.0} = no few-shot examples on the original MUC-4 dataset;
-\textbf{S3.1} = with few-shot examples on the original dataset;
-\textbf{S3.2} = with few-shot examples on a speech-style variant.
-
-\subsection*{Headline Results}
-
-% Add to your preamble:
-% \usepackage{pgfplots}
-% \pgfplotsset{compat=1.18}
+The \textbf{S3: Multi-LLM Consensus (Full)} strategy runs multiple LLMs on the full document and aggregates their outputs with a verification/consensus step. We evaluate three variants: \textbf{S3.0} without few-shot examples on the original MUC-4 dataset, \textbf{S3.1} with few-shot examples on the original dataset, and \textbf{S3.2} with few-shot examples on a speech-style variant of MUC-4.
 
 \begin{figure}[H]
 \centering
@@ -88,9 +78,11 @@ We evaluate three variants:
 \label{fig:s3-variants-bar}
 \end{figure}
 
+Figure~\ref{fig:s3-variants-bar} shows that full-document consensus with few-shot prompting yields consistently strong performance. Moving from S3.0 to S3.1 improves OBS (from $0.602$ to $0.641$) and SF1 (from $0.601$ to $0.638$), while FDA increases from $0.713$ to $0.743$ and HR drops from $0.246$ to $0.208$. This indicates that cross-model agreement, combined with examples, produces more reliable fill decisions and fewer hallucinated values. NES also rises from $0.481$ to $0.521$, suggesting better content quality when both gold and system fill a slot, whereas EAI remains practically unchanged, meaning that gains do not simply result from exploiting empty–empty matches. S3.2, evaluated on speech-style inputs, slightly trails S3.1 in OBS and SF1 but achieves the highest NES ($0.524$) and a very competitive RFA ($0.738$), with the lowest MR among the three variants ($0.289$). Compared to the single-pass few-shot baseline S1.1, S3.1 is almost identical in OBS (0.641 vs.\ 0.644) but achieves higher NES, reflecting that consensus improves the quality of nonempty predictions even if overall score differences remain small.
 
-\paragraph{Per-field (reference for S3.1).}
-Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \texttt{perpetratorIndividual} remains hardest; \texttt{incidentLocation} improves vs.\ single-pass.
+\paragraph{Per-field behaviour (S3.1).}
+
+Consensus is particularly strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \texttt{perpetratorIndividual} remains hardest; \texttt{incidentLocation} improves compared to single-pass strategies.
 
 \begin{table}[H]
     \centering
@@ -115,7 +107,11 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
     \end{tabular}
 \end{table}
 
+Table~\ref{tab:s3-perfield} illustrates how full-document consensus redistributes performance across individual slots. As in S1 and S2, \texttt{perpetratorOrganization} and \texttt{weapon} remain the easiest fields, with average scores of $0.756$ and $0.793$ respectively, reflecting that these categories are well supported by clear lexical cues and benefit from both models agreeing on salient mentions. \texttt{incidentStage} and \texttt{incidentDate} also perform strongly ($0.730$ for both), indicating that structured, temporally anchored information is well captured when the entire document is considered jointly. \texttt{incidentLocation} reaches $0.554$, which is higher than in the single-pass S1.1 setting and suggests that cross-model checking over the full context helps eliminate some location-related errors. In contrast, \texttt{perpetratorIndividual} remains comparatively weak ($0.561$), confirming that even an ensemble has difficulty with sparse and ambiguous references to individual actors. Overall, the field-level pattern supports the intuition that S3’s gains are concentrated in slots where multiple mentions and global cues are present, while inherently under-specified fields remain challenging.
+
 \subsection*{Latency}
+
+Figure~\ref{fig:s3-latency-bar} highlights the computational cost of running multiple full-input models. S3.0 has a median latency of about $31$\,s per document and a moderate upper tail (p99 around $87$\,s). Incorporating few-shot examples in S3.1 increases the median latency to roughly $59$\,s and the mean to about $61$\,s, with a long tail that reaches $165$\,s, reflecting the overhead of larger prompts and dual model calls. S3.2, which operates on speech-style transcripts, is slightly faster than S3.1: its median and mean latencies drop to about $53$\,s and $55$\,s respectively, and the tail is somewhat shorter (p99 around $105$\,s). Compared to the single-pass few-shot strategy S1.1, S3.1 is slower in the median but has a somewhat shorter extreme tail (p99 $118.3$\,s vs.\ $134.9$\,s), suggesting that the cost of consensus is predictable but not catastrophic. In practice, S3 therefore occupies a middle ground in the accuracy–latency space: more expensive than S1 and S2, but still feasible for batched or asynchronous processing.
 
 \begin{figure}[H]
 \centering
@@ -192,9 +188,9 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 
 \subsection*{Cost Analysis (S3: Multi-LLM Consensus, Full Input)}
 
-\textbf{Assumptions.} Two parallel extractions on the full input: one with \textit{GPT-5} and one with \textit{Gemini~2.5~Pro}, each using $I{=}3{,}000$ input tokens and $O{=}300$ output tokens. A single arbiter/verification step runs on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. If audio is used, add Whisper transcription for $D$ minutes (once per record).
+\textbf{Assumptions.} Two parallel extractions are run on the full input: one with \textit{GPT-5} and one with \textit{Gemini~2.5~Pro}, each using $I{=}3{,}000$ input tokens and $O{=}300$ output tokens. A single arbiter/verification step runs on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$ and $V_{\text{out}}{=}100$. If audio is used, Whisper transcription for $D$ minutes is added once per record.
 
-\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M; GPT-5-mini: input \$0.25/M, output \$2.00/M; Gemini~2.5~Pro (prompts $\le$200k): input \$1.25/M, output \$10.00/M; Whisper: \$0.006/min.\footnote{Official pricing pages: OpenAI API pricing for GPT-5/mini and Whisper; Google AI Gemini API pricing for Gemini~2.5~Pro.}
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M; GPT-5-mini: input \$0.25/M, output \$2.00/M; Gemini~2.5~Pro (prompts $\le$200k): input \$1.25/M, output \$10.00/M; Whisper: \$0.006/min.
 
 \textbf{Formula.}
 \[
@@ -215,11 +211,10 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 \end{aligned}
 \]
 
-\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.01395+0.006=\mathbf{\$0.01995}$ (\(\approx 2.00\,\text{¢}\)).
-
-\textbf{Takeaway.} With GPT-5 and Gemini~2.5~Pro voting plus a GPT-5-mini arbiter, S3 costs \(\approx 1.94\times\) S1 (\$0.01395 vs.\ \$0.00720, no audio), reflecting the dual full-input passes while keeping the arbiter overhead small.
+\textbf{With audio (Whisper).} Adding Whisper introduces a linear term $0.006\cdot D$. For $D{=}1$\,min, the total cost becomes $\$0.01395 + 0.006 = \mathbf{\$0.01995}$ (approximately $2.00$\,¢ per document). Under these settings, S3 costs roughly $1.9\times$ as much as S1 (\$0.01395 vs.\ \$0.00720 per document, no audio), reflecting the dual full-input passes while keeping the arbiter overhead small compared to the extraction steps.
 
 \subsection*{Consistency (Formatting \& Style)}
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -252,13 +247,6 @@ Consensus is strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \t
 \label{fig:s3-consistency}
 \end{figure}
 
+Figure~\ref{fig:s3-consistency} indicates that multi-LLM consensus maintains high structural and stylistic consistency. All S3 variants achieve $\mathrm{FPR}_{\text{overall}}{=}0.910$ or higher, with S3.1 slightly ahead at $0.920$, which shows that most outputs adhere to the expected JSON schema even after aggregation. The style-aware score $\mathrm{SC}_{\text{macro}}$ improves from $0.691$ in S3.0 to $0.724$ in S3.1, suggesting that the combination of few-shot prompting and consensus helps the system converge on more uniform phrasing and formatting across documents. S3.2, evaluated on speech-style input, remains close to S3.1 in both metrics, which indicates that the ensemble design is robust to noisier transcripts: consensus can smooth out some of the variability introduced by speech-like text while preserving schema fidelity.
 
-\subsection*{Insights}
-
-\begin{itemize}
-    \item \textbf{Consensus cuts hallucinations and improves calibration.} Relative to iterative S2.1, S3.1 lowers HR (0.301$\rightarrow$0.208) and raises FDA (0.718$\rightarrow$0.743), with higher OBS (+0.022) at a modest MR increase (0.267$\rightarrow$0.295). This reflects better confidence alignment from cross-model agreement.
-    \item \textbf{Competitive with the best single-pass accuracy.} Against S1.1, S3.1 is close on OBS (0.641 vs.\ 0.644) but improves NES (0.521 vs.\ 0.504), suggesting stronger content quality on gold-nonempty fields; MR also improves (0.295 vs.\ 0.313), while HR is slightly higher than S1.1’s very conservative rate (0.208 vs.\ 0.180).
-    \item \textbf{Speech-style robustness holds.} S3.2 maintains NES leadership among S3 variants (0.524) and strong RFA (0.738), with MR the lowest (0.289). Compared to S1.2, S3.2 trades a small OBS deficit (0.624 vs.\ 0.626) for better NES (+0.016) and similar FDA (0.728 vs.\ 0.727).
-    \item \textbf{Field patterns persist.} \texttt{perpetratorOrganization}/\texttt{weapon} remain easiest; \texttt{perpetratorIndividual} continues to lag due to sparse, ambiguous references; \texttt{incidentLocation} benefits from full-context cross-checking (S3.1: 0.554 baseline) vs.\ S1’s single pass.
-    \item \textbf{Latency cost is real but tails are reasonable.} S3.1 has higher median and mean than S1.1, yet a shorter extreme tail than S1.1 (p99 118.3\,s vs.\ 134.9\,s). S3.0 offers a faster consensus baseline when few-shot is unavailable.
-\end{itemize}
+Taken together, the S3 family demonstrates how full-document multi-LLM consensus trades additional cost and latency for improved calibration and robustness. Relative to the iterative S2.1 configuration, S3.1 reduces hallucinations (HR $0.301 \rightarrow 0.208$) and raises FDA (from $0.718$ to $0.743$) while also achieving higher OBS, suggesting that cross-model agreement provides more trustworthy fills at the expense of a small increase in misses. Compared to the best single-pass configuration S1.1, S3.1 reaches very similar headline scores but offers better performance on gold-nonempty slots (higher NES) and slightly lower MR, indicating stronger content quality when fields are present. The speech-style variant S3.2 maintains this pattern, trading a small decrease in overall accuracy for higher NES and stable RFA, which makes it attractive for spoken-text deployments where correctness on filled slots is more important than exploiting empty–empty alignment. Overall, S3 is best suited for settings where accuracy, calibration, and robustness justify a roughly twofold increase in LLM cost over S1 and a moderate latency premium.

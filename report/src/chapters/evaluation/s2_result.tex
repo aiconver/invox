@@ -1,15 +1,9 @@
 \section{Results – Strategy S2: Iterative Single-Field}
 \label{sec:eval-s2}
 
-The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially, invoking the LLM once per slot.
-We evaluate three S2 variants:
-\textbf{S2.0} = no few-shot examples on the original MUC-4 dataset;
-\textbf{S2.1} = with few-shot examples on the original dataset;
-\textbf{S2.2} = with few-shot examples on a modified dataset that mimics speech-style transcripts.
+The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially, invoking the LLM once per slot. We evaluate three S2 variants: \textbf{S2.0} without few-shot examples on the original MUC-4 dataset, \textbf{S2.1} with few-shot examples on the original dataset, and \textbf{S2.2} with few-shot examples on a modified dataset that mimics speech-style transcripts.
 
-\subsection*{Headline Results}
-
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \begin{tikzpicture}
   \begin{axis}[
@@ -84,8 +78,11 @@ We evaluate three S2 variants:
 \label{fig:s2-variants-bar}
 \end{figure}
 
-\paragraph{Per-field (reference for S2.1).}
-\texttt{perpetratorOrganization} and \texttt{weapon} are strongest; \texttt{perpetratorIndividual} remains difficult; \texttt{incidentLocation} benefits from per-slot prompting.
+Figure~\ref{fig:s2-variants-bar} shows that few-shot prompting improves both accuracy and the calibration of fill decisions for the iterative strategy. Moving from S2.0 to S2.1 increases OBS from $0.590$ to $0.619$ and SF1 from $0.608$ to $0.639$, while hallucinations drop markedly (HR $0.373 \rightarrow 0.301$) and FDA rises slightly from $0.709$ to $0.718$. This indicates that S2.1 fills more slots correctly and avoids a substantial fraction of spurious extractions. The missing rate increases from $0.226$ to $0.267$, suggesting that the few-shot configuration becomes slightly more conservative: it is more willing to leave a slot empty when uncertain. S2.2, which operates on speech-style inputs, maintains competitive OBS and SF1 (0.595 and 0.631 respectively) and mirrors S2.1’s MR ($0.267$), but exhibits somewhat lower FDA ($0.700$) and higher HR ($0.341$). The high RFA values for S2.1 and S2.2 (0.758 and 0.742) indicate that, when both system and gold fill a field, the content is often correct, although spoken-like transcripts introduce more variability into the decision process.
+
+\paragraph{Per-field behaviour (S2.1).}
+
+\texttt{perpetratorOrganization} and \texttt{weapon} are the strongest slots under S2.1, \texttt{perpetratorIndividual} remains difficult, and \texttt{incidentLocation} benefits from per-slot prompting.
 
 \begin{table}[H]
     \centering
@@ -109,6 +106,8 @@ We evaluate three S2 variants:
         \bottomrule
     \end{tabular}
 \end{table}
+
+Table~\ref{tab:s2-perfield} highlights how iterative, field-specific prompting shifts performance across the nine slots. As in other strategies, \texttt{perpetratorOrganization} and \texttt{weapon} achieve the highest averages (0.738 and 0.751), reflecting that organization names and weapons are often expressed with relatively distinctive lexical cues that the model can exploit in a field-focused prompt. The \texttt{incidentLocation} slot benefits noticeably from the single-field set-up, reaching $0.597$, which is higher than in the single-pass baseline. This supports the hypothesis that dedicated instructions per slot help the model to attend more precisely to location mentions, rather than treating them as one of many competing targets in a joint prompt. By contrast, \texttt{incidentDate} remains moderate at $0.550$, and \texttt{perpetratorIndividual} continues to be one of the hardest fields due to sparse and ambiguous references to individuals in the underlying texts. Iterative prompting improves some aspects of locality and grounding, but does not fully overcome the inherent data limitations for this slot.
 
 \subsection*{Latency}
 
@@ -184,13 +183,11 @@ We evaluate three S2 variants:
 \label{fig:s2-latency-bar}
 \end{figure}
 
+Figure~\ref{fig:s2-latency-bar} shows that all S2 variants are comparatively fast, even though they issue one call per field. S2.0 is the speed leader, with a median latency of about $20$\,s per document and a tight upper tail (p99 below $50$\,s). Adding few-shot examples in S2.1 increases median latency to roughly $25$\,s and extends the tail (p99 around $72$\,s), but still keeps the strategy within a range that is substantially faster than the most accurate S1 configuration. S2.2, evaluated on speech-style inputs, sits between S2.0 and S2.1 in terms of latency: its median and mean latencies are slightly lower than S2.1, and its p99 value (about $53$\,s) is considerably shorter than S2.1’s, indicating more stable runtime behaviour. Overall, S2 provides an attractive accuracy–throughput trade-off: the strategy is noticeably faster than S1.1 and S3.1, while still achieving strong headline metrics.
 
 \subsection*{Cost Analysis (S2: Single-Field Iterative)}
 
-\textbf{Assumptions.} We extract each of the $F{=}9$ MUC-4 slots with a separate \textit{GPT-5} call. 
-Per field (average): $i_f{=}1{,}500$ input tokens, $o_f{=}50$ output tokens. 
-Verification with \textit{GPT-5-mini} is done \emph{once per record} (not per field) with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. 
-If audio is used, add Whisper transcription for $D$ minutes (once per record).
+\textbf{Assumptions.} Each of the $F{=}9$ MUC-4 slots is extracted with a separate \textit{GPT-5} call. Per field, the average token usage is $i_f{=}1{,}500$ input tokens and $o_f{=}50$ output tokens. Verification with \textit{GPT-5-mini} is performed once per record (not per field) with $V_{\text{in}}{=}1{,}000$ and $V_{\text{out}}{=}100$. If audio is used, Whisper transcription for $D$ minutes is added once per record.
 
 \textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.
 
@@ -218,12 +215,10 @@ If audio is used, add Whisper transcription for $D$ minutes (once per record).
 =\mathbf{\$0.02183}\ (\approx 2.18\text{¢/doc})
 \]
 
-\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.02183+0.006=\mathbf{\$0.02783}$ (\(\approx 2.78\,\text{¢}\)).
-
-\textbf{Takeaway.} With these settings, S2 costs \(\approx 3.03\times\) S1 (\$0.02183 vs.\ \$0.00720 per doc, no audio), driven by the $F$ separate extraction calls; verification once per record keeps the verifier overhead small.
-
+\textbf{With audio (Whisper).} Adding Whisper introduces a linear term of $0.006\cdot D$. For $D{=}1$\,min, the total cost becomes $\$0.02183 + 0.006 = \mathbf{\$0.02783}$ (approximately $2.78$\,¢ per document). Under the assumed token budgets, S2 therefore costs about $3.0\times$ as much as S1 (\$0.02183 vs.\ \$0.00720 per document, no audio), driven by the $F$ separate extraction calls; running verification only once per record keeps the arbiter overhead comparatively small.
 
 \subsection*{Consistency (Formatting \& Style)}
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -256,13 +251,6 @@ If audio is used, add Whisper transcription for $D$ minutes (once per record).
 \label{fig:s2-consistency}
 \end{figure}
 
+Figure~\ref{fig:s2-consistency} indicates that the iterative strategy maintains very high schema conformity and stable style. All variants achieve $\mathrm{FPR}_{\text{overall}} \geq 0.940$, with S2.0 reaching $0.970$, which reflects that the per-field design and explicit JSON schemas make it easy for the model to respect structural constraints. The style-aware score $\mathrm{SC}_{\text{macro}}$ modestly improves from $0.672$ in S2.0 to $0.683$ in S2.1, suggesting that few-shot prompts help the model settle on more consistent textual realizations across documents. S2.2, evaluated on speech-style input, shows a small drop in both metrics but remains close to S2.1, which indicates that formatting and style are largely preserved even when the input becomes noisier. Taken together with the headline metrics, this suggests that S2 trades a slight reduction in schema strictness (relative to S2.0) for better content accuracy and calibration in S2.1, and that these gains mostly carry over to spoken-like transcripts in S2.2.
 
-\subsection*{Insights}
-
-\begin{itemize}
-    \item \textbf{Few-shot improves accuracy and calibrates fills.} S2.1 vs.\ S2.0: OBS +0.029, SF1 +0.031; hallucinations drop substantially (HR 0.373$\rightarrow$0.301) with a small FDA gain (0.709$\rightarrow$0.718). Misses rise (MR 0.226$\rightarrow$0.267), indicating a shift toward more conservative fills.
-    \item \textbf{Iterative prompting helps location.} S2.1 attains \texttt{incidentLocation} 0.597 (baseline regime), noticeably higher than S1’s single-pass numbers, consistent with field-focused instructions improving locality grounding.
-    \item \textbf{Speech-style robustness with mild cost.} S2.2 maintains competitive OBS/SF1 (0.595/0.631) and similar MR to S2.1, but with lower FDA (0.700) and higher HR (0.341). RFA remains strong (0.742), suggesting good quality when both sides produce values, but overall more cautious/variable fill decisions on spoken-like inputs.
-    \item \textbf{Persistent hard spot: \texttt{perpetratorIndividual}.} Scores remain low across variants due to sparse gold and ambiguous mentions; even with per-slot focus, recall lags compared to \texttt{weapon} and \texttt{perpetratorOrganization}.
-    \item \textbf{Latency–quality profile.} All S2 variants are faster than the best S1 accuracy setting (S1.1). S2.0 is the speed leader (p50 $\sim$20\,s/doc) but has higher HR; S2.1 delivers the best accuracy at a moderate latency increase; S2.2 offers a middle ground for speech-like text with shorter tails than S1.1.
-\end{itemize}
+Overall, the S2 family occupies a middle ground between single-pass and full consensus strategies. Iterative, field-specific prompting improves challenging slots such as \texttt{incidentLocation}, while still struggling with intrinsically difficult fields like \texttt{perpetratorIndividual}. Few-shot prompting (S2.1) clearly improves accuracy and reduces hallucinations compared to S2.0, at the cost of a moderate latency and cost increase. The speech-style variant S2.2 preserves much of this behaviour on noisier inputs, with strong RFA and only modest degradation in calibration metrics. Compared to S1.1, S2.1 offers similar or slightly lower headline scores on clean text but achieves substantially better throughput; compared to S3.1 and S4.1, it provides a simpler and more economical alternative that still benefits from per-field control, making it a compelling choice for deployments where latency and cost are constrained but field-level interpretability is desirable.

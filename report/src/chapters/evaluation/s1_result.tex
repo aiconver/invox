@@ -1,14 +1,7 @@
 \section{Results – Strategy S1: Single-Pass Full Input}
 \label{sec:eval-s1}
 
-The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 slots in a single LLM call. 
-We evaluate three S1 variants: 
-\textbf{S1.0} = no few-shot examples on the original MUC-4 dataset; 
-\textbf{S1.1} = with few-shot examples on the original dataset; 
-\textbf{S1.2} = with few-shot examples on a modified MUC-4 dataset that mimics speech-style transcripts.
-
-\subsection*{Headline Results}
-
+The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 slots in a single LLM call. We evaluate three S1 variants: \textbf{S1.0} without few-shot examples on the original MUC-4 dataset, \textbf{S1.1} with few-shot examples on the original dataset, and \textbf{S1.2} with few-shot examples on a modified MUC-4 dataset that mimics speech-style transcripts.
 
 \begin{figure}[h]
 \centering
@@ -85,8 +78,11 @@ We evaluate three S1 variants:
 \label{fig:s1-variants-bar}
 \end{figure}
 
-\paragraph{Per-field (reference for S1.1).}
-\texttt{perpetratorOrganization} and \texttt{weapon} lead; \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain harder.
+Figure~\ref{fig:s1-variants-bar} shows that adding few-shot examples consistently improves the single-pass strategy. Moving from S1.0 to S1.1 increases OBS from $0.601$ to $0.644$ and SF1 from $0.604$ to $0.642$, while FDA rises from $0.713$ to $0.746$ and HR drops from $0.233$ to $0.180$. The gains are most pronounced in the entity-focused metrics (OBS, SF1, RFA), indicating that few-shot guidance helps the model fill more slots correctly rather than relying on abstention. S1.2, which operates on speech-style transcripts, lags slightly behind S1.1 on OBS and SF1 but achieves the best NES ($0.508$) and the highest RFA ($0.738$), suggesting that it remains robust under noisier inputs and performs particularly well when both system and gold annotations are nonempty.
+
+\paragraph{Per-field behaviour (S1.1).}
+
+
 
 \begin{table}[H]
     \centering
@@ -111,14 +107,18 @@ We evaluate three S1 variants:
     \end{tabular}
 \end{table}
 
+\texttt{perpetratorOrganization} and \texttt{weapon} are the strongest fields under S1.1, whereas \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain more challenging.
+
+Table~\ref{tab:s1-perfield} confirms that performance is not uniform across slots. Categorical fields such as \texttt{incidentStage}, \texttt{perpetratorOrganization}, and especially \texttt{weapon} achieve relatively high scores, reflecting their clearer lexical patterns and more constrained label spaces. In contrast, \texttt{perpetratorIndividual} and \texttt{incidentLocation} show lower averages, consistent with their higher ambiguity and sparsity in the underlying texts. Dates are handled comparatively well (average $0.760$ for \texttt{incidentDate}), but the remaining gap to perfect accuracy indicates residual issues with normalization and partial matches.
+
 \subsection*{Latency}
 
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
   \begin{axis}[
-    width=15cm,
-    height=9cm,
+    width=13cm,
+    height=6cm,
     ybar,
     bar width=7pt,
     ylabel={Latency (seconds)},
@@ -185,11 +185,13 @@ We evaluate three S1 variants:
 \label{fig:s1-latency-bar}
 \end{figure}
 
+Figure~\ref{fig:s1-latency-bar} illustrates the latency–quality trade-off within the S1 family. S1.0 is clearly the fastest variant, with a median of around $25$\,s per document and a relatively short tail, but it is also the weakest in terms of accuracy. S1.1 roughly doubles the median latency to about $56$\,s and exhibits a long tail up to approximately $164$\,s, reflecting the additional computation needed to incorporate few-shot context. S1.2 offers an intermediate profile: its median latency ($\sim 49$\,s) and mean latency are lower than S1.1, and the upper tail is substantially shorter (p99 $=86.8$\,s vs.\ $134.9$\,s), making it more attractive in scenarios where robustness to speech-style inputs is required but extreme latency must be avoided.
+
 \subsection*{Cost Analysis (S1: Single-Pass Full Input)}
 
-\textbf{Assumptions.} Extraction on \textit{GPT-5} with $I{=}3{,}000$ input tokens and $O{=}300$ output tokens; verification on \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$, $V_{\text{out}}{=}100$. If audio is used, add Whisper transcription for $D$ minutes.
+\textbf{Assumptions.} Extraction uses \textit{GPT-5} with $I{=}3{,}000$ input tokens and $O{=}300$ output tokens; verification uses \textit{GPT-5-mini} with $V_{\text{in}}{=}1{,}000$ and $V_{\text{out}}{=}100$. If audio is present, an additional Whisper transcription cost is incurred for $D$ minutes of audio.
 
-\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.\footnote{OpenAI GPT-5 and GPT-5-mini pricing; Whisper API pricing. See OpenAI: \texttt{openai.com/gpt-5} and \textit{Introducing ChatGPT and Whisper APIs} (Apr 24, 2024).}
+\textbf{Prices.} GPT-5: input \$1.25/M, output \$10.00/M. GPT-5-mini: input \$0.25/M, output \$2.00/M. Whisper: \$0.006/min.
 
 \textbf{Formula.}
 \[
@@ -207,16 +209,21 @@ We evaluate three S1 variants:
 +\underbrace{\tfrac{100}{10^6}\!\cdot\!2.00}_{\$0.00020}
 =\mathbf{\$0.00720}\ (\approx 0.72\text{¢/doc})
 \]
-\textbf{With audio (Whisper).} Add $0.006\cdot D$. For $D{=}1$ min: $\$0.00720+0.006=\mathbf{\$0.01320}$ (\(\approx 1.32\,\text{¢}\)).
-\textbf{Takeaway.} At these token sizes, S1’s LLM cost is $\sim\$0.0072$ per document; Whisper adds a simple linear \$0.006 per audio minute.
+
+\textbf{With audio (Whisper).} Adding Whisper introduces a simple linear term $0.006\cdot D$. For $D{=}1$\,min, the total cost becomes $\$0.00720 + 0.006 = \mathbf{\$0.01320}$ (approximately $1.32$\,¢ per document). At the token scales considered here, S1’s LLM component remains inexpensive (around \$0.0072 per document), and audio processing dominates cost for longer recordings.
 
 \subsection*{Consistency (Formatting \& Style)}
+
+Figure~\ref{fig:s1-consistency} shows that few-shot prompting improves both schema-level and style-level consistency. S1.1 achieves the highest schema format preservation ($\mathrm{FPR}_{\text{overall}}{=}0.960$) and the best style consistency score ($\mathrm{SC}_{\text{macro}}{=}0.724$), confirming that the additional examples help the model adhere more reliably to the expected JSON schema and textual conventions. S1.2 remains close to S1.1 despite the more challenging speech-style input, with only a small drop in both scores, which indicates that the single-pass architecture can maintain formatting and stylistic regularity even under noisier conditions.
+
+Taken together, the three S1 variants illustrate how single-pass extraction behaves under different prompting and input conditions. The addition of few-shot examples consistently strengthens the model: S1.1 delivers the highest overall accuracy on clean text, with notable gains in FDA, SF1, and schema–style consistency, albeit at the cost of higher latency. S1.2 provides a balanced alternative for speech-like transcripts, maintaining competitive accuracy while reducing tail latency and showing the strongest behaviour under nonempty–nonempty evaluation (NES, RFA). In contrast, S1.0 represents a minimal baseline without contextual guidance—fastest but clearly weakest across core metrics. Overall, S1.1 is the most effective configuration for high-quality offline extraction, whereas S1.2 is preferable in interactive or speech-driven deployments where robustness and latency stability matter.
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
   \begin{axis}[
-    width=15cm,
-    height=7cm,
+    width=12cm,
+    height=6cm,
     ybar=0pt,
     bar width=10pt,
     ymin=0, ymax=1.05,
@@ -243,13 +250,3 @@ We evaluate three S1 variants:
 \label{fig:s1-consistency}
 \end{figure}
 
-
-\subsection*{Insights}
-
-\begin{itemize}
-    \item \textbf{Few-shot boosts the single-pass baseline.} Moving from S1.0 to S1.1 improves OBS (+0.043) and SF1 (+0.038), increases FDA (0.713$\rightarrow$0.746), and cuts HR (0.233$\rightarrow$0.180). Gains concentrate in entity-rich fields (\texttt{perpetratorOrganization}, \texttt{weapon}) and reduce empty-field errors.
-    \item \textbf{Speech-style inputs remain robust.} S1.2 trails S1.1 modestly on OBS/SF1 but achieves the best NES (0.508) and RFA (0.738), indicating strong content quality when gold is nonempty and both sides fill. Its lower EAI (0.118) suggests less dependence on empty-field advantage.
-    \item \textbf{Decision behavior stabilizes with few-shot.} Few-shot lowers hallucination rate (HR) and raises fill-decision accuracy (FDA). S1.2 keeps FDA competitive (0.727) with the lowest missing rate (MR{=}0.311, tie within rounding), despite noisier inputs.
-    \item \textbf{Consistent hard spots.} \texttt{perpetratorIndividual} remains the most difficult (sparse gold, high MR in nonempty regime); \texttt{incidentLocation} shows moderate improvements but stays challenging compared to \texttt{weapon}/\texttt{perpetratorOrganization}.
-    \item \textbf{Latency–quality trade-off and overall choice.} S1.0 is fastest (p50 $\sim$25\,s/doc) but least accurate. S1.1 is the strongest accuracy baseline on clean text (p50 $\sim$56\,s/doc) at higher latency. S1.2 offers a middle ground for speech-like inputs—near S1.1 quality with shorter tails (p99 86.8\,s vs.\ 134.9\,s)—and is a sensible default when spoken-text robustness matters.
-\end{itemize}
