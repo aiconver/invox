@@ -102,20 +102,9 @@ S4: Consensus (Slot) & $n \times m$ & H & H & H & H \\
 \bottomrule
 \end{tabular}
 \caption{Comparison of architectural strategies. $n$ = number of slots, $m$ = number of models. L=Low, M=Medium, H=High.}
-\label{tab:strategy-comparison}
+\label{tab:architectural-strategy-comparison}
 \end{table}
 
-\textbf{Selection criteria.} Strategy choice depends on deployment constraints:
-\begin{itemize}
-    \item \textbf{S1} is suitable for high-throughput applications where speed and cost matter more than perfect accuracy.
-    \item \textbf{S2} enables fine-grained debugging and is appropriate when specific fields are known to be problematic.
-    \item \textbf{S3} balances robustness and context preservation, making it suitable for general-purpose deployments.
-    \item \textbf{S4} provides maximum reliability for critical applications where errors have serious consequences (e.g., medical records, regulatory reporting).
-\end{itemize}
+\textbf{Selection criteria.} Strategy choice depends on deployment constraints. \textbf{S1} is suitable for high-throughput applications where speed and cost matter more than perfect accuracy. \textbf{S2} enables fine-grained debugging and is appropriate when specific fields are known to be problematic. \textbf{S3} balances robustness and context preservation, making it suitable for general-purpose deployments. \textbf{S4} provides maximum reliability for critical applications where errors have serious consequences (e.g., medical records, regulatory reporting).
 
-Chapter 5 empirically evaluates these strategies on the MUC-4 benchmark, also quantifying their performance across the six requirements (R1–R6) established in Chapter 2.\begin{figure}
-    \centering
-    \includegraphics[width=0.5\linewidth]{sa.png}
-    \caption{Enter Caption}
-    \label{fig:placeholder}
-\end{figure}
+Chapter 5 empirically evaluates these strategies on the MUC-4 benchmark, also quantifying their performance across the six requirements (R1–R6) established in Chapter 2.

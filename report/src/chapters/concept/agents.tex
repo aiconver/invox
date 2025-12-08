@@ -11,7 +11,6 @@ The modular architecture of \textit{Invox} is organized into five specialized ag
 \end{figure}
 
 
-
 \subsection{Speech-to-Text Agent (STT)}
 \label{subsec:stt-agent}
 
@@ -35,12 +34,7 @@ The IE agent performs the central task of transforming unstructured text into st
 
 The agent operates by prompting a large language model with task-specific instructions and examples. For each field in the template schema, the model attempts to extract relevant information from the input text. If information for a particular field cannot be found in the text, the field is explicitly populated with a null value rather than being omitted. This ensures completeness while maintaining the structured output format.
 
-\textbf{Processing approach:}
-\begin{itemize}
-    \item \textbf{Schema-driven extraction:} The agent processes all fields specified in the template schema, ensuring comprehensive coverage of the required information structure.
-    \item \textbf{Evidence-based population:} Fields are populated only when supporting evidence is present in the input text, preventing hallucination of unsupported values.
-    \item \textbf{Explicit null handling:} When information for a field is unavailable in the text, the field is explicitly marked as null, maintaining the complete output structure.
-\end{itemize}
+\textbf{Processing approach:} The agent follows a schema-driven extraction strategy, in which it processes all fields specified in the template schema to ensure comprehensive coverage of the required information structure. Fields are populated in an evidence-based manner, i.e., values are only assigned when there is explicit supporting evidence in the input text, which helps prevent hallucination of unsupported content. When no such evidence is present for a given field, the system performs explicit null handling by marking the field as null, thereby preserving a complete and well-defined output structure.
 
 \textbf{Prompt structure.} The IE agent's prompt consists of four components: (1) task definition specifying the target schema and fields, (2) retrieved few-shot examples demonstrating successful extraction patterns, (3) the current user input text, and (4) output format constraints requiring JSON-structured responses that include all specified fields. This structure ensures consistent output formatting while leveraging the contextual understanding provided by few-shot examples \cite{zhang2023sgptod}.
 
@@ -49,13 +43,7 @@ The agent operates by prompting a large language model with task-specific instru
 
 The CF agent transforms the raw extracted values from the IE agent into standardized, schema-compliant formats. It accepts the slot-value pairs produced by the IE agent and applies deterministic normalization rules and schema validation to ensure consistency across all template outputs.
 
-\textbf{Schema validation and normalization:}
-\begin{itemize}
-    \item \textbf{Data type enforcement:} Converts extracted values to appropriate data types (dates to ISO format, numbers to numerical types, etc.) and validates against schema constraints
-    \item \textbf{Value canonicalization:} Standardizes variations using deterministic rules (e.g., ``Sept. 11'' → ``2001-09-11'', ``USA'' → ``United States'')
-    \item \textbf{Controlled vocabulary mapping:} Enforces domain-specific conventions by mapping extracted terms to predefined categories for incident types, equipment codes, and other standardized fields
-    \item \textbf{Schema compliance checking:} Validates that all values conform to the template schema requirements, including format constraints and value ranges
-\end{itemize}
+\textbf{Schema validation and normalization:} The agent enforces schema-level constraints by converting extracted values to the appropriate data types (e.g., dates to ISO format, numbers to numerical types) and validating them against the corresponding schema definitions. It then performs value canonicalization using deterministic normalization rules to standardize surface-form variations (for instance, mapping ``Sept.\ 11'' to ``2001-09-11'' or ``USA'' to ``United States''). Domain-specific consistency is further ensured through controlled vocabulary mapping, where extracted terms are mapped to predefined categories for incident types, equipment codes, and other standardized fields. Finally, the agent performs schema compliance checking to verify that all populated values satisfy the template’s structural and semantic requirements, including format constraints and valid value ranges.
 
 \textbf{Normalization approach.} The CF agent employs both deterministic transformations and LLM-based resolution for ambiguous cases. Structured data types like dates, numbers, and standard identifiers are normalized using regular expressions and parsing libraries. For ambiguous entities—such as informal location names or context-dependent equipment codes—the agent can prompt an LLM with the original context and domain glossaries to resolve variations. This hybrid approach balances precision with contextual awareness while maintaining deterministic behavior for well-defined formats.
 
@@ -66,23 +54,11 @@ The CF agent transforms the raw extracted values from the IE agent into standard
 
 The VER agent performs comprehensive quality assessment on the structured template produced by the CF agent. It accepts the normalized slot-value pairs as input and generates a fully verified template with confidence scoring, field-level annotations, and interactive clarification capabilities.
 
-\textbf{Quality assessment components:}
-\begin{itemize}
-    \item \textbf{Confidence scoring:} Assigns confidence scores to each populated field based on extraction quality, evidence strength, and internal consistency metrics
-    \item \textbf{Field annotations:} Provides detailed annotations for each field indicating the source evidence, extraction method, and any processing notes
-    \item \textbf{Conflict detection:} Identifies internal contradictions or inconsistencies between related fields (e.g., conflicting dates, incompatible equipment types)
-    \item \textbf{Completeness validation:} Flags required fields that remain empty or contain insufficient information
-\end{itemize}
+\textbf{Quality assessment components:} The agent incorporates several mechanisms for assessing the reliability of the populated template. It assigns confidence scores to each field based on extraction quality, strength of supporting evidence, and internal consistency metrics. In addition, it produces field-level annotations that document the source evidence, the applied extraction method, and any relevant processing notes, thereby increasing transparency. The system also performs conflict detection to identify internal contradictions or inconsistencies between related fields (for example, conflicting dates or incompatible equipment types). Finally, it executes completeness validation to flag required fields that remain empty or contain insufficient information, enabling targeted review and correction.
 
 \textbf{Interactive clarification system.} When low-confidence fields, conflicts, or missing required information are detected, the VER agent generates targeted chat messages to solicit user clarification. These messages are context-aware and focus specifically on the uncertain aspects of the template, enabling iterative refinement through user feedback. The system maintains conversation history to provide context for subsequent clarification rounds.
 
-\textbf{Final output generation.} The VER agent produces the completed template with all quality annotations, making transparent which fields are highly reliable versus those requiring user verification. This includes:
-\begin{itemize}
-    \item Confidence scores for automated quality assessment
-    \item Evidence references linking extracted values to source text spans
-    \item Clear indicators of fields that may need user attention
-    \item Structured data ready for database integration or further processing
-\end{itemize}
+\textbf{Final output generation.} The VER agent produces a completed template that includes all quality-related annotations, making it explicit which fields are highly reliable and which require user verification. Alongside the structured data ready for database integration or further processing, the output contains confidence scores for automated quality assessment, evidence references that link extracted values to their originating text spans, and clear indicators highlighting fields that may need user attention.
 
 \textbf{Design rationale.} VER directly supports R3 (transparency) by providing comprehensive field-level annotations and confidence metrics, and R4 (user correction) through its interactive clarification system. By centralizing quality assessment and user interaction in a dedicated agent, the system ensures consistent verification standards while maintaining clear separation from the extraction and normalization processes \cite{park2023generative}.
 

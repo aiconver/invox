@@ -8,258 +8,155 @@ This section details the concrete implementation of each agent in the Invox syst
 
 The STT agent provides a single entry point \texttt{transcribeForm} that converts audio inputs to structured transcripts using OpenAI's Whisper model.
 
-\textbf{API Contract:}
-\begin{verbatim}
+Listing~\ref{lst:stt-api} defines the input and output schema for the STT agent.
+
+\begin{lstlisting}[language=Java, caption={STT agent API contract}, label={lst:stt-api}]
 interface TranscribeInput {
   file: {
-    base64: string;         // Base64-encoded audio data
-    mimetype: string;       // "audio/wav" | "audio/mpeg" | "audio/m4a"
+    base64: string;
+    mimetype: "audio/wav" | "audio/mpeg" | "audio/m4a";
     originalname: string;
   };
 }
 
 interface TranscribeResponse {
-  transcript: string;           // Full transcribed text
-  language: string;             // Detected language code (ISO 639-1)
-  durationInSeconds: number;    // Audio duration
-  segments?: Array<{            // Optional word-level timing
+  transcript: string;
+  language: string;
+  durationInSeconds: number;
+  segments?: Array<{
     start: number;
     end: number;
     text: string;
     confidence?: number;
   }>;
 }
-\end{verbatim}
+\end{lstlisting}
 
-\textbf{Implementation:} The agent decodes Base64 audio data into buffers and invokes the Whisper API via the Vercel AI SDK. Long audio files (>25MB or >10 minutes) are automatically chunked with 10\% overlap to ensure context preservation at boundaries. The agent returns word-level timestamps and confidence scores when available, enabling downstream agents to trace extracted values back to specific audio segments. Failed transcriptions (e.g., due to excessive noise or unsupported formats) throw structured errors that the orchestrator can handle gracefully, either by requesting re-recording or falling back to manual text entry.
+The \texttt{TranscribeInput} interface encapsulates the uploaded audio file as a Base64-encoded payload with an associated MIME type and original filename. The interface \texttt{TranscribeResponse} returns the full transcription in \texttt{transcript}, the detected language as an ISO 639-1 code in \texttt{language}, and the total audio duration in seconds via \texttt{durationInSeconds}. The optional \texttt{segments} array provides time-aligned fragments of the transcription that can be used by downstream components for error analysis and selective verification.
 
-\textbf{Configuration:} Temperature is set to 0 for deterministic output. Language detection is automatic unless overridden by the client. Voice activity detection (VAD) filters out silence and non-speech segments to improve accuracy.
+\textbf{Implementation.} The agent decodes Base64 audio data into buffers and invokes the Whisper API via the Vercel AI SDK. Long audio files (>25\,MB or >10\,minutes) are automatically chunked with a 10\% overlap to preserve context at segment boundaries. When available, the agent returns time-aligned segments with confidence scores, enabling downstream agents to trace extracted values back to specific audio regions. Failed transcriptions (e.g., due to excessive noise or unsupported formats) result in structured errors that the orchestrator can handle gracefully, either by requesting re-recording or by falling back to manual text entry.
+
+\textbf{Configuration.} Temperature is set to 0 to obtain deterministic output across repeated runs. Language detection is performed automatically unless explicitly overridden by the client. Voice activity detection (VAD) is applied to filter out silence and non-speech segments, which improves both transcription quality and processing efficiency.
+
 \subsection{Retrieval-Augmented Generation (RAG) Agent}
 \label{subsec:impl-rag}
 
 The RAG agent implements semantic search over historical templates through the \texttt{getFewShotsFromTranscript} function, which retrieves contextually relevant examples to guide the information extraction process.
 
-\textbf{API Contract:}
-\begin{verbatim}
+Listing~\ref{lst:rag-api} defines the input and output schema for the RAG agent.
+
+\begin{lstlisting}[language=Java, caption={RAG agent API contract}, label={lst:rag-api}]
 interface RAGInput {
-  transcript: string;           // Input text for similarity search
-  fields: FormTemplateField[];  // Target schema for field mapping
-  k?: number;                   // Number of examples (default: 5, max: 5)
+  transcript: string;
+  fields: FormTemplateField[];
+  k?: number;
 }
 
 interface FewShot {
-  text: string;                 // Truncated historical transcript
-  expected: Record<string, {    // Field ID → normalized value
+  text: string;
+  expected: Record<string, {
     value: unknown | null;
     evidence?: { transcriptSnippet?: string };
   }>;
 }
-\end{verbatim}
+\end{lstlisting}
 
-\textbf{Implementation:} The agent generates dense vector embeddings using OpenAI's \texttt{text-embedding-3-large} model. A key implementation detail is the embedding generation process: the input text is prefixed with \texttt{templateId=\${TEMPLATE\_ID}} to create template-aware embeddings that improve retrieval relevance within specific template contexts.
+The \texttt{RAGInput} interface specifies the data required for semantic retrieval. The \texttt{transcript} field contains the input text used for similarity search, while \texttt{fields} holds the target form schema as an array of \texttt{FormTemplateField} objects. The optional parameter \texttt{k} controls how many example instances are retrieved for few-shot prompting; if omitted, a default of five examples is used to keep prompt size manageable.
 
-The agent performs k-nearest neighbor search using cosine similarity in OpenSearch with the \texttt{knn\_score} script. The search query filters results by template ID to ensure schema compatibility and uses a \texttt{script\_score} approach for efficient vector similarity computation.
+The \texttt{FewShot} interface represents a single retrieved example. The \texttt{text} property contains a truncated version of a historical transcript, and the \texttt{expected} map associates each field identifier with its normalized value. Each entry in \texttt{expected} may also contain \texttt{evidence} in the form of a \texttt{transcriptSnippet}, which highlights the segment of the original transcript that supports the stored value.
 
+\textbf{Implementation.} The agent generates dense vector embeddings using OpenAI's \texttt{text-embedding-3-large} model. A key implementation detail is the embedding generation process: the input text is prefixed with \texttt{templateId=\${TEMPLATE\_ID}} to create template-aware embeddings that improve retrieval relevance within specific template contexts. The agent then performs k-nearest neighbor search using cosine similarity in OpenSearch with the \texttt{knn\_score} script. The search query filters results by template ID to ensure schema compatibility and uses a \texttt{script\_score} approach for efficient vector similarity computation.
 
-\textbf{Result Processing:} Retrieved documents undergo post-processing where transcript texts are truncated to a maximum character limit (default: 1200 characters) to maintain prompt efficiency. The \texttt{toExpectedShape} function maps raw database results to the expected field schema, ensuring that only fields present in the current template schema are included in the output.
+\textbf{Result processing.} Retrieved documents undergo post-processing where transcript texts are truncated to a fixed maximum length (default: 1200 characters) to maintain prompt efficiency. The \texttt{toExpectedShape} function maps raw database results to the expected field schema, ensuring that only fields present in the current template schema are included in the output.
 
-\textbf{Error Handling:} The implementation includes robust error handling for embedding generation failures and OpenSearch connectivity issues. If retrieval fails, the system gracefully falls back to zero-shot extraction, ensuring continuous operation despite temporary infrastructure problems.
-
+\textbf{Error handling.} The implementation includes robust error handling for embedding generation failures and OpenSearch connectivity issues. If retrieval fails, the system gracefully falls back to zero-shot extraction, ensuring continuous operation despite temporary infrastructure problems.
 
 \subsection{Information Extraction (IE) Agent}
 \label{subsec:impl-ie}
 
-The IE agent implements four extraction strategies through unified functions corresponding to S1–S4. All strategies share a common preprocessing pipeline and differ only in their orchestration of LLM calls.
+The IE agent implements four extraction strategies through unified functions corresponding to S1--S4. All strategies share a common preprocessing pipeline and differ only in their orchestration of LLM calls.
 
-\textbf{API Contract:}
-\begin{verbatim}
+Listing~\ref{lst:ie-api} defines the core input and output schema for the IE agent.\footnote{Supporting types such as \texttt{CurrentFieldValue} and \texttt{FilledField} are given in Appendix~\ref{app:ie-types}.}
+
+\begin{lstlisting}[language=Java, caption={IE agent core API contract}, label={lst:ie-api}]
 interface IEInput {
-  oldTranscript?: string;       // Previous context (for incremental updates)
-  newTranscript: string;        // New user input (primary extraction source)
-  fields: FormTemplateField[];  // Schema definition
+  oldTranscript?: string;
+  newTranscript: string;
+  fields: FormTemplateField[];
   currentValues?: Record<string, CurrentFieldValue>;
   strategy: "S1" | "S2" | "S3" | "S4";
-  fewShots?: RAGOutput['examples'];  // Retrieved examples from RAG
-  locale?: string;              // e.g., "en-US", "de-DE"
-  timezone?: string;            // e.g., "Europe/Berlin", "America/New_York"
-  templateId?: string;          // For logging and monitoring
-}
-
-interface CurrentFieldValue {
-  value: any;
-  locked?: boolean;             // If true, field is never overwritten
-  source?: "ai" | "manual";     // Origin of current value
+  fewShots?: RAGOutput["examples"];
+  locale?: string;
+  timezone?: string;
+  templateId?: string;
 }
 
 interface IEOutput {
   filled: Record<string, FilledField>;
-  model: string;                // Model identifier(s) used
-  confidence?: Record<string, number>;  // Per-field confidence [0,1]
+  model: string;
+  confidence?: Record<string, number>;
 }
+\end{lstlisting}
 
-interface FilledField {
-  value: any;
-  changed: boolean;             // Whether value differs from current
-  previousValue?: any;          // Only present if changed=true
-  source: "ai" | "manual";
-  confidence?: number;          // Optional: model's certainty estimate
-}
-\end{verbatim}
+The \texttt{IEInput} interface captures all information required for a single extraction step. The \texttt{newTranscript} field holds the latest user input and is treated as the primary source of new information, while \texttt{oldTranscript} optionally provides previous context for incremental updates. The \texttt{fields} array contains the target template schema as \texttt{FormTemplateField} definitions. The optional \texttt{currentValues} map stores previously filled field values, including metadata about their origin and lock status. The \texttt{strategy} parameter selects one of the four extraction strategies (S1--S4). Optional \texttt{fewShots} provide retrieved examples from the RAG agent, and \texttt{locale}, \texttt{timezone}, and \texttt{templateId} supply environment and logging metadata.
 
-\textbf{Strategy Implementations:}
+The \texttt{IEOutput} interface aggregates the final extraction result. The \texttt{filled} map associates each field identifier with a \texttt{FilledField} object, while \texttt{model} records the model identifier or combination of models used (e.g., for ensemble strategies). The optional \texttt{confidence} map stores per-field confidence scores normalized to the interval \([0,1]\). The detailed structure of \texttt{CurrentFieldValue} and \texttt{FilledField} is provided in Appendix~\ref{app:ie-types}.
+
+\textbf{Strategy implementations.}
 
 \paragraph{S1: Single-Pass Full-Input (\texttt{singleLlmAllField})}
-Constructs a comprehensive prompt requesting all template fields simultaneously. The prompt includes task instructions emphasizing extraction from \texttt{newTranscript} only, few-shot examples from RAG (up to 3 examples showing input→output mappings), field definitions with type constraints, options for enums, and guidelines, current field values with lock status, and both old and new transcript (old for context, new for extraction).
+This strategy constructs a comprehensive prompt requesting all template fields simultaneously. The prompt includes task instructions emphasizing extraction from \texttt{newTranscript} only, few-shot examples from the RAG agent (up to three examples showing input--output mappings), field definitions with type constraints and allowed options for enum fields, current field values with their lock status, and both old and new transcripts (old for context, new for extraction).
 
-The agent uses Zod schema validation to ensure type-safe outputs. Dates must match \texttt{YYYY-MM-DD} format, numbers must be finite, and enum values must belong to the predefined set. The LLM is instructed to return a JSON object with one key per field ID. Post-processing normalizes values (e.g., joining arrays to comma-separated strings for multi-value fields, trimming whitespace) and applies lock-aware merging: if a field is locked or if the new transcript does not mention a field, the current value is preserved.
+The agent uses Zod schema validation to ensure type-safe outputs. Dates must match the \texttt{YYYY-MM-DD} format, numbers must be finite, and enum values must belong to the predefined set. The LLM is instructed to return a JSON object with one key per field identifier. Post-processing normalizes values (for example, joining arrays to comma-separated strings for multi-value fields and trimming whitespace) and applies lock-aware merging: if a field is locked or if the new transcript does not mention a field, the current value is preserved.
 
 \paragraph{S2: Iterative Single-Field (\texttt{singleLlmOneField})}
-Processes each field independently with a field-specific prompt. For each field: filter RAG examples to include only those that populated this specific field, construct a focused prompt with field-specific guidelines, type constraints, and 1–2 relevant examples, call the LLM with schema \texttt{\{value, confidence\}}, normalize the returned value according to field type, and apply lock-aware update logic.
+This strategy processes each field independently using a field-specific prompt. For each field, the agent filters RAG examples to include only those that populated this particular field, constructs a focused prompt with field-specific guidelines and type constraints along with one or two relevant examples, calls the LLM with a schema of the form \texttt{\{value, confidence\}}, normalizes the returned value according to the field type, and applies lock-aware update logic.
 
-Fields are processed in parallel using \texttt{Promise.all}, reducing wall-clock latency on multi-core systems. Each field call is wrapped in a try-catch block with individual error boundaries: if one field extraction fails (e.g., due to API timeout), others proceed normally and the failed field retains its current value. This isolation improves robustness compared to S1, where a single parsing error can invalidate the entire output.
+Fields are processed in parallel using \texttt{Promise.all}, which reduces wall-clock latency on multi-core systems. Each field call is wrapped in its own error boundary: if extraction for one field fails (for example, due to an API timeout or parsing error), the remaining fields proceed unaffected and the failed field retains its current value. This isolation improves robustness compared to S1, where a single malformed response can invalidate the entire output.
 
 \paragraph{S3: Multi-LLM Consensus Full-Input (\texttt{dualLlmAllField})}
-Runs two models in parallel—GPT-4 and Gemini 2.0 Flash by default—each generating a complete template using the same prompt as S1. The outputs are then passed to a verification agent that implements consensus logic with rule-based checks to validate that locked fields were not overwritten, enum values are in the allowed set, and dates are parseable. LLM-based reconciliation uses a judge model (GPT-4o-mini by default) that compares the two candidate outputs field-by-field and selects one of four decisions per field: \texttt{gpt} (use GPT's value), \texttt{gemini} (use Gemini's value), \texttt{merge} (combine both values for multi-value text fields), or \texttt{keep\_current} (neither candidate is reliable; preserve existing value).
+S3 runs two models in parallel---GPT-4 and Gemini~2.0 Flash by default---each generating a complete template using the same prompt as S1. The two candidate outputs are then passed to a verification agent that implements consensus logic with rule-based checks to validate that locked fields were not overwritten, enum values remain within their allowed set, and dates are parseable.
 
-The verifier prompt includes both candidate outputs, the transcript, and field-level metadata (type, required status, current value). It is instructed to prefer the candidate with higher confidence, better grounding in the transcript, and consistency with schema constraints. For multi-value fields, the merge operation deduplicates and quality-filters entries, discarding empty strings or placeholders.
+LLM-based reconciliation uses a judge model (GPT-4o-mini by default) that compares the two candidate outputs field-by-field and selects one of four decisions: \texttt{gpt} (use GPT's value), \texttt{gemini} (use Gemini's value), \texttt{merge} (combine both values for multi-value text fields), or \texttt{keep\_current} (neither candidate is reliable; preserve the existing value). The verifier prompt includes both candidate outputs, the transcript, and field-level metadata (type, required status, current value). For multi-value fields, the merge operation deduplicates and quality-filters entries, discarding empty strings or placeholders.
 
 \paragraph{S4: Multi-LLM Consensus Per-Field (\texttt{multiLlmOneField})}
-Combines the granularity of S2 with the robustness of S3. For each field: run GPT and Gemini in parallel with field-specific prompts (as in S2), pass both candidate values to a per-field verifier, apply the same decision logic as S3 but focusing on a single field to reduce prompt size and improve decision quality, and return the final value with aggregated confidence (max of the two candidates if merged).
+S4 combines the granularity of S2 with the robustness of S3. For each field, the agent runs GPT and Gemini in parallel with field-specific prompts, analogous to S2, and then passes both candidate values to a per-field verifier. The verifier applies the same decision logic as in S3 but focuses on a single field at a time, which reduces prompt size and often improves decision quality. The final value is returned together with an aggregated confidence score.
 
-This strategy has the highest computational cost—\textit{(number of fields)} × \textit{(number of models)} LLM calls—but provides maximum reliability by isolating errors at the field level and leveraging ensemble diversity for each slot.
+This strategy has the highest computational cost---\emph{(number of fields)}~$\times$~\emph{(number of models)} LLM calls---but offers maximum reliability by isolating errors at the field level and leveraging ensemble diversity for each slot.
 
-\textbf{Shared preprocessing:} All strategies share common logic for incremental updates (only \texttt{newTranscript} is treated as the source of new information), lock enforcement (fields marked \texttt{locked=true} are never overwritten), change detection (the \texttt{changed} flag is set only if the final value differs from \texttt{currentValue}), and type-specific normalization to ensure consistency across strategies.
+\textbf{Shared preprocessing.} All strategies share common logic for incremental updates (only \texttt{newTranscript} is treated as the source of new information), lock enforcement (fields marked \texttt{locked = true} are never overwritten), change detection (the \texttt{changed} flag is set only if the final value differs from the \texttt{currentValue}), and type-specific normalization to ensure consistent representations across strategies.
 
 \subsection{Consistency Formatting (CF) Agent}
 \label{subsec:impl-cf}
 
-The CF agent provides \texttt{normalizeValueForField} for deterministic value standardization.
+The CF agent provides \texttt{normalizeValueForField} for deterministic value standardization based on field type. Its purpose is to turn potentially noisy or ambiguous model outputs into canonical representations that can be stored and compared reliably.
 
-\textbf{Transformation Rules:}
-\begin{verbatim}
-// Date normalization: "March 3, 1992" → "1992-03-03"
-function normalizeDate(value: string): string | null;
+The CF agent applies a set of type-specific transformations. For date fields, natural-language expressions (e.g., ``March 3, 1992'') are converted into ISO format (\texttt{YYYY-MM-DD}). For numeric fields, textual inputs such as ``25 people'' are reduced to finite numbers (e.g., \texttt{25}). Enum fields are checked against the list of allowed options in a case-insensitive manner, and invalid values are rejected. List-like or multi-value fields are converted into compact, human-readable strings (e.g., ``A, B'') by filtering out null, empty, or placeholder entries and joining the remainder.
 
-// Number parsing: "25 people" → 25 (extract leading digits)
-function normalizeNumber(value: string): number | null;
+For text and textarea fields, CF trims leading and trailing whitespace and applies Unicode normalization (NFC form) to ensure consistent representation of accented characters and similar multi-codepoint symbols across different input methods.
 
-// Enum validation: ensure value \in allowed options (case-insensitive)
-function validateEnum(value: string, options: string[]): string | null;
-
-// Multi-value handling: ["A", "B", null, ""] → "A, B"
-function joinMultiValue(values: any[]): string | null;
-
-// Text trimming: remove leading/trailing whitespace and normalize Unicode
-function normalizeText(value: string): string | null;
-\end{verbatim}
-
-\textbf{Implementation:} The agent applies type-specific normalization rules using standard libraries: Luxon for date parsing, regex patterns for number extraction, and case-insensitive matching for enums. For text and textarea fields, Unicode normalization (NFC form) ensures consistent representation of accented characters across different input methods. Multi-value fields (identified by \texttt{type="textarea"} in schema) join array inputs into comma-separated strings, filtering out null, empty, or placeholder values.
-
-Ambiguous values that cannot be normalized deterministically (e.g., "\texttt{3/4/92}" with unclear month/day order) are flagged with an issue annotation for the verification agent to resolve. The CF agent is intentionally non-stochastic: given the same input, it always produces the same output, ensuring reproducibility across runs.
+\textbf{Implementation.} The transformations are implemented using standard libraries (e.g., Luxon for date parsing) and simple regex-based extraction for numbers, combined with case-insensitive matching for enum validation. Ambiguous values that cannot be normalized deterministically (e.g., ``\texttt{3/4/92}'' with unclear month/day order) are not silently corrected: instead, they are flagged so that the verification agent can mark the affected field for clarification or manual review. The CF agent is intentionally non-stochastic: given the same input, it always produces the same output. The concrete helper functions are listed in Appendix~\ref{app:cf-impl}.
 
 \subsection{Verification Agent (VER)}
 \label{subsec:impl-ver}
 
-The verification agent implements \texttt{runVerifier} for single-model outputs and \texttt{runEnsembleVerifier} for multi-model consensus (S3/S4).
+The verification agent implements \texttt{runVerifier} for single-model outputs and it runs \texttt{runEnsembleVerifier} for multi-model consensus (S3/S4). It acts as a final gate before presenting values to the user or persisting them.
 
-\textbf{API Contract:}
-\begin{verbatim}
-interface VerificationInput {
-  candidates: Record<string, FilledField> | Record<string, FilledField>[];
-  transcript: string;           // Combined old + new for context
-  fields: FormTemplateField[];
-  currentValues?: Record<string, CurrentFieldValue>;
-}
+The verification logic operates over \texttt{VerificationInput} and \texttt{VerificationOutput} interfaces, which describe candidate field values, schema information, current values, and verification results. The full TypeScript definitions are provided in Appendix~\ref{app:ver-api}.
 
-interface VerificationOutput {
-  filled: Record<string, FilledField>;
-  confidence: Record<string, number>;   // Calibrated per-field confidence
-  issues?: Array<{
-    field: string;
-    type: "missing" | "conflict" | "low_conf" | "invalid";
-    detail: string;
-    action?: "requery" | "clarify" | "manual_review";
-  }>;
-  decisions?: Array<{             // Only for ensemble strategies
-    field: string;
-    decision: "gpt" | "gemini" | "merge" | "keep_current";
-    reason: string;
-  }>;
-}
-\end{verbatim}
+Conceptually, the input structure contains either a single map of field identifiers to \texttt{FilledField} objects (for S1/S2) or an array of such maps (for ensemble strategies S3/S4), together with the combined transcript and field schema. The output includes the consolidated \texttt{filled} values, calibrated per-field confidence scores, and a list of detected issues with suggested actions (e.g., re-query, clarification, or manual review). For ensemble strategies, the verifier also records, per field, how the final value was chosen (e.g., selecting GPT, selecting Gemini, merging both, or keeping the current value) together with a short natural-language rationale.
 
-\textbf{Consensus Logic (for S3/S4):} The agent uses a judge LLM to evaluate candidate extractions field-by-field. The judge prompt includes candidate values from all models, current field values with lock status, transcript snippets for evidence grounding, schema constraints (type, required, options), and decision rules emphasizing transcript consistency, confidence scores, and lock respect.
+\textbf{Consensus logic (for S3/S4).} For ensemble strategies, the agent uses a judge LLM to evaluate candidate extractions field-by-field. The judge prompt includes candidate values from all models, current field values with lock status, transcript snippets for evidence grounding, schema constraints (type, required flag, allowed options), and decision rules emphasizing transcript consistency, confidence scores, and respect for locks. The judge returns a structured decision per field, choosing between using GPT, using Gemini, merging both, or keeping the current value. For multi-value fields, the \texttt{merge} decision triggers normalization and deduplication before returning the final list.
 
-The judge must return a structured decision per field. For multi-value fields, the \texttt{merge} decision triggers intelligent deduplication: values are normalized, duplicates removed, and the combined list returned. Confidence scores are aggregated using max (if merged) or inherited from the selected model.
-
-\textbf{Single-Model Verification (for S1/S2):} When only one candidate is available, VER performs completeness checks to identify required fields that remain null or empty, type validation to ensure dates are parseable and numbers are finite, cross-field consistency to detect logical contradictions, and optional grounding checks to verify that extracted values are entailed by the transcript.
-
-Issues are prioritized: low-confidence extractions suggest \texttt{"manual\_review"}, and contradictions require \texttt{"clarify"} with user input.
-
+\textbf{Single-model verification (for S1/S2).} When only one candidate is available, VER performs a series of deterministic checks: completeness (required fields must not be empty), type validation (dates must be parseable, numbers must be finite), cross-field consistency (e.g., ranges and dependencies), and optional grounding checks to verify that extracted values are supported by the transcript. Issues are prioritized according to severity: low-confidence extractions are typically marked for \texttt{"manual\_review"}, while contradictions or severe schema violations suggest \texttt{"clarify"}, prompting a follow-up interaction with the user.
 
 \subsection{Agent Orchestration}
 \label{subsec:impl-orchestration}
 
-The \texttt{Orchestrator} class coordinates agent execution through typed procedure calls exposed via tRPC endpoints. The orchestrator is strategy-aware: it selects the appropriate IE function (S1–S4) based on client configuration and manages the pipeline flow.
+The \texttt{Orchestrator} class coordinates agent execution through typed procedure calls exposed via tRPC endpoints. The orchestrator is strategy-aware: it selects the appropriate IE function (S1--S4) based on client configuration and manages the end-to-end pipeline flow.
 
-\textbf{Core orchestration logic:}
-\begin{verbatim}
-class Orchestrator {
-  async processTemplate(input: ProcessingRequest): Promise<FinalTemplate> {
-    // Step 1: Transcription (optional)
-    const transcript = input.audio 
-      ? await stt.transcribe(input.audio)
-      : { transcript: input.text, language: input.lang ?? "en" };
+Conceptually, the pipeline executes in six steps. First, the orchestrator performs optional transcription using the STT agent when audio is provided; otherwise, it wraps the raw text and language into a synthetic transcript object. Second, it invokes the RAG agent to retrieve few-shot examples conditioned on the transcript, template fields, and template identifier. Third, it calls the IE agent using the strategy specified by the client, passing along the transcript, schema, current values, and retrieved examples.
 
-    // Step 2: Retrieval (RAG)
-    const examples = await rag.retrieve(
-      transcript.transcript,
-      input.fields,
-      input.templateId
-    );
+In the fourth step, the CF agent applies deterministic normalization to the extracted values, ensuring consistent formatting across fields and runs. Fifth, the verification agent checks completeness and consistency, potentially adjusting field-level confidences and emitting structured issues. Finally, the orchestrator inspects the verification result for issues that require re-querying (e.g., fields marked with the \texttt{"requery"} action). If necessary, it can trigger an additional IE+VER cycle using hints from the verifier before returning the final \texttt{FinalTemplate} object to the client.
 
-    // Step 3: Extraction (strategy-dependent)
-    const extraction = await this.runStrategy({
-      strategy: input.strategy,
-      transcript: transcript.transcript,
-      fields: input.fields,
-      currentValues: input.currentValues,
-      fewShots: examples.examples,
-      ...input.metadata,
-    });
-
-    // Step 4: Formatting (deterministic normalization)
-    const normalized = await cf.normalize(extraction.filled, input.fields);
-
-    // Step 5: Verification (completeness + consistency)
-    const verified = await ver.verify({
-      candidates: normalized,
-      transcript: transcript.transcript,
-      fields: input.fields,
-      currentValues: input.currentValues,
-    });
-
-    // Step 6: Clarification loop (if needed)
-    if (verified.issues?.some(i => i.action === "requery")) {
-      // Re-run IE with hints from VER, then re-verify
-    }
-
-    return {
-      filled: verified.filled,
-      confidence: verified.confidence,
-      issues: verified.issues,
-      model: extraction.model,
-      transcript: transcript.transcript,
-    };
-  }
-
-  private async runStrategy(params: StrategyParams): Promise<IEOutput> {
-    switch (params.strategy) {
-      case "S1": return await singleLlmAllField(params);
-      case "S2": return await singleLlmOneField(params);
-      case "S3": return await dualLlmAllField(params);
-      case "S4": return await multiLlmOneField(params);
-    }
-  }
-}
-\end{verbatim}
+The complete TypeScript implementation of the orchestration logic, including the \texttt{processTemplate} method and the \texttt{runStrategy} helper, is provided in Appendix~\ref{app:orchestrator-impl}.

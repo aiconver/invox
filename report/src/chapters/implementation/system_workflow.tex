@@ -5,7 +5,7 @@ This section describes the operational workflow of the Invox system, tracing the
 
 \subsection*{End-to-End Processing Flow}
 
-The system workflow begins with user input and proceeds through six sequential stages:
+The end-to-end workflow of Invox’s five-agent pipeline is illustrated in Figure~\ref{fig:agent-pipeline}. Starting from user input, the system proceeds through six sequential stages:
 
 \begin{enumerate}
     \item \textbf{Input Reception}: Users provide input through speech (audio recording) or direct text entry via the web interface. The system accepts both modalities and routes them appropriately through the processing pipeline.
@@ -16,9 +16,9 @@ The system workflow begins with user input and proceeds through six sequential s
     
     \item \textbf{Information Extraction}: Based on the selected strategy (S1–S4), the system processes the input:
     \begin{itemize}
-        \item \textbf{S1 (Single LLM)}: A single language model extracts all template fields in one pass
-        \item \textbf{S2 (Slot-wise)}: Multiple LLM calls extract each field independently  
-        \item \textbf{S3/S4 (Multi-LLM)}: Multiple models generate candidate answers, with a dedicated judge LLM selecting the optimal response through comparative analysis
+        \item \textbf{S1 (Single-Pass Full Input)}: A single language model extracts all template fields in one pass
+        \item \textbf{S2 (Iterative Single-Field Processing)}: Multiple LLM calls extract each field independently  
+        \item \textbf{S3/S4 (Multi-LLM Consensus (Full), Multi-LLM Consensus (Iterative))}: Multiple models generate candidate answers, with a dedicated judge LLM selecting the optimal response through comparative analysis
     \end{itemize}
     
     \item \textbf{Consistency Enforcement}: The CF agent normalizes dates to ISO format, standardizes entity names, and enforces schema compliance through deterministic transformation rules.

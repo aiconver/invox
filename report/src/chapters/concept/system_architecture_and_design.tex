@@ -39,20 +39,16 @@ The container diagram (Figure~\ref{fig:c4-container}) decomposes Invox into its 
 \textbf{VER Service.} 
 The verification service ensures completeness, consistency, and confidence of the template. It assigns confidence scores, detects conflicts, flags missing fields, and can trigger clarification requests via the API Gateway. Finalized templates, enriched with quality metadata, are stored in both the \emph{Template Repository} and the \emph{Vector Index}. This service is internal-only and not directly accessible to clients.
 
-\textbf{Data stores.} 
-\begin{itemize}
-  \item \emph{Template Repository} stores finalized templates for future retrieval.
-  \item \emph{Vector Index} holds dense embeddings for retrieval-augmented generation.
-\end{itemize}
+\textbf{Data stores.} The system relies on two primary data stores. A \emph{Template Repository} maintains finalized templates that can be retrieved and reused in future interactions, while a \emph{Vector Index} stores dense embeddings to support retrieval-augmented generation and similarity-based lookup of relevant past cases.
 
 \textbf{End-to-end flow.} After verification, the finalized template is stored, indexed, and routed back through the API Gateway to the client as the official response.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
   \includegraphics[width=1\linewidth]{images/c4_container.drawio.pdf}
-  \caption{Corrected container diagram showing request flow through internal components and external dependencies.}
+  \caption{container diagram showing request flow through internal components and external dependencies.}
   \label{fig:c4-container}
-\end{figure}
+\end{sidewaysfigure}
 
 \subsection{Process View: Workflow and Decision Logic}
 \label{subsec:process-view}
@@ -71,9 +67,9 @@ The process diagram (Figure~\ref{fig:bpmn}) presents the dynamic execution flow.
 
 \textbf{Finalization.} Verified templates are stored in the repository, indexed for future retrieval, and returned to the client. Users may still edit fields before final submission.
 
-\begin{figure}[H]
+\begin{sidewaysfigure}
   \centering
-  \includegraphics[width=1.0\linewidth]{images/bpmn_process_flow.pdf}
-  \caption{Process diagram showing workflow and decision logic.}
+  \includegraphics[width=\linewidth]{images/bpmn_process_flow.pdf}
+  \caption{BPMN diagram showing workflow and decision logic.}
   \label{fig:bpmn}
-\end{figure}
+\end{sidewaysfigure}

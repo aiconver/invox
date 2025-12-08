@@ -1,0 +1,266 @@
+This appendix provides comprehensive numerical results for all strategy variants evaluated in this thesis. All experiments were conducted on the MUC-4 dataset with $N=100$ samples.
+
+\section{Strategy 1: Single-Pass Full Input}
+\label{appendix:s1-results}
+
+\begin{table}[H]
+ \centering
+\caption{Headline metrics for S1 variants on MUC-4 ($N{=}100$).}
+\label{tab:s1-variants-headline}
+\begin{tabular}{lcccccccc}
+\toprule
+ Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+\midrule
+ S1.0 (no few-shot, orig) & 0.601 & 0.469 & 0.132 & 0.604 & 0.713 & 0.233 & 0.329 & 0.700 \\
+ S1.1 (few-shot, orig) & \textbf{0.644} & 0.504 & \textbf{0.140} & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 & 0.733 \\
+ S1.2 (few-shot, speech) & 0.626 & \textbf{0.508} & 0.118 & 0.631 & 0.727 & 0.226 & \textbf{0.311} & \textbf{0.738} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+\caption{Latency statistics for S1 variants (seconds).}
+\label{tab:s1-latency-all}
+\begin{tabular}{lccccccc}
+\toprule
+ Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+\midrule
+ S1.0 (no few-shot, orig) & 25.04 & 46.49 & 51.82 & 66.12 & 28.17 & 6.51 & 78.65 \\
+ S1.1 (few-shot, orig) & \textbf{55.91} & \textbf{93.01} & \textbf{108.40} & \textbf{134.93} & \textbf{57.34} & 14.54 & \textbf{163.79} \\
+ S1.2 (few-shot, speech) & 49.36 & 69.30 & 77.84 & 86.79 & 47.89 & \textbf{16.85} & 102.50 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Strategy 2: Iterative Single-Field Processing}
+\label{appendix:s2-results}
+
+\begin{table}[H]
+ \centering
+\caption{Headline metrics for S2 variants on MUC-4 ($N{=}100$).}
+\label{tab:s2-variants-headline}
+\begin{tabular}{lcccccccc}
+\toprule
+ Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+\midrule
+ S2.0 (no few-shot, orig) & 0.590 & 0.560 & 0.029 & 0.608 & 0.709 & 0.373 & \textbf{0.226} & 0.724 \\
+ S2.1 (few-shot, orig) & \textbf{0.619} & \textbf{0.555} & \textbf{0.064} & \textbf{0.639} & \textbf{0.718} & \textbf{0.301} & 0.267 & \textbf{0.758} \\
+ S2.2 (few-shot, speech) & 0.595 & 0.544 & 0.051 & 0.631 & 0.700 & 0.341 & 0.267 & 0.742 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+\caption{Latency statistics for S2 variants (seconds).}
+\label{tab:s2-latency-all}
+\begin{tabular}{lccccccc}
+\toprule
+ Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+\midrule
+ S2.0 (no few-shot, orig) & 19.97 & 32.24 & 37.69 & 49.26 & 21.48 & 9.01 & 53.76 \\
+ S2.1 (few-shot, orig) & 25.35 & 42.48 & 46.68 & 71.52 & 28.58 & 13.60 & 80.28 \\
+ S2.2 (few-shot, speech) & 24.07 & 36.93 & 42.81 & 52.53 & 25.83 & 12.51 & 59.36 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Strategy 3: Multi-LLM Consensus (Full Input)}
+\label{appendix:s3-results}
+
+\begin{table}[H]
+ \centering
+\caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$).}
+\label{tab:s3-variants-headline}
+\begin{tabular}{lcccccccc}
+\toprule
+ Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+\midrule
+ S3.0 (no few-shot, orig) & 0.602 & 0.481 & 0.121 & 0.601 & 0.713 & 0.246 & 0.319 & 0.706 \\
+ S3.1 (few-shot, orig) & \textbf{0.641} & 0.521 & 0.120 & 0.638 & \textbf{0.743} & \textbf{0.208} & 0.295 & \textbf{0.740} \\
+ S3.2 (few-shot, speech) & 0.624 & \textbf{0.524} & \textbf{0.100} & 0.630 & 0.728 & 0.251 & \textbf{0.289} & 0.738 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+\caption{Latency statistics for S3 variants (seconds).}
+\label{tab:s3-latency-all}
+\begin{tabular}{lccccccc}
+\toprule
+ Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+\midrule
+ S3.0 (no few-shot, orig) & 31.47 & 57.79 & 63.02 & 87.16 & 34.83 & 14.85 & 87.24 \\
+ S3.1 (few-shot, orig) & \textbf{59.39} & \textbf{93.15} & \textbf{98.77} & \textbf{118.28} & \textbf{61.09} & 18.13 & \textbf{164.96} \\
+ S3.2 (few-shot, speech) & 53.45 & 84.15 & 93.31 & 104.99 & 54.55 & \textbf{22.01} & 113.26 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Strategy 4: Multi-LLM Consensus (Iterative)}
+\label{appendix:s4-results}
+
+\begin{table}[H]
+ \centering
+\caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$).}
+\label{tab:s4-variants-headline}
+\begin{tabular}{lcccccccc}
+\toprule
+ Variant & OBS & NES & EAI & SF1 & FDA & HR & MR & RFA \\
+\midrule
+ S4.0 (no few-shot, orig) & 0.549 & \textbf{0.628} & \textbf{-0.080} & 0.589 & 0.693 & \textbf{0.551} & \textbf{0.112} & 0.708 \\
+ S4.1 (few-shot, orig) & \textbf{0.579} & 0.624 & -0.044 & \textbf{0.613} & \textbf{0.709} & 0.476 & 0.144 & \textbf{0.728} \\
+ S4.2 (few-shot, speech) & 0.572 & 0.612 & -0.040 & 0.592 & 0.704 & 0.479 & 0.150 & 0.719 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+\caption{Latency statistics for S4 variants (seconds).}
+\label{tab:s4-latency-all}
+\begin{tabular}{lccccccc}
+\toprule
+ Variant & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+\midrule
+ S4.0 (no few-shot, orig) & 125.14 & 157.96 & 166.02 & 177.27 & 128.64 & 97.08 & 179.00 \\
+ S4.1 (few-shot, orig) & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
+ S4.2 (few-shot, speech) & \textbf{127.23} & \textbf{159.02} & \textbf{175.50} & \textbf{192.16} & \textbf{131.15} & \textbf{84.42} & \textbf{218.22} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section{Strategy Comparison Summary}
+\label{appendix:comparison}
+
+\begin{table}[H]
+ \centering
+\caption{Macro comparison (clean text; few-shot original).}
+\label{tab:strategy-comparison}
+\begin{tabular}{lccccccc}
+\toprule
+ Strategy & OBS & NES & EAI & SF1 & FDA & HR & MR \\
+\midrule
+ S1.1: Single-Pass & \textbf{0.644} & 0.504 & 0.140 & \textbf{0.642} & \textbf{0.746} & \textbf{0.180} & 0.313 \\
+ S2.1: Iterative per-field & 0.619 & \textbf{0.555} & \textbf{0.064} & 0.639 & 0.718 & 0.301 & 0.267 \\
+ S3.1: Full consensus & 0.641 & 0.521 & 0.120 & 0.638 & 0.743 & 0.208 & 0.295 \\
+ S4.1: Per-field consensus & 0.579 & \textbf{0.624} & \textbf{-0.044} & 0.613 & 0.709 & 0.476 & \textbf{0.144} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+\caption{Latency profile (seconds; clean text).}
+\label{tab:latency-comparison}
+\begin{tabular}{lccccccc}
+\toprule
+ Strategy & p50 & p90 & p95 & p99 & Mean & Min & Max \\
+\midrule
+ S1.1: Single-Pass & 55.91 & 93.01 & 108.40 & 134.93 & 57.34 & 14.54 & 163.79 \\
+ S2.1: Iterative per-field & \textbf{25.35} & 42.48 & 46.68 & 71.52 & 28.58 & 13.60 & 80.28 \\
+ S3.1: Full consensus & 59.39 & 93.15 & 98.77 & 118.28 & 61.09 & 18.13 & 164.96 \\
+ S4.1: Per-field consensus & 121.81 & 143.39 & 155.16 & 164.08 & 124.98 & 98.10 & 168.81 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{Costs Comparison (Tabular)}
+
+\begin{table}[H]
+\centering
+\caption{Per-document cost (¢) vs.\ audio duration $D$ (minutes). Totals follow $\text{cost}(D)=\text{base}+0.60D$.}
+\label{tab:cost-vs-audio}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Strategy & $D{=}0$ & $D{=}1$ & $D{=}2$ & $D{=}5$ & $D{=}10$ \\
+\midrule
+S1.1 (Single-pass)         & 0.720 & 1.320 & 1.920 & 3.720 & 6.720 \\
+S2.1 (Iterative per-field) & 2.183 & 2.783 & 3.383 & 5.183 & 8.183 \\
+S3.1 (Full consensus)      & 1.395 & 1.995 & 2.595 & 4.395 & 7.395 \\
+S4.1 (Per-field consensus) & 4.320 & 4.920 & 5.520 & 7.320 & 10.320 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Cost decomposition at $D{=}1$ minute (¢ per document).}
+\label{tab:cost-decomp-d1}
+\small
+\begin{tabular}{lrrr}
+\toprule
+Strategy & LLM (base) & Whisper (1 min) & Total \\
+\midrule
+S1.1 (Single-pass)         & 0.720 & 0.600 & 1.320 \\
+S2.1 (Iterative per-field) & 2.183 & 0.600 & 2.783 \\
+S3.1 (Full consensus)      & 1.395 & 0.600 & 1.995 \\
+S4.1 (Per-field consensus) & 4.320 & 0.600 & 4.920 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\section*{Consistency Metrics (Formatting \& Style)}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S1 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s1-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S1.0 (no few-shot, orig) & 0.910 & 0.9889 & 0.6919 \\
+ S1.1 (few-shot, orig)    & \textbf{0.960} & \textbf{0.9956} & \textbf{0.7239} \\
+ S1.2 (few-shot, speech)  & 0.930 & 0.9911 & 0.7002 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S2 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s2-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S2.0 (no few-shot, orig) & \textbf{0.970} & \textbf{0.9967} & 0.6718 \\
+ S2.1 (few-shot, orig)    & 0.950 & 0.9944 & \textbf{0.6828} \\
+ S2.2 (few-shot, speech)  & 0.940 & 0.9933 & 0.6655 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S3 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s3-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S3.0 (no few-shot, orig) & 0.910 & 0.9889 & 0.6907 \\
+ S3.1 (few-shot, orig)    & \textbf{0.920} & \textbf{0.9911} & \textbf{0.7243} \\
+ S3.2 (few-shot, speech)  & 0.910 & 0.9889 & 0.7022 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
+
+\begin{table}[H]
+ \centering
+ \caption{Consistency metrics for S4 variants on MUC-4 ($N{=}100$).}
+ \label{tab:s4-consistency}
+ \begin{tabular}{lccc}
+ \toprule
+ Variant & $\mathrm{FPR}_{\text{overall}}$ & $\mathrm{FPR}_{\text{macro}}$ & $\mathrm{SC}_{\text{macro}}$ \\
+ \midrule
+ S4.0 (no few-shot, orig) & 0.870 & 0.9856 & 0.6599 \\
+ S4.1 (few-shot, orig)    & \textbf{0.940} & \textbf{0.9933} & \textbf{0.6881} \\
+ S4.2 (few-shot, speech)  & \textbf{0.940} & \textbf{0.9933} & 0.6815 \\
+ \bottomrule
+ \end{tabular}
+\end{table}
