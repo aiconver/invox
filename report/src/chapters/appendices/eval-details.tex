@@ -1,3 +1,111 @@
+\section{LangExtract Baseline (S5)}
+\label{appendix:langextract-s5}
+
+This section reports detailed metrics for the external LangExtract baseline (Strategy~S5) on the MUC-4 subset ($N{=}100$ documents). LangExtract is evaluated in the same regime as the proposed strategies, but it is not part of the multi-agent architecture described in this thesis.
+
+\subsection*{Headline and Per-Field Scores}
+
+\begin{table}[H]
+    \centering
+    \caption{Headline metrics for LangExtract on MUC-4 ($N{=}100$ documents).}
+    \label{tab:langextract-headline}
+    \begin{tabular}{lcccccccc}
+        \toprule
+        OBS & NES & EAI & SF1\,(base) & SF1\,(nonempty) & FDA & HR & MR & RFA \\
+        \midrule
+        0.684 & 0.502 & 0.182 & 0.653 & 0.406 & 0.756 & 0.088 & 0.369 & 0.796 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field average scores for LangExtract (baseline regime; $N{=}100$).}
+    \label{tab:langextract-perfield}
+    \begin{tabular}{lcc}
+        \toprule
+        Field & Average Score & \#Docs \\
+        \midrule
+        incidentType & 0.880 & 100 \\
+        incidentDate & 0.570 & 100 \\
+        incidentLocation & 0.512 & 100 \\
+        incidentStage & 0.830 & 100 \\
+        perpetratorIndividual & 0.719 & 100 \\
+        perpetratorOrganization & 0.681 & 100 \\
+        target & 0.523 & 100 \\
+        victim & 0.596 & 100 \\
+        weapon & 0.844 & 100 \\
+        \midrule
+        \textbf{Overall Average (OBS)} & \textbf{0.684} & \textbf{900 comps} \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Embedding Metrics}
+
+\begin{table}[H]
+    \centering
+    \caption{Embedding metrics (overall) for LangExtract.}
+    \label{tab:langextract-embed-overall}
+    \begin{tabular}{lccc}
+        \toprule
+        Regime & Soft-Coverage & Soft-Specificity & Chamfer (Sym.) \\
+        \midrule
+        Baseline & 0.646 & 0.661 & 0.653 \\
+        Gold-nonempty-only & 0.391 & 0.421 & 0.406 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+    \centering
+    \caption{Per-field embedding metrics for LangExtract (baseline; text/list fields).}
+    \label{tab:langextract-embed-perfield}
+    \begin{tabular}{lccc}
+        \toprule
+        Field & Soft-Coverage & Soft-Specificity & Chamfer \\
+        \midrule
+        incidentLocation & 0.512 & 0.512 & 0.512 \\
+        perpetratorIndividual & 0.719 & 0.730 & 0.724 \\
+        perpetratorOrganization & 0.681 & 0.679 & 0.680 \\
+        target & 0.523 & 0.531 & 0.527 \\
+        victim & 0.596 & 0.660 & 0.628 \\
+        weapon & 0.844 & 0.854 & 0.849 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\subsection*{Latency and Consistency}
+
+\begin{table}[H]
+    \centering
+    \caption{Latency statistics for LangExtract (seconds).}
+    \label{tab:langextract-latency}
+    \begin{tabular}{lccccccc}
+        \toprule
+        p50 & p90 & p95 & p99 & Mean & Min & Max \\
+        \midrule
+        21.15 & 57.61 & 65.39 & 99.19 & 27.03 & 1.95 & 109.84 \\
+        \bottomrule
+    \end{tabular}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \caption{Consistency (two-score) — schema format vs.\ style uniformity for LangExtract.}
+  \label{tab:langextract-consistency}
+  \begin{tabular}{lcc}
+    \toprule
+    Strategy & $\mathrm{FPR}_{\text{overall}}\uparrow$ & $\mathrm{SC}_{\text{macro}}\uparrow$ \\
+    \midrule
+    \textbf{LangExtract (S5)} & \textbf{1.000} & \textbf{0.709} \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\emph{Note:} $\mathrm{FPR}_{\text{overall}}$ is schema-only (fields that are empty but allowed by the schema still count as format-preserving). $\mathrm{SC}_{\text{macro}}$ is an input-aware style score based on masked character 3-gram cosine similarity.
+
+
 This appendix provides comprehensive numerical results for all strategy variants evaluated in this thesis. All experiments were conducted on the MUC-4 dataset with $N=100$ samples.
 
 \section{Strategy 1: Single-Pass Full Input}

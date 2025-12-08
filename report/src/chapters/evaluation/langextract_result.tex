@@ -1,115 +1,12 @@
 \section{Results – LangExtract Baseline (S5)}
 \label{sec:eval-langextract}
 
-\textbf{LangExtract} is an open-source, LLM-powered Python library for schema-constrained extraction. 
-In our pipeline it serves as a deterministic orchestration wrapper around model calls (strict JSON schema, span grounding).
+\textbf{LangExtract} is an open-source, LLM-powered Python library for schema-constrained extraction. In this work it is used as an external baseline rather than a core component of the proposed system: it provides a deterministic orchestration wrapper around model calls (strict JSON schema enforcement and span grounding), but is not integrated into the multi-agent architecture.
 
-\subsection*{Quantitative Results}
+On the MUC-4 subset ($N{=}100$ documents), LangExtract achieves an overall balanced score (OBS) of $0.684$ and a format-driven accuracy (FDA) of $0.756$, with a relatively low hallucination rate (HR) of $0.088$ and a high rate of fully correct fields (RFA $=0.796$) (see Table~\ref{tab:langextract-headline} in Appendix~\ref{appendix:eval-details}). This pattern indicates a conservative filler: when the system commits to a value it is usually accurate, but it frequently abstains. The non-empty specific metrics reflect this behaviour: the non-empty $F_1$ score remains modest ($0.406$), and the non-empty exact accuracy (EAI) of $0.182$ shows that much of the performance comes from correctly leaving fields empty when the gold label is empty.
 
-\begin{table}[H]
-    \centering
-    \caption{Headline metrics for LangExtract on MUC-4 ($N{=}100$ documents).}
-    \label{tab:langextract-headline}
-    \begin{tabular}{lcccccccc}
-        \toprule
-        OBS & NES & EAI & SF1\,(base) & SF1\,(nonempty) & FDA & HR & MR & RFA \\
-        \midrule
-        0.684 & 0.502 & 0.182 & 0.653 & 0.406 & 0.756 & 0.088 & 0.369 & 0.796 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+Field-wise analysis (Table~\ref{tab:langextract-perfield}) reveals a skew towards easier categorical slots such as \texttt{incidentType}, \texttt{weapon}, and \texttt{incidentStage}, which achieve comparatively high scores, whereas more complex or ambiguous fields such as \texttt{target}, \texttt{incidentLocation}, and especially \texttt{perpetratorOrganization} perform noticeably worse under gold-nonempty evaluation. The \texttt{incidentDate} field is particularly under-filled: in cases where the gold label is nonempty, the model often abstains, contributing to the higher miss rate (MR $=0.369$).
 
-\begin{table}[H]
-    \centering
-    \caption{Per-field average scores for LangExtract (baseline regime; $N{=}100$).}
-    \label{tab:langextract-perfield}
-    \begin{tabular}{lcc}
-        \toprule
-        Field & Average Score & \#Docs \\
-        \midrule
-        incidentType & 0.880 & 100 \\
-        incidentDate & 0.570 & 100 \\
-        incidentLocation & 0.512 & 100 \\
-        incidentStage & 0.830 & 100 \\
-        perpetratorIndividual & 0.719 & 100 \\
-        perpetratorOrganization & 0.681 & 100 \\
-        target & 0.523 & 100 \\
-        victim & 0.596 & 100 \\
-        weapon & 0.844 & 100 \\
-        \midrule
-        \textbf{Overall Average (OBS)} & \textbf{0.684} & \textbf{900 comps} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+The embedding-based metrics in Table~\ref{tab:langextract-embed-overall} and Table~\ref{tab:langextract-embed-perfield} confirm that LangExtract produces stylistically consistent outputs with reasonable semantic coverage: soft coverage and specificity are balanced, and the symmetric Chamfer scores are stable across text and list fields. Consistency metrics (schema format vs.\ style, see Appendix~\ref{appendix:eval-details}) show perfect schema adherence ($\mathrm{FPR}_{\text{overall}}=1.000$) and a style consistency score of $\mathrm{SC}_{\text{macro}}=0.709$, which is comparable to the best multi-agent strategies.
 
-\begin{table}[H]
-    \centering
-    \caption{Embedding metrics (overall) for LangExtract.}
-    \label{tab:langextract-embed-overall}
-    \begin{tabular}{lccc}
-        \toprule
-        Regime & Soft-Coverage & Soft-Specificity & Chamfer (Sym.) \\
-        \midrule
-        Baseline & 0.646 & 0.661 & 0.653 \\
-        Gold-nonempty-only & 0.391 & 0.421 & 0.406 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \caption{Per-field embedding metrics for LangExtract (baseline; text/list fields).}
-    \label{tab:langextract-embed-perfield}
-    \begin{tabular}{lccc}
-        \toprule
-        Field & Soft-Coverage & Soft-Specificity & Chamfer \\
-        \midrule
-        incidentLocation & 0.512 & 0.512 & 0.512 \\
-        perpetratorIndividual & 0.719 & 0.730 & 0.724 \\
-        perpetratorOrganization & 0.681 & 0.679 & 0.680 \\
-        target & 0.523 & 0.531 & 0.527 \\
-        victim & 0.596 & 0.660 & 0.628 \\
-        weapon & 0.844 & 0.854 & 0.849 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-\subsection*{Latency Analysis}
-
-\begin{table}[H]
-    \centering
-    \caption{Latency statistics for LangExtract (seconds).}
-    \label{tab:langextract-latency}
-    \begin{tabular}{lccccccc}
-        \toprule
-        p50 & p90 & p95 & p99 & Mean & Min & Max \\
-        \midrule
-        21.15 & 57.61 & 65.39 & 99.19 & 27.03 & 1.95 & 109.84 \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
-
-\subsection*{Consistency Summary}
-\begin{table}[H]
-  \centering
-  \caption{Consistency (two-score) — schema format vs. style uniformity.}
-  \begin{tabular}{lcc}
-    \toprule
-    Strategy & $\mathrm{FPR}_{\text{overall}}\uparrow$ & $\mathrm{SC}_{\text{macro}}\uparrow$ \\
-    \midrule
-    \textbf{LangExtract (S5)} & \textbf{1.000} & \textbf{0.709} \\
-    \bottomrule
-  \end{tabular}
-\end{table}
-\emph{Note:} $\mathrm{FPR}_{\text{overall}}$ is schema-only (empty allowed by schema counts as pass). $\mathrm{SC}_{\text{macro}}$ is input-aware style (masked char-3gram cosine).
-
-\subsection*{Insights}
-
-\begin{itemize}
-    \item \textbf{Strong, conservative filler.} Very low HR (0.088) and high RFA (0.796): when it fills, it’s usually good; it avoids over-filling.
-    \item \textbf{Nonempty quality lags.} The gap (EAI $=0.182$) shows reliance on empty$\leftrightarrow$empty matches; NES (0.502) and SF1\,(nonempty) (0.406) are notably lower.
-    \item \textbf{Field skew.} Best on \texttt{incidentType}/\texttt{weapon}/\texttt{stage}; weaker on \texttt{target}, \texttt{location}, and especially \texttt{perpetratorOrganization} under gold-nonempty evaluation.
-    \item \textbf{Dates under-filled.} Gold-nonempty \texttt{incidentDate} averaged 0.000 and the confusion table shows abstention when gold is nonempty (43 misses), explaining part of the MR (0.369).
-    \item \textbf{Runtime is moderate.} Median $\sim$21\,s with a long tail; practical for batch or async passes.
-\end{itemize}
+In terms of runtime, LangExtract exhibits moderate latency, with a median of approximately $21$\,s per document and a long tail extending to around $110$\,s (Table~\ref{tab:langextract-latency}). This makes it practical as a batch or asynchronous baseline, but less attractive as an interactive component. Overall, S5 serves as a useful external point of comparison: it demonstrates that a mature off-the-shelf extractor can reach solid accuracy under conservative filling, but it does not outperform the best multi-agent strategies in the non-empty and robustness-oriented metrics that are central to this thesis.
