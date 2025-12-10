@@ -20,6 +20,9 @@ All strategies share the same input format and produce outputs following the sch
 (\texttt{incidentType}, \texttt{incidentDate}, \texttt{incidentLocation}, \texttt{incidentStage}, \texttt{perpetratorIndividual}, \texttt{perpetratorOrganization}, \texttt{target}, \texttt{victim}, \texttt{weapon}).  
 This unified design enables a direct, component-wise comparison of accuracy, latency, and cost.
 
+\paragraph{Note on the Hybrid Strategy.}
+A separate Hybrid Refinement strategy was planned, but not implemented. During development it became clear that all four main strategies (S1--S4) already include user review and correction, which creates the same hybrid behaviour in practice. Adding a fifth strategy would have duplicated functionality without offering a new method.
+
 \subsection{Embedding Models}
 
 Semantic similarity between predicted and reference fillers is computed using the \texttt{sentence-transformers} library.  

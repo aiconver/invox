@@ -31,7 +31,7 @@ Across S1–S4, adding retrieved few-shot examples improved accuracy by 3–4 po
 Speech-like transcripts caused only minor degradation. S1.2 preserved 97\% of S1.1’s OBS (0.626 vs.\ 0.644). Consensus strategies remained stable; per-field approaches did not gain a consistent advantage. This suggests resilience to lexical and structural variability even without explicit ASR noise.
 
 \textbf{Embedding metrics capture meaning better than exact match.}
-Soft-F1 credited near-synonyms (“guerrillas” vs.\ “rebel forces”) missed by exact match. S1.1 and S3.1 aligned best with semantic gold values. The Empty Advantage Index (EAI = OBS − NES) separated content quality from abstention: S1.1 showed balanced abstention; S4.1’s negative EAI reflected excellent quality on nonempty fields but aggressive filling.
+Soft-F1 credited near-synonyms (“guerrillas” vs.\ “rebel forces”) missed by exact match. S1.1 and S3.1 aligned best with semantic gold values. The Empty Advantage Index (EAI = OBS - NES) separated content quality from abstention: S1.1 showed balanced abstention; S4.1’s negative EAI reflected excellent quality on nonempty fields but aggressive filling.
 
 \textbf{Cost and latency scale with complexity.}
 Cost per document ranked S1 < S3 < S2 < S4 (\$0.0072–\$0.0432). Latency followed the same order. Whisper costs scaled predictably by duration. Field-wise, \texttt{perpetratorOrganization} and \texttt{weapon} scored highest (0.7–0.8), while \texttt{perpetratorIndividual} lagged (0.56–0.58). Per-field strategies excelled on location fields.
