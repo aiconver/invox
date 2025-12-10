@@ -114,4 +114,5 @@ S4: Consensus (Slot) & $n \times m$ & H & H & H & H \\
 
 Deployment requirements determine which strategy is most appropriate. \textbf{S1} is ideal for high-throughput scenarios where speed and cost outweigh accuracy needs. \textbf{S2} offers strong error isolation and fine-grained debugging, making it suitable when specific fields frequently cause failures. \textbf{S3} provides a balanced compromise between robustness and efficiency, supporting general-purpose use cases. \textbf{S4} delivers the highest reliability by combining per-slot consensus with multiple models, making it the preferred choice for safety-critical or compliance-sensitive workflows (e.g., medical records or regulatory reporting).
 
+
 Chapter~5 empirically evaluates these strategies on the MUC-4 benchmark and quantifies their performance across the six requirements (R1--R6) established in Chapter~2.

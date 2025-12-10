@@ -6,13 +6,6 @@ This section presents the high-level architecture of the Invox system using the 
 \subsection{Context View: System Boundaries and External Actors}
 \label{subsec:context-view}
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=1\linewidth]{images/c4_context.drawio.pdf}
-  \caption{Context diagram showing system boundaries and external actors.}
-  \label{fig:c4-context}
-\end{figure}
-
 The context diagram (Figure~\ref{fig:c4-context}) positions Invox within its operational environment. The system interacts with three categories of external actors:
 
 \textbf{Primary users} are domain experts—such as factory operators, medical staff, or administrative personnel—who provide unstructured input (speech or text) and review populated templates. They interact with the system through a web-based interface or mobile application.
@@ -20,6 +13,13 @@ The context diagram (Figure~\ref{fig:c4-context}) positions Invox within its ope
 \textbf{Data sources} include historical template repositories, domain-specific glossaries, and organizational knowledge bases. These are accessed by the RAG agent to retrieve contextually relevant examples. In regulated environments, these repositories may reside behind secure access controls.
 
 \textbf{External services} consist of third-party APIs for LLM inference (OpenAI GPT-4, Anthropic Claude, DeepSeek), speech recognition (OpenAI Whisper), and search infrastructure (OpenSearch). The system communicates with these services over REST APIs.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1\linewidth]{images/c4_context.drawio.pdf}
+  \caption{Context diagram showing system boundaries and external actors.}
+  \label{fig:c4-context}
+\end{figure}
 
 \subsection{Container View: Internal Component Structure}
 \label{subsec:container-view}
