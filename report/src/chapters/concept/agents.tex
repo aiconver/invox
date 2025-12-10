@@ -66,25 +66,42 @@ The VER agent performs comprehensive quality assessment on the structured templa
 \label{subsec:agent-interfaces}
 
 Table~\ref{tab:agent-interfaces} summarizes the interface of each agent. By separating their responsibilities and outputs, the architecture supports substitution of different models, logging of intermediate states, and detailed error analysis. Figure~\ref{fig:agent-pipeline-enhanced} illustrates the sequential data flow through the five agents for both audio and text inputs.
-
-\begin{table}[h]
+\begin{table}[h!]
 \centering
-\begin{tabular}{p{2.5cm}p{5cm}p{5.5cm}}
-\toprule
+\renewcommand{\arraystretch}{1.3}
+\setlength{\tabcolsep}{8pt}
+\small
+\begin{tabular}{|p{2.7cm}|p{5cm}|p{5.3cm}|}
+\hline
 \textbf{Agent} & \textbf{Input} & \textbf{Output} \\
-\midrule
-\textbf{STT} & Audio signal & Transcribed text with metadata (confidence scores, timestamps) \\
-\midrule
-\textbf{RAG} & Text (transcribed or direct input) & Top-$k$ retrieved examples with relevance scores and template mappings \\
-\midrule
-\textbf{IE} & Text + retrieved examples + template schema & Candidate slot-value pairs (null for unavailable fields) \\
-\midrule
-\textbf{CF} & Raw slot-value pairs & Normalized values with schema validation and format standardization \\
-\midrule
-\textbf{VER} & Normalized slot-value pairs & Verified template with confidence scores, field annotations, and clarification prompts \\
-\bottomrule
+\hline
+
+\textbf{STT} &
+Audio signal &
+Transcribed text with metadata (confidence scores, timestamps) \\
+\hline
+
+\textbf{RAG} &
+Text (transcribed or direct input) &
+Top-$k$ retrieved examples with relevance scores and template mappings \\
+\hline
+
+\textbf{IE} &
+Text + retrieved examples + template schema &
+Candidate slot--value pairs (null for unavailable fields) \\
+\hline
+
+\textbf{CF} &
+Raw slot--value pairs &
+Normalized values with schema validation and format standardization \\
+\hline
+
+\textbf{VER} &
+Normalized slot--value pairs &
+Verified template with confidence scores, field annotations, and clarification prompts \\
+\hline
 \end{tabular}
-\caption{Invox's Agent interfaces and data flow}
+\caption{Invox's agent interfaces and data flow.}
 \label{tab:agent-interfaces}
 \end{table}
 
