@@ -1,20 +1,84 @@
-Large language models can generate structured outputs, but their reliability often depends on how the task is presented to them. Prompt engineering has therefore become a central technique. By carefully designing instructions, examples, and schema descriptions in the prompt, users can guide LLMs to align their generative outputs with the structured requirements of template filling.
+Large language models can generate structured outputs, but their reliability strongly depends on how the task is formulated. Prompt engineering has therefore become central for guiding LLMs toward schema-compliant and domain-aware outputs. By carefully designing instructions, examples, and schema descriptions, users can steer models to align their generations with the requirements of template filling.
 
-The idea that LLMs can adapt to new tasks without retraining was first demonstrated through in-context learning. Brown et al.\ showed that GPT-3 could perform unseen tasks when given only a natural language description and a few examples \cite{brown2020language}. Later studies such as Wei et al.\ explored the so-called “emergent abilities” of LLMs, where models suddenly demonstrate strong zero-shot and few-shot performance once they reach a certain scale \cite{wei2022emergent}. For information extraction, this means that a model can often fill structured fields if the prompt specifies the task and provides one or two demonstrations.
+The ability of LLMs to adapt to new tasks without retraining was first demonstrated through \emph{in-context learning}. Brown et al.\ showed that GPT-3 could perform unseen tasks when given only natural-language instructions and a few examples \cite{brown2020language}. Later, Wei et al.\ documented “emergent abilities,” where large models exhibit strong zero-shot and few-shot performance once surpassing certain scale thresholds \cite{wei2022emergent}. For information extraction, this means that models can often populate structured fields when the prompt clearly specifies the task and provides minimal demonstrations.
 
-Designing effective prompts, however, is not straightforward. Sun et al.\ \cite{sun2023slot} propose structured prompts for speech-based slot filling that include task definitions, slot descriptions, and linearized external knowledge. Their experiments show that such prompt structures make LLMs more robust to noise in automatic speech recognition (ASR) transcripts. Similarly, Lin et al.\ \cite{lin2021leveraging} show that including slot descriptions directly in prompts improves zero-shot dialogue state tracking, since it grounds the model in the meaning of each field. These studies highlight how prompts can embed domain knowledge and ontology definitions to improve extraction quality.
+Designing effective prompts, however, is non-trivial. Sun et al.\ \cite{sun2023slot} propose structured prompts for speech-based slot filling that incorporate task definitions, slot descriptions, and linearized knowledge, improving robustness to ASR noise. Similarly, Lin et al.\ \cite{lin2021leveraging} show that including slot descriptions directly in prompts improves zero-shot dialogue state tracking by grounding the model in the semantics of each field. These studies highlight how prompts can embed domain knowledge to enhance extraction quality.
 
-The choice between zero-shot and few-shot prompting also affects performance. Zero-shot prompts rely only on schema descriptions, which makes them flexible but often less reliable. Few-shot prompting, where carefully selected input–output examples are added to the prompt, improves consistency but comes at the cost of longer prompts and higher inference latency. Pan et al.\ \cite{pan2023chatgpt} evaluated ChatGPT for dialogue understanding and found that few-shot prompting consistently outperformed zero-shot in accuracy, though response times increased.
+The choice between zero-shot and few-shot prompting also influences performance. Zero-shot prompts rely solely on schema descriptions and are flexible but less reliable. Few-shot prompting, which augments the prompt with exemplar input–output pairs, improves consistency but increases prompt length and inference latency. Pan et al.\ \cite{pan2023chatgpt} evaluate ChatGPT for dialogue understanding and find that few-shot prompting consistently improves accuracy, albeit with slower responses.
 
-\begin{figure}
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.8\linewidth]{images/zero_shot_vs_few_shot.png}
-    \caption{Zero-shot vs Few-shot Prompting for Template Filling}
-    \label{fig:placeholder}
+    \caption{Zero-shot vs.\ few-shot prompting for template filling.}
+    \label{fig:zero-few-shot}
 \end{figure}
 
-Schema-constrained prompting has also been investigated as a way to enforce output structure. Zhang et al.\ \cite{zhang2023sgptod} introduced SGP-TOD, where prompts embed schema definitions for task-oriented dialogue systems. By instructing the model to generate only values that fit the schema, they reduced invalid or inconsistent outputs. Practical systems follow the same idea: Google’s LangExtract \cite{google2024langextract} lets users define a JSON schema and then generates extractions that are automatically validated against it. While this approach provides consistency in output format, it remains monolithic and does not allow modular correction or multi-model validation.
+Schema-constrained prompting has also received attention as a way to enforce structured output. Zhang et al.\ \cite{zhang2023sgptod} introduced SGP-TOD, where prompts embed schema definitions for task-oriented dialogue systems. By instructing the model to generate values that must fit the schema, they reduce invalid or inconsistent outputs. Practical systems follow the same idea: Google’s LangExtract \cite{google2024langextract} uses user-defined JSON schemas to constrain extraction results. Although this improves format consistency, prompt-based schema enforcement remains monolithic, lacking modular correction and multi-model verification mechanisms.
 
-Beyond hand-crafted design, some studies explore automated prompt optimization. Peng et al.\ \cite{peng2023check} propose a framework where candidate prompts are iteratively refined based on feedback signals, such as factual errors or schema mismatches. This “prompt tuning without training” approach suggests that prompts themselves can be systematically improved using evaluation signals, rather than relying only on human intuition.
+Beyond manual prompt design, recent studies explore \emph{automated prompt optimization}. Peng et al.\ \cite{peng2023check} present a framework where candidate prompts are iteratively refined using feedback signals such as factual errors and schema mismatches. This “prompt tuning without training” approach suggests that prompts themselves can be optimized algorithmically, reducing reliance on human intuition.
 
-In summary, prompt engineering has proven to be a powerful tool for adapting LLMs to information extraction tasks. It enables zero-shot and few-shot template filling, allows domain knowledge to be embedded into prompts, and supports schema-constrained generation. At the same time, it has clear limitations: prompts are often brittle, performance varies with phrasing, and external validation is still needed to ensure correctness. These weaknesses motivate research into more modular and interactive systems, where prompt design is combined with additional layers of control. The next subsection therefore examines multi-agent LLM systems, which distribute responsibilities across specialized agents to improve transparency, adaptability, and correction.
+\subsubsection{Evaluation Against Requirements}
+
+Table~\ref{tab:eval-prompt-engineering} evaluates the prompt engineering approaches discussed above against requirements R1--R6. Each requirement uses the grading scale defined in Section~2.1.
+
+\begin{table}[H]
+\centering
+\renewcommand{\arraystretch}{1.5}
+\setlength{\tabcolsep}{10pt}
+\small
+\begin{tabular}{|m{5cm}|c|c|c|c|c|c|}
+\hline
+\textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} & \textbf{R6} \\
+\hline
+
+In-context learning (Brown et al.) &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) -- (90:0.4cm)
+arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+--- \\
+\hline
+
+Structured prompting (Sun et al.) &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) -- (90:0.4cm)
+arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
+(0,0) -- (90:0.4cm) arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+--- \\
+\hline
+
+Schema-guided prompting (Zhang et al.) &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+--- \\
+\hline
+
+Automated prompt optimization (Peng et al.) &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+\raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
+--- \\
+\hline
+
+\end{tabular}
+\caption{Evaluation of prompt engineering approaches against requirements R1--R6.}
+\label{tab:eval-prompt-engineering}
+\end{table}
+
+\subsubsection{Summary}
+
+Prompt engineering provides a flexible and powerful means of adapting LLMs to structured information extraction tasks. Zero-shot and few-shot prompting enable LLMs to populate templates without task-specific training, while structured and schema-guided prompts improve robustness and consistency. Automated prompt optimization further demonstrates that prompt quality can be systematically refined.
+
+However, prompt engineering alone does not address several core requirements identified in Section~2.1. None of the reviewed approaches provide transparency (R3), user correction (R4), or adaptive learning (R5), and none report latency or usability metrics (R6). Prompts also remain brittle: small variations in phrasing can change outputs significantly, and schema adherence often requires external validation rather than being handled internally.
+
+Overall, while prompt engineering is an essential foundation, it is not sufficient on its own for building reliable, transparent, and adaptive template-filling systems. These limitations motivate the next subsection on multi-agent LLM architectures, which introduce modular structure, delegation, and verification layers to overcome the constraints of single-prompt systems.
