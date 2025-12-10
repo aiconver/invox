@@ -14,17 +14,17 @@ To overcome these limitations, recent work advocates \textit{modular or multi-ag
 
 \section{Problem Description}
 
-While recent advances in large language models (LLMs) have made it easier to build systems for filling out forms automatically, most existing solutions rely on a \textit{monolithic design}, where a single model handles the entire task of understanding input and generating all required field values in one step. For instance, Du et al.~\cite{du2021template} propose zero-shot prompting to generate complete templates from unstructured text, while Chen et al.~\cite{chen2024webform} apply large language models to populate web-based forms via single-shot prompts. Similarly, Sun et al.~\cite{sun2023slot} introduce a slot-filling pipeline that decodes all fields in a unified pass. Although effective in controlled settings, such monolithic approaches become brittle when processing real-world input, which is often unstructured, incomplete, ambiguous, or contains irrelevant information—making these systems hard to adapt, debug, or extend across domains. Whether the input comes from free-form text descriptions, conversational dialogue, or speech transcriptions, the fundamental challenge remains: mapping loosely structured human communication into rigid template formats while handling the inherent messiness of natural language.
+Large language models (LLMs) have made automatic form filling more accessible, but most existing systems use a \textit{monolithic design} in which a single model reads the input and generates all fields at once. Examples include zero-shot template generation~\cite{du2021template}, single-pass webform completion~\cite{chen2024webform}, and unified slot-filling pipelines~\cite{sun2023slot}. These approaches work in controlled settings but break down with real-world input, which is often unstructured, incomplete, ambiguous, or contains irrelevant details. Whether the input is text, dialogue, or speech, the core challenge remains: converting loosely structured human communication into rigid template fields.
 
-One major issue is \textit{fragility}. These models are often trained on specific types of inputs or formats, and they may fail when the input varies slightly—such as when someone uses uncommon phrasing, mixes up the order of fields, or leaves out certain information~\cite{fathullah2023prompting, liu2022conversational}. This is common in real-world situations, where people speak naturally and often provide extra details, use abbreviations, or skip fields they assume are obvious. When a monolithic model encounters this variation, it might leave fields blank, insert wrong values, or produce inconsistent results~\cite{wang2021spoken, sun2023slot}.
+A major limitation is \textit{fragility}. Monolithic models struggle when users speak naturally, reorder information, use unusual phrasing, or omit details~\cite{fathullah2023prompting, liu2022conversational}. They may leave fields empty, fill them incorrectly, or produce inconsistent outputs~\cite{wang2021spoken, sun2023slot}.
 
-Another major challenge is \textit{lack of transparency}. When a single model does the entire job, it is difficult to figure out what went wrong if the result is incorrect. For example, was the problem caused by a transcription error, misunderstanding of the content, or a failure in mapping the answer to the correct field? Because all steps are handled together, it is hard to trace and fix errors, which limits the system’s reliability and maintainability~\cite{schick2023toolformer}.
+Another issue is \textit{lack of transparency}. When one model performs every step, it becomes impossible to tell whether an error stems from transcription, understanding, or incorrect field assignment~\cite{schick2023toolformer}. This makes failures hard to diagnose.
 
-Additionally, current systems are \textit{hard to customize} for different industries or forms. Each form may have its own structure, required fields, and domain-specific language. Changing the model to handle a new type of report or form often means retraining or redesigning the entire system~\cite{du2021template, mialon2023augmented}. This makes it expensive and time-consuming to adapt these systems to new domains.
+\textit{Adaptation} is also difficult. Different industries and forms require different field structures and vocabularies, and updating a monolithic system often requires retraining or redesigning the entire pipeline~\cite{du2021template, mialon2023augmented}.
 
-These problems are even more pronounced because current approaches present isolated AI models rather than complete, flexible systems. While individual models may excel at specific subtasks—such as information extraction, field classification, or consistency validation—there is no readily-usable end-to-end system that integrates these capabilities in a cohesive and adaptable manner. In practice, building robust template filling solutions requires combining multiple specialized models and components to create an improved process that can handle real-world variability, domain-specific requirements, and evolving template structures. As a result, current one-step systems often fail in practical deployment scenarios where templates vary across departments, input quality is inconsistent, or the system needs to adapt to new fields and formats over time without requiring complete retraining.
+These problems persist because current research typically evaluates isolated components rather than full systems. Although specific models excel at tasks like extraction or validation, there is no flexible, end-to-end architecture that integrates them reliably. As a result, one-shot systems fail when templates change, input quality varies, or new fields must be added.
 
-To solve these problems, there is a need for a more flexible, transparent, and modular approach that separates the process into smaller, understandable steps. This allows better error handling, easier debugging, and faster adaptation to new use cases~\cite{mialon2023augmented, schick2023toolformer}.
+To overcome these limitations, a modular and transparent design is needed—one that breaks the task into interpretable steps, improving error detection, debugging, and adaptation across domains~\cite{mialon2023augmented, schick2023toolformer}.
 
 \section{Motivating Scenario}
 
@@ -50,7 +50,7 @@ Such a system would ideally extract structured information like:
 
 \begin{figure}[ht]
     \centering
-    \includegraphics[scale=0.35]{images/Motivation.png}
+    \includegraphics[scale=0.28]{images/Motivation.png}
     \caption{Invox: From spoken input to structured report}
     \label{fig:invox-motivation}
 \end{figure}
@@ -92,17 +92,10 @@ To achieve this goal, the following two specific objectives are defined:
 
 These objectives guide the development and validation of a system that is not only technically sound but also practical and scalable in industrial settings.
 
-
 \section{Thesis Outline}
 
-Following this introduction, the thesis begins with a discussion of related work in the field. This includes an overview of existing systems for template filling, particularly those that use speech input or large language models. The literature is analyzed to identify current limitations and to derive a clear set of requirements for building a better, more modular solution.
+Following this introduction, the thesis begins with a review of related work on template filling, speech-based systems, and large language models. The literature is analyzed to identify current limitations and to derive requirements for a more modular and reliable solution. This provides the conceptual foundation for understanding the need for a system like Invox.
 
-Next, the conceptual foundation of the proposed system is introduced. The structure of Invox is explained, along with four different design strategies that use large language models in distinct ways. These approaches are described in detail, along with the reasoning behind each one and a discussion of possible alternatives.
+The next chapter introduces the overall system concept. It presents the structure of Invox together with four design strategies that employ LLMs in different ways. After outlining the concept, the implementation chapter describes the software architecture, technology choices, and how core components—such as transcription, retrieval, extraction, and verification—were developed, with an emphasis on modularity and reuse.
 
-After outlining the concept, the implementation is described. This includes the software architecture, technology choices, and how each component—such as speech transcription, RAG, field extraction, and answer verification—was built. Attention is given to how modularity was achieved to support maintainability and reuse.
-
-The following part of the thesis presents the working prototype. Screenshots, mockups, and usage examples are used to demonstrate how the system operates in practice. The user interface and interactions are shown, illustrating how speech input can be turned into a structured form with minimal effort.
-
-Once the system is introduced and demonstrated, the evaluation section presents a detailed analysis of its performance. A benchmark dataset is used to test the system across four architectural approaches. The results are analyzed using metrics such as accuracy, latency, consistency, and computational cost.
-
-The final part of the thesis summarizes the key findings, reflects on the strengths and limitations of the current implementation, and proposes ideas for future research and system improvements.
+The following chapters demonstrate and evaluate the system. A working prototype is shown through screenshots and examples illustrating how speech input is transformed into structured forms. The evaluation then examines system performance on a benchmark dataset across the four architectural strategies, using metrics such as accuracy, latency, consistency, and cost. The thesis concludes by summarizing key findings, discussing limitations, and outlining opportunities for future work.
