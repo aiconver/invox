@@ -1,6 +1,9 @@
 \section{Results – Strategy S4: Multi-LLM Per-Field}
 \label{sec:eval-s4}
 
+The \textbf{S4: Multi-LLM Per-Field} strategy applies consensus at the slot level: each field is extracted by multiple models and consolidated via a field-aware verifier. We evaluate three variants: \textbf{S4.0} without few-shot prompting on the original MUC-4 dataset, \textbf{S4.1} with few-shot prompting on the original dataset, and \textbf{S4.2} with few-shot prompting on a speech-style variant.
+
+Figure~\ref{fig:s4-variants-bar} shows that per-field consensus behaves markedly differently from the full-document strategies. All three variants achieve high NES ($\geq 0.612$) while exhibiting \emph{negative} EAI (down to $-0.080$ in S4.0), which means that S4 performs very well when gold labels are nonempty but tends to overfill when gold is empty. This pattern is reflected in the combination of high hallucination rates (HR between $0.476$ and $0.551$) and very low missing rates (MR between $0.112$ and $0.150$): the verifier prefers to output something rather than abstain. Introducing few-shot prompting (S4.1 vs.\ S4.0) slightly increases OBS (from $0.549$ to $0.579$) and SF1 (from $0.589$ to $0.613$), raises FDA (from $0.693$ to $0.709$), and reduces HR (from $0.551$ to $0.476$) at the cost of a modest MR increase (from $0.112$ to $0.144$). S4.2, evaluated on speech-style transcripts, maintains strong NES ($0.612$) and similar FDA ($0.704$) to S4.1, with a small drop in OBS/SF1 and slightly higher MR ($0.150$), indicating that the aggressive fill behaviour persists under noisier inputs but remains reasonably calibrated whenever a slot truly exists.
 
 \begin{figure}[H]
 \centering
@@ -77,9 +80,10 @@
 \label{fig:s4-variants-bar}
 \end{figure}
 
-The \textbf{S4: Multi-LLM Per-Field} strategy applies consensus at the slot level: each field is extracted by multiple models and consolidated via a field-aware verifier. We evaluate three variants: \textbf{S4.0} without few-shot prompting on the original MUC-4 dataset, \textbf{S4.1} with few-shot prompting on the original dataset, and \textbf{S4.2} with few-shot prompting on a speech-style variant.
 
-Figure~\ref{fig:s4-variants-bar} shows that per-field consensus behaves markedly differently from the full-document strategies. All three variants achieve high NES ($\geq 0.612$) while exhibiting \emph{negative} EAI (down to $-0.080$ in S4.0), which means that S4 performs very well when gold labels are nonempty but tends to overfill when gold is empty. This pattern is reflected in the combination of high hallucination rates (HR between $0.476$ and $0.551$) and very low missing rates (MR between $0.112$ and $0.150$): the verifier prefers to output something rather than abstain. Introducing few-shot prompting (S4.1 vs.\ S4.0) slightly increases OBS (from $0.549$ to $0.579$) and SF1 (from $0.589$ to $0.613$), raises FDA (from $0.693$ to $0.709$), and reduces HR (from $0.551$ to $0.476$) at the cost of a modest MR increase (from $0.112$ to $0.144$). S4.2, evaluated on speech-style transcripts, maintains strong NES ($0.612$) and similar FDA ($0.704$) to S4.1, with a small drop in OBS/SF1 and slightly higher MR ($0.150$), indicating that the aggressive fill behaviour persists under noisier inputs but remains reasonably calibrated whenever a slot truly exists.
+Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndividual} remains hardest; \texttt{weapon} is lower than in S1 and S3.
+
+Table~\ref{tab:s4-perfield} illustrates the asymmetric effects of per-field voting on different slots. \texttt{incidentLocation} benefits most, reaching an average score of $0.641$ in S4.1 and surpassing the corresponding values in the single-pass and full-document consensus strategies, which suggests that slot-specific prompts plus ensemble agreement help to stabilise location predictions. \texttt{incidentStage} also performs strongly ($0.720$), consistent with its comparatively structured label space. In contrast, \texttt{incidentType} and especially \texttt{incidentDate} underperform relative to other strategies (down to $0.370$ for dates), which indicates that aggressive filling at the field level can lead to more spurious or partially incorrect outputs when the signal is weak. \texttt{weapon} achieves $0.692$, clearly lower than in S1 and S3, suggesting that per-field voting may over-accept marginal mentions and noise in this slot. \texttt{perpetratorIndividual} remains one of the hardest fields despite the richer consensus mechanism, reflecting the persistent difficulty of sparse, ambiguous references to individual actors.
 
 \begin{table}[H]
     \centering
@@ -103,12 +107,6 @@ Figure~\ref{fig:s4-variants-bar} shows that per-field consensus behaves markedly
         \bottomrule
     \end{tabular}
 \end{table}
-
-\paragraph{Per-field behaviour (S4.1).}
-
-Per-field consensus boosts \texttt{incidentLocation}; \texttt{perpetratorIndividual} remains hardest; \texttt{weapon} is lower than in S1 and S3.
-
-Table~\ref{tab:s4-perfield} illustrates the asymmetric effects of per-field voting on different slots. \texttt{incidentLocation} benefits most, reaching an average score of $0.641$ in S4.1 and surpassing the corresponding values in the single-pass and full-document consensus strategies, which suggests that slot-specific prompts plus ensemble agreement help to stabilise location predictions. \texttt{incidentStage} also performs strongly ($0.720$), consistent with its comparatively structured label space. In contrast, \texttt{incidentType} and especially \texttt{incidentDate} underperform relative to other strategies (down to $0.370$ for dates), which indicates that aggressive filling at the field level can lead to more spurious or partially incorrect outputs when the signal is weak. \texttt{weapon} achieves $0.692$, clearly lower than in S1 and S3, suggesting that per-field voting may over-accept marginal mentions and noise in this slot. \texttt{perpetratorIndividual} remains one of the hardest fields despite the richer consensus mechanism, reflecting the persistent difficulty of sparse, ambiguous references to individual actors.
 
 \subsection*{Latency}
 
@@ -220,6 +218,10 @@ Figure~\ref{fig:s4-latency-bar} makes clear that S4 is the slowest strategy fami
 
 \subsection*{Consistency (Formatting \& Style)}
 
+Figure~\ref{fig:s4-consistency} shows that S4 maintains reasonably high structural and stylistic consistency despite its aggressive fill behaviour. All variants achieve $\mathrm{FPR}_{\text{overall}}$ above $0.87$, and few-shot prompting again helps: S4.1 and S4.2 reach $0.94$, closing most of the gap to the best-performing strategies in this regard. Style-aware consistency $\mathrm{SC}_{\text{macro}}$ increases from $0.6599$ in S4.0 to $0.6881$ in S4.1, with a small drop to $0.6815$ for S4.2 on speech-style input. This suggests that the combination of per-slot prompting and consensus does not destabilise output formatting, even though the model ensemble is more willing to produce content in marginal cases.
+
+Taken together, the S4 results characterise multi-LLM per-field consensus as an aggressive, recall-oriented strategy. It achieves high NES and strong performance on genuinely nonempty slots, particularly for context-sensitive fields such as \texttt{incidentLocation}, but this comes at the cost of elevated hallucination rates, negative EAI, and substantially higher latency and monetary cost. Compared to full-document consensus (S3.1), S4.1 offers higher NES (0.624 vs.\ 0.521) but lower OBS (0.579 vs.\ 0.641) because it overfills when gold is empty. In scenarios where maximising content recall on nonempty slots is critical and throughput is less of a concern, S4.1 is a compelling option—especially if combined with downstream post-filters. For more balanced deployments that must trade off accuracy, calibration, latency, and cost, S3.1 provides a more favourable operating point than S4’s per-field ensemble.```
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -252,6 +254,3 @@ Figure~\ref{fig:s4-latency-bar} makes clear that S4 is the slowest strategy fami
 \label{fig:s4-consistency}
 \end{figure}
 
-Figure~\ref{fig:s4-consistency} shows that S4 maintains reasonably high structural and stylistic consistency despite its aggressive fill behaviour. All variants achieve $\mathrm{FPR}_{\text{overall}}$ above $0.87$, and few-shot prompting again helps: S4.1 and S4.2 reach $0.94$, closing most of the gap to the best-performing strategies in this regard. Style-aware consistency $\mathrm{SC}_{\text{macro}}$ increases from $0.6599$ in S4.0 to $0.6881$ in S4.1, with a small drop to $0.6815$ for S4.2 on speech-style input. This suggests that the combination of per-slot prompting and consensus does not destabilise output formatting, even though the model ensemble is more willing to produce content in marginal cases.
-
-Taken together, the S4 results characterise multi-LLM per-field consensus as an aggressive, recall-oriented strategy. It achieves high NES and strong performance on genuinely nonempty slots, particularly for context-sensitive fields such as \texttt{incidentLocation}, but this comes at the cost of elevated hallucination rates, negative EAI, and substantially higher latency and monetary cost. Compared to full-document consensus (S3.1), S4.1 offers higher NES (0.624 vs.\ 0.521) but lower OBS (0.579 vs.\ 0.641) because it overfills when gold is empty. In scenarios where maximising content recall on nonempty slots is critical and throughput is less of a concern, S4.1 is a compelling option—especially if combined with downstream post-filters. For more balanced deployments that must trade off accuracy, calibration, latency, and cost, S3.1 provides a more favourable operating point than S4’s per-field ensemble.```

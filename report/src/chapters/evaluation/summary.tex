@@ -70,6 +70,56 @@ Figure~\ref{fig:strategy-comparison-bar} shows the main performance metrics. S1.
 \label{fig:strategy-comparison-bar}
 \end{figure}
 
+
+\subsection*{Cost Comparison}
+
+Figure~\ref{fig:cost-trend-audio} shows how cost increases with audio duration. All strategies add \$0.006 per minute for Whisper transcription. The base LLM cost varies: S1.1 costs 0.72\textcent, S3.1 costs 1.40\textcent, S2.1 costs 2.18\textcent, and S4.1 costs 4.32\textcent per document (without audio). At 1 minute of audio, S4.1 is 3.7$\times$ more expensive than S1.1.
+
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=0.95\textwidth, 
+    height=6cm,
+    xlabel={Audio duration $D$ (minutes)},
+    ylabel={Cost (\textcent/doc)},
+    xlabel style={font=\small},
+    ylabel style={font=\small},
+    xmin=0, xmax=10,
+    ymin=0, ymax=11,
+    grid=both,
+    grid style={line width=0.3pt, draw=gray!30},
+    legend style={at={(0.5,-0.22)}, anchor=north, legend columns=2, font=\footnotesize},
+    domain=0:10,
+    samples=2,
+    tick label style={font=\footnotesize},
+  ]
+
+  \addplot+[thick, mark=*, mark options={solid}, color=blue]  {0.72  + 0.60*x};
+  \addlegendentry{S1.1 (Single-pass)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=orange] {2.183 + 0.60*x};
+  \addlegendentry{S2.1 (Iterative per-field)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=green!50!black] {1.395 + 0.60*x};
+  \addlegendentry{S3.1 (Full consensus)}
+
+  \addplot+[thick, mark=*, mark options={solid}, color=red] {4.32  + 0.60*x};
+  \addlegendentry{S4.1 (Per-field consensus)}
+
+  \node[anchor=west, font=\tiny] at (axis cs:0.1,0.80) {0.72};
+  \node[anchor=west, font=\tiny] at (axis cs:0.1,2.26) {2.18};
+  \node[anchor=west, font=\tiny] at (axis cs:0.1,1.47) {1.40};
+  \node[anchor=west, font=\tiny] at (axis cs:0.1,4.40) {4.32};
+
+  \end{axis}
+\end{tikzpicture}
+\caption{Cost vs.\ audio duration: $\text{cost}(D)=\text{base}+0.60D$ (\textcent/doc).}
+\label{fig:cost-trend-audio}
+\end{figure}
+
+
 \subsection*{Latency Comparison}
 
 
@@ -138,53 +188,6 @@ Figure~\ref{fig:strategy-comparison-bar} shows the main performance metrics. S1.
 \end{figure}
 
 
-\subsection*{Cost Comparison}
-
-
-\begin{figure}[H]
-\centering
-\begin{tikzpicture}
-  \begin{axis}[
-    width=0.95\textwidth, 
-    height=6cm,
-    xlabel={Audio duration $D$ (minutes)},
-    ylabel={Cost (\textcent/doc)},
-    xlabel style={font=\small},
-    ylabel style={font=\small},
-    xmin=0, xmax=10,
-    ymin=0, ymax=11,
-    grid=both,
-    grid style={line width=0.3pt, draw=gray!30},
-    legend style={at={(0.5,-0.22)}, anchor=north, legend columns=2, font=\footnotesize},
-    domain=0:10,
-    samples=2,
-    tick label style={font=\footnotesize},
-  ]
-
-  \addplot+[thick, mark=*, mark options={solid}, color=blue]  {0.72  + 0.60*x};
-  \addlegendentry{S1.1 (Single-pass)}
-
-  \addplot+[thick, mark=*, mark options={solid}, color=orange] {2.183 + 0.60*x};
-  \addlegendentry{S2.1 (Iterative per-field)}
-
-  \addplot+[thick, mark=*, mark options={solid}, color=green!50!black] {1.395 + 0.60*x};
-  \addlegendentry{S3.1 (Full consensus)}
-
-  \addplot+[thick, mark=*, mark options={solid}, color=red] {4.32  + 0.60*x};
-  \addlegendentry{S4.1 (Per-field consensus)}
-
-  \node[anchor=west, font=\tiny] at (axis cs:0.1,0.80) {0.72};
-  \node[anchor=west, font=\tiny] at (axis cs:0.1,2.26) {2.18};
-  \node[anchor=west, font=\tiny] at (axis cs:0.1,1.47) {1.40};
-  \node[anchor=west, font=\tiny] at (axis cs:0.1,4.40) {4.32};
-
-  \end{axis}
-\end{tikzpicture}
-\caption{Cost vs.\ audio duration: $\text{cost}(D)=\text{base}+0.60D$ (\textcent/doc).}
-\label{fig:cost-trend-audio}
-\end{figure}
-
-Figure~\ref{fig:cost-trend-audio} shows how cost increases with audio duration. All strategies add \$0.006 per minute for Whisper transcription. The base LLM cost varies: S1.1 costs 0.72\textcent, S3.1 costs 1.40\textcent, S2.1 costs 2.18\textcent, and S4.1 costs 4.32\textcent per document (without audio). At 1 minute of audio, S4.1 is 3.7$\times$ more expensive than S1.1.
 
 \subsection*{Consistency Comparison}
 
@@ -226,6 +229,7 @@ Figure~\ref{fig:consistency-cross-strategy} compares how well each strategy foll
 \caption{Format compliance and style consistency across strategies.}
 \label{fig:consistency-cross-strategy}
 \end{figure}
+
 
 \subsection*{Observed Trade-offs}
 

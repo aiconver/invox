@@ -76,7 +76,7 @@ The \texttt{FewShot} interface represents a single retrieved example. The \textt
 
 The IE agent implements four extraction strategies through unified functions corresponding to S1--S4. All strategies share a common preprocessing pipeline and differ only in their orchestration of LLM calls.
 
-Listing~\ref{lst:ie-api} defines the core input and output schema for the IE agent.\footnote{Supporting types such as \texttt{CurrentFieldValue} and \texttt{FilledField} are given in Appendix~\ref{app:ie-types}.}
+Listing~\ref{lst:ie-api} defines the core input and output schema for the IE agent.
 
 \begin{lstlisting}[language=Java, caption={IE agent core API contract}, label={lst:ie-api}]
 interface IEInput {
