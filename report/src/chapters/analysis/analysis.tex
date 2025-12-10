@@ -38,21 +38,11 @@ To make these requirements more concrete, Figure~\ref{fig:form-filling-example} 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth]{images/form-filling-example.png}
-    \caption{Example interaction with the proposed AI voice form assistant. 
-    On the left, the user provides an unstructured spoken description of a 
-    conveyor belt malfunction, which is transcribed in the chat interface. 
-    On the right, the system has automatically populated the corresponding 
-    incident report form with structured fields such as the reporting person, 
-    issue title, problem description, and corrective action. Fields that cannot 
-    be reliably inferred from the input (e.g., \emph{Date of Report} and 
-    \emph{Affected Machine or Production Line}) are left empty, highlighted, 
-    and explicitly requested from the user. This illustrates how the framework 
-    maps free-form input onto a structured template while interactively 
-    resolving missing information.}
+    \caption{Example interaction with the proposed AI voice form assistant.}
     \label{fig:form-filling-example}
 \end{figure}
 
-
+On the left, the user provides an unstructured spoken description of a conveyor belt malfunction, which is transcribed in the chat interface. On the right, the system has automatically populated the corresponding incident report form with structured fields such as the reporting person, issue title, problem description, and corrective action. Fields that cannot be reliably inferred from the input (e.g., \emph{Date of Report} and \emph{Affected Machine or Production Line}) are left empty, highlighted, and explicitly requested from the user. This illustrates how the framework maps free-form input onto a structured template while interactively resolving missing information.
 
 \subsection{R1: Consistency}
 \input{src/chapters/analysis/requirements/r1} 
@@ -92,5 +82,5 @@ The review is organized into four key areas that directly inform the design of t
 \subsection{Multi-Agent LLM Systems}
 \input{src/chapters/analysis/related_works/w3}
 
-\subsection{Evaluation of Requirements in Existing Solutions}
+\subsection{Overall Evaluation and Gaps}
 \input{src/chapters/analysis/related_works/w4}
