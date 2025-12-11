@@ -3,6 +3,8 @@
 
 The \textbf{S3: Multi-LLM Consensus (Full)} strategy runs multiple LLMs on the full document and aggregates their outputs with a verification/consensus step. We evaluate three variants: \textbf{S3.0} without few-shot examples on the original MUC-4 dataset, \textbf{S3.1} with few-shot examples on the original dataset, and \textbf{S3.2} with few-shot examples on a speech-style variant of MUC-4.
 
+Figure~\ref{fig:s3-variants-bar} shows that full-document consensus with few-shot prompting yields consistently strong performance. Moving from S3.0 to S3.1 improves OBS (from $0.602$ to $0.641$) and SF1 (from $0.601$ to $0.638$), while FDA increases from $0.713$ to $0.743$ and HR drops from $0.246$ to $0.208$. This indicates that cross-model agreement, combined with examples, produces more reliable fill decisions and fewer hallucinated values. NES also rises from $0.481$ to $0.521$, suggesting better content quality when both gold and system fill a slot, whereas EAI remains practically unchanged, meaning that gains do not simply result from exploiting empty–empty matches. S3.2, evaluated on speech-style inputs, slightly trails S3.1 in OBS and SF1 but achieves the highest NES ($0.524$) and a very competitive RFA ($0.738$), with the lowest MR among the three variants ($0.289$). Compared to the single-pass few-shot baseline S1.1, S3.1 is almost identical in OBS (0.641 vs.\ 0.644) but achieves higher NES, reflecting that consensus improves the quality of nonempty predictions even if overall score differences remain small.
+
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -74,40 +76,86 @@ The \textbf{S3: Multi-LLM Consensus (Full)} strategy runs multiple LLMs on the f
   
   \end{axis}
 \end{tikzpicture}
-\caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$).}
+\caption{Headline metrics for S3 variants on MUC-4 ($N{=}100$). 
+The plot compares the multi-model consensus strategy across S3.0 (no few-shot), S3.1 
+(few-shot), and S3.2 (few-shot with speech-style input). Few-shot prompting (S3.1) offers 
+consistent gains in overall accuracy (OBS), schema adherence (FDA), and fully correct 
+fields (RFA). The speech-style variant (S3.2) remains close to S3.1, showing that consensus 
+aggregation reduces sensitivity to noise introduced by ASR-like phrasing.}
 \label{fig:s3-variants-bar}
 \end{figure}
 
-Figure~\ref{fig:s3-variants-bar} shows that full-document consensus with few-shot prompting yields consistently strong performance. Moving from S3.0 to S3.1 improves OBS (from $0.602$ to $0.641$) and SF1 (from $0.601$ to $0.638$), while FDA increases from $0.713$ to $0.743$ and HR drops from $0.246$ to $0.208$. This indicates that cross-model agreement, combined with examples, produces more reliable fill decisions and fewer hallucinated values. NES also rises from $0.481$ to $0.521$, suggesting better content quality when both gold and system fill a slot, whereas EAI remains practically unchanged, meaning that gains do not simply result from exploiting empty–empty matches. S3.2, evaluated on speech-style inputs, slightly trails S3.1 in OBS and SF1 but achieves the highest NES ($0.524$) and a very competitive RFA ($0.738$), with the lowest MR among the three variants ($0.289$). Compared to the single-pass few-shot baseline S1.1, S3.1 is almost identical in OBS (0.641 vs.\ 0.644) but achieves higher NES, reflecting that consensus improves the quality of nonempty predictions even if overall score differences remain small.
 
 \paragraph{Per-field behaviour (S3.1).}
 
 Consensus is particularly strong for \texttt{perpetratorOrganization} and \texttt{weapon}; \texttt{perpetratorIndividual} remains hardest; \texttt{incidentLocation} improves compared to single-pass strategies.
 
-\begin{table}[H]
-    \centering
-    \caption{Per-field average scores for S3.1 ($N{=}100$).}
-    \label{tab:s3-perfield}
-    \begin{tabular}{lcc}
-        \toprule
-        Field & Avg.\ Score & \#Docs \\
-        \midrule
-        incidentType & 0.510 & 100 \\
-        incidentDate & 0.730 & 100 \\
-        incidentLocation & 0.554 & 100 \\
-        incidentStage & 0.730 & 100 \\
-        perpetratorIndividual & 0.561 & 100 \\
-        perpetratorOrganization & 0.756 & 100 \\
-        target & 0.570 & 100 \\
-        victim & 0.567 & 100 \\
-        weapon & 0.793 & 100 \\
-        \midrule
-        \textbf{Overall (OBS)} & \textbf{0.641} & \textbf{900 comps} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar,
+    bar width=11pt,
+    ylabel={Average Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Fields},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={
+      incidentType,
+      incidentDate,
+      incidentLocation,
+      incidentStage,
+      target,
+      victim,
+      weapon,
+      perpetratorIndividual,
+      perpetratorOrganization
+    },
+    xtick=data,
+    xticklabel style={font=\scriptsize, rotate=25, anchor=east},
+    ymin=0,
+    ymax=1.0,
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    enlarge x limits=0.05,
+    nodes near coords,
+    nodes near coords style={
+        font=\scriptsize,
+        rotate=90,
+        anchor=west,
+        yshift=3pt
+    }
+  ]
 
-Table~\ref{tab:s3-perfield} illustrates how full-document consensus redistributes performance across individual slots. As in S1 and S2, \texttt{perpetratorOrganization} and \texttt{weapon} remain the easiest fields, with average scores of $0.756$ and $0.793$ respectively, reflecting that these categories are well supported by clear lexical cues and benefit from both models agreeing on salient mentions. \texttt{incidentStage} and \texttt{incidentDate} also perform strongly ($0.730$ for both), indicating that structured, temporally anchored information is well captured when the entire document is considered jointly. \texttt{incidentLocation} reaches $0.554$, which is higher than in the single-pass S1.1 setting and suggests that cross-model checking over the full context helps eliminate some location-related errors. In contrast, \texttt{perpetratorIndividual} remains comparatively weak ($0.561$), confirming that even an ensemble has difficulty with sparse and ambiguous references to individual actors. Overall, the field-level pattern supports the intuition that S3’s gains are concentrated in slots where multiple mentions and global cues are present, while inherently under-specified fields remain challenging.
+  \addplot[fill=orange!60, draw=orange!80!black] coordinates {
+    (incidentType, 0.510)
+    (incidentDate, 0.730)
+    (incidentLocation, 0.554)
+    (incidentStage, 0.730)
+    (target, 0.570)
+    (victim, 0.567)
+    (weapon, 0.793)
+    (perpetratorIndividual, 0.561)
+    (perpetratorOrganization, 0.756)
+  };
+
+  \end{axis}
+\end{tikzpicture}
+
+\caption{Per-field extraction performance for S3.1 on the MUC-4 subset ($N{=}100$). 
+The consensus strategy improves stability across fields, with strong performance on 
+structured attributes such as \textit{incidentDate}, \textit{incidentStage}, and 
+\textit{weapon}. More open-ended fields like \textit{incidentType} and 
+\textit{incidentLocation} remain comparatively difficult, reflecting the inherent 
+ambiguity of these categories. Overall, S3.1 delivers a balanced improvement across 
+most fields compared to non-consensus baselines.}
+\label{fig:s3-perfield-plot}
+\end{figure}
+
+
+Figure ~\ref{fig:s3-perfield-plot} illustrates how full-document consensus redistributes performance across individual slots. As in S1 and S2, \texttt{perpetratorOrganization} and \texttt{weapon} remain the easiest fields, with average scores of $0.756$ and $0.793$ respectively, reflecting that these categories are well supported by clear lexical cues and benefit from both models agreeing on salient mentions. \texttt{incidentStage} and \texttt{incidentDate} also perform strongly ($0.730$ for both), indicating that structured, temporally anchored information is well captured when the entire document is considered jointly. \texttt{incidentLocation} reaches $0.554$, which is higher than in the single-pass S1.1 setting and suggests that cross-model checking over the full context helps eliminate some location-related errors. In contrast, \texttt{perpetratorIndividual} remains comparatively weak ($0.561$), confirming that even an ensemble has difficulty with sparse and ambiguous references to individual actors. Overall, the field-level pattern supports the intuition that S3’s gains are concentrated in slots where multiple mentions and global cues are present, while inherently under-specified fields remain challenging.
 
 \subsection*{Latency}
 
@@ -181,7 +229,14 @@ Figure~\ref{fig:s3-latency-bar} highlights the computational cost of running mul
   
   \end{axis}
 \end{tikzpicture}
-\caption{Latency statistics for S3 variants (seconds).}
+\caption{Latency statistics for S3 variants (seconds). 
+The multi-model consensus strategy exhibits substantially higher latency than single-model
+approaches, with S3.1 (few-shot) producing the largest delays due to multiple model calls
+combined with longer prompts. The speech-style configuration (S3.2) reduces extreme
+latencies compared to S3.1 but remains significantly slower than the no–few-shot baseline
+(S3.0). These results highlight the computational cost of consensus-based extraction, where
+improved robustness and accuracy come at the expense of markedly increased processing time.}
+
 \label{fig:s3-latency-bar}
 \end{figure}
 
@@ -232,8 +287,13 @@ Figure~\ref{fig:s3-latency-bar} highlights the computational cost of running mul
     legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
     enlarge x limits=0.20,
     nodes near coords,
-    nodes near coords align={vertical},
+    nodes near coords style={
+        font=\scriptsize,
+        rotate=90,     % vertical text
+        anchor=west,
+    }
   ]
+
     % FPR_overall
     \addplot coordinates {(S3.0,0.910) (S3.1,0.920) (S3.2,0.910)};
     \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
