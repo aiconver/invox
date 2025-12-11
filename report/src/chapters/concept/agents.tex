@@ -3,13 +3,6 @@
 
 The modular architecture of \textit{Invox} is organized into five specialized agents. Each agent exposes a clear input/output contract, enabling component-level analysis, flexible substitution, and isolated improvement. This section characterizes the roles of the agents and their interconnections, independent of any particular deployment strategy.
 
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=1.0\linewidth]{images/agent_pipeline.drawio.pdf}
-  \caption{Overview of Invox’s five-agent pipeline. The multi-step flow separates transcription, retrieval, extraction, normalization, and user correction into distinct agents. This modular design addresses key limitations of monolithic LLMs by improving extraction robustness, enforcing consistent formatting, enabling transparency through intermediate outputs, and allowing final user edits before submission.}
-  \label{fig:agent-pipeline}
-\end{figure}
-
 \subsection{Speech-to-Text Agent (STT)}
 \label{subsec:stt-agent}
 
@@ -60,6 +53,13 @@ After normalization, Invox performs a verification stage (VER) that conducts com
 \textbf{Final output generation.} The verification stage outputs a completed template that includes the structured data along with quality annotations, confidence scores, evidence references, and indicators for fields requiring user attention. This makes reliability explicit and supports downstream processing or human review.
 
 \textbf{Design rationale.} Centralizing quality assessment and user interaction in a dedicated verification stage directly supports R3 (transparency) and R4 (user correction). It ensures consistent verification standards while maintaining clean separation from extraction and normalization processes \cite{park2023generative}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=1.0\linewidth]{images/agent_pipeline.drawio.pdf}
+  \caption{Overview of Invox’s five-agent pipeline. The multi-step flow separates transcription, retrieval, extraction, normalization, and user correction into distinct agents. This modular design addresses key limitations of monolithic LLMs by improving extraction robustness, enforcing consistent formatting, enabling transparency through intermediate outputs, and allowing final user edits before submission.}
+  \label{fig:agent-pipeline}
+\end{figure}
 
 \subsection{Agent Interfaces and Data Flow}
 \label{subsec:agent-interfaces}

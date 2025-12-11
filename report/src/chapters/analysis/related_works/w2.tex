@@ -6,6 +6,9 @@ Designing effective prompts, however, is non-trivial. Sun et al.~\cite{sun2023sl
 
 The choice between zero-shot and few-shot prompting also influences performance. Zero-shot prompts rely solely on schema descriptions and are flexible but less reliable. Few-shot prompting, which augments the prompt with exemplar input–output pairs, improves consistency but increases prompt length and inference latency. Pan et al.\ \cite{pan2023chatgpt} evaluate ChatGPT for dialogue understanding and find that few-shot prompting consistently improves accuracy, albeit with slower responses.
 
+Schema-constrained prompting has also received attention as a way to enforce structured output. Zhang et al.\ \cite{zhang2023sgptod} introduced SGP-TOD, where prompts embed schema definitions for task-oriented dialogue systems. By instructing the model to generate values that must fit the schema, they reduce invalid or inconsistent outputs. Practical systems follow the same idea: Google’s LangExtract \cite{google2024langextract} uses user-defined JSON schemas to constrain extraction results. Although this improves format consistency, prompt-based schema enforcement remains monolithic, lacking modular correction and multi-model verification mechanisms.
+
+Beyond manual prompt design, recent studies explore \emph{automated prompt optimization}. Peng et al.\ \cite{peng2023check} present a framework where candidate prompts are iteratively refined using feedback signals such as factual errors and schema mismatches. This “prompt tuning without training” approach suggests that prompts themselves can be optimized algorithmically, reducing reliance on human intuition.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.75\linewidth]{images/zero_shot_vs_few_shot.png}
@@ -13,11 +16,10 @@ The choice between zero-shot and few-shot prompting also influences performance.
     \label{fig:zero-few-shot}
 \end{figure}
 
-Schema-constrained prompting has also received attention as a way to enforce structured output. Zhang et al.\ \cite{zhang2023sgptod} introduced SGP-TOD, where prompts embed schema definitions for task-oriented dialogue systems. By instructing the model to generate values that must fit the schema, they reduce invalid or inconsistent outputs. Practical systems follow the same idea: Google’s LangExtract \cite{google2024langextract} uses user-defined JSON schemas to constrain extraction results. Although this improves format consistency, prompt-based schema enforcement remains monolithic, lacking modular correction and multi-model verification mechanisms.
-
-Beyond manual prompt design, recent studies explore \emph{automated prompt optimization}. Peng et al.\ \cite{peng2023check} present a framework where candidate prompts are iteratively refined using feedback signals such as factual errors and schema mismatches. This “prompt tuning without training” approach suggests that prompts themselves can be optimized algorithmically, reducing reliance on human intuition.
 
 \subsubsection{Evaluation Against Requirements}
+
+The evaluation shows that prompt engineering provides a flexible and powerful way to adapt LLMs to structured extraction tasks. Zero-shot and few-shot prompting enable template filling without task-specific training, while structured and schema-guided prompts improve consistency and robustness. Automated prompt optimization further shows that prompt quality can be systematically refined.
 
 Table~\ref{tab:eval-prompt-engineering} evaluates the prompt engineering approaches discussed above against requirements R1--R6. Each requirement uses the grading scale defined in Section~2.1.
 \begin{table}[H]
@@ -74,7 +76,6 @@ Automated prompt optimization~\cite{peng2023prompt} &
 \label{tab:eval-prompt-engineering}
 \end{table}
 
-The evaluation shows that prompt engineering provides a flexible and powerful way to adapt LLMs to structured extraction tasks. Zero-shot and few-shot prompting enable template filling without task-specific training, while structured and schema-guided prompts improve consistency and robustness. Automated prompt optimization further shows that prompt quality can be systematically refined.
 
 Despite these strengths, prompt engineering alone does not satisfy several core requirements identified in Section~2.1. None of the reviewed approaches support \textbf{transparency} (R3) through evidence tracing or confidence scores, nor do they provide \textbf{user correction} (R4) within the extraction loop. They also lack mechanisms for continuous \textbf{learning and adaptation} (R5), and none report \textbf{usability} measures (R6) such as latency or computational cost. Prompts additionally remain brittle: small phrasing changes can produce different outputs, and schema adherence often requires external validation.
 

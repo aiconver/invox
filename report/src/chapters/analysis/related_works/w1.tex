@@ -12,18 +12,20 @@ A major breakthrough came with the transformer architecture \cite{vaswani2017att
 
 One influential contribution in this direction is the work by Du et al.\ on \textit{Template Filling with Generative Transformers} \cite{du2021template}. Their framework replaces the traditional two-step pipeline of NER followed by event classification with a single generative system. The model conditions on document tokens and event type markers to generate slot fillers directly, capturing dependencies across multiple events within a document and avoiding the error propagation typical of pipelines. On the MUC-4 dataset, their approach outperformed both pipeline-based and extractive neural baselines, particularly for documents that describe multiple events.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.55\linewidth]{images/error_propagation.png}
-    \caption{Example of error propagation in a classical NLP pipeline: an early mistake in named entity recognition prevents correct relation extraction, leading to incomplete template filling.}
-    \label{fig:error-propagation}
-\end{figure}
+
 
 
 \subsubsection{Speech-Based Template Filling}
 
 Work on speech-driven template filling has also emerged. \textbf{Sun et al.\ (2023)} study \textit{Speech-based Slot Filling using Large Language Models} \cite{sun2023slot}, focusing on extracting slot values from automatic speech recognition (ASR) transcripts under noisy conditions. Their evaluation of GPT-3.5, GPT-4, LLaMA, and Vicuna on the SLURP dataset introduces structured prompt design, noise-robust LoRA fine-tuning, and linearised knowledge injection (LKI). Their findings show that while LLMs generalize well in zero-shot and few-shot settings, robustness in real-world speech requires careful prompt design and adaptation strategies.
 
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.55\linewidth]{images/error_propagation.png}
+    \caption{Example of error propagation in a classical NLP pipeline: an early mistake in named entity recognition prevents correct relation extraction, leading to incomplete template filling.}
+    \label{fig:error-propagation}
+\end{figure}
 \subsubsection{Web-Based Structured Generation}
 
 LLMs have also been applied to structured generation beyond classical IE. \textbf{Chen et al.\ (2025)} propose \textit{Automated Web Application Testing with LLMs and Screen Transition Graphs} \cite{le2025automated}. Their method combines structural graphs of websites with LLM-based generation of Selenium test scripts. Screen transition graphs model navigation flows, while state graphs represent conditional forms. The LLM generates executable test cases consistent with these constraints. Although applied in a different domain, this work illustrates the broader applicability of schema-constrained structured generation.
@@ -42,7 +44,7 @@ Domain-specific environments impose additional challenges. Healthcare requires h
 
 \subsubsection{Schema Enforcement}
 
-Schema enforcement methods such as constrained decoding \cite{anderson2017guided}, schema-guided prompting \cite{zhang2023sgptod}, and external validation help ensure that LLM outputs adhere to predefined structures. These techniques are important for regulated domains where deviations from schema constraints are unacceptable.
+Schema enforcement methods such as constrained decoding \cite{anderson2017guided}, schema-guided prompting \cite{zhang2023sgptod}, and external validation help ensure that LLM outputs adhere to predefined structures. 
 
 % =============================================================
 %                    EVALUATION TABLE
