@@ -2,7 +2,7 @@ While single-model prompting can achieve strong results, it often struggles with
 
 One of the most prominent examples is \textbf{HuggingGPT}, introduced by Shen et al.\ \cite{shen2023hugginggpt}. In this system, an LLM serves as a controller that interprets user requests, decomposes them into subtasks, and delegates them to external models on the Hugging Face platform. The controller then integrates the results into a final output. Liang et al.\ \cite{liang2023taskmatrix} proposed a similar architecture with \textbf{TaskMatrix.AI}, which connects LLMs to thousands of APIs, enabling each subtask to be handled by the tool best suited for it. These studies conceptualize LLMs not as monolithic solvers but as managers capable of coordinating heterogeneous toolchains.
 
-Multi-agent ideas have also been applied directly to document understanding and extraction. Park et al.\ \cite{park2023generative} propose cooperative generative agents in which one agent extracts candidate entities while another validates or reformats them to fit schema constraints. This separation of responsibilities reduces cognitive load for each model and provides clearer debugging signals, since errors can be traced to a specific agent. Du et al.\ \cite{du2023improving} study multi-agent dialogue in which agents assume distinct roles (e.g., information seeker, verifier, summarizer) to improve factual consistency. Such role-based decomposition can be transferred to template filling: one agent extracts fields, a second checks completeness, and a third revises or corrects outputs.
+Multi-agent ideas have also been applied directly to structured reasoning and information extraction. Qian et al.~\cite{qian2023communicative} demonstrate that assigning agents complementary roles—such as extractor, verifier, and corrector—improves factual consistency and reduces hallucinations through inter-agent critique. This structured division of labour aligns well with template-filling workflows, where one agent extracts fields, another checks completeness, and a third corrects schema violations. Ye et al.~\cite{ye2025guided} further show that guided and knowledge-grounded multi-agent debate improves factual verification by coordinating specialised agents with different reasoning strategies, illustrating how debate-driven refinement can enhance reliability in complex extraction pipelines.
 
 Consensus-based multi-agent systems add another reliability mechanism. Wu et al.\ \cite{wu2023autoagents} introduce \textbf{AutoAgents}, an open-source framework where multiple agents generate alternative solutions that are then aggregated or voted on. This ensemble-style approach reduces variance and improves robustness, functioning similarly to redundancy and majority-voting techniques in classical ensemble learning but enhanced by the contextual reasoning abilities of LLMs. Consensus methods are particularly useful for noisy or ambiguous inputs, where a single-model output might fluctuate.
 
@@ -52,7 +52,7 @@ TaskMatrix.AI~\cite{liang2023taskmatrix} &
 --- \\
 \hline
 
-Cooperative extraction~\cite{park2024coop} &
+Cooperative extraction~\cite{wang2025cooperative} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
 (0,0) -- (90:0.4cm) arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
@@ -65,7 +65,7 @@ Cooperative extraction~\cite{park2024coop} &
 --- \\
 \hline
 
-Consensus systems (AutoAgents)~\cite{wu2023autoagents} &
+Consensus systems ~\cite{chen2023autoagents} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
