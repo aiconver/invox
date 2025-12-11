@@ -24,7 +24,6 @@ This unified design enables a direct, component-wise comparison of accuracy, lat
 A separate Hybrid Refinement strategy was planned, but not implemented. During development it became clear that all four main strategies (S1--S4) already include user review and correction, which creates the same hybrid behaviour in practice. Adding a fifth strategy would have duplicated functionality without offering a new method.
 
 \subsection{Embedding Models}
-
 Semantic similarity between predicted and reference fillers is computed using the \texttt{sentence-transformers} library.  
 The primary encoder is \texttt{all-MiniLM-L6-v2}, chosen for its balance between speed and representational quality.  
 To verify metric robustness, a secondary encoder, \texttt{multi-qa-MiniLM-L6-cos-v1}, was used for cross-checking.  

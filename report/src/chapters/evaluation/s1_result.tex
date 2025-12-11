@@ -3,6 +3,8 @@
 
 The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 slots in a single LLM call. We evaluate three S1 variants: \textbf{S1.0} without few-shot examples on the original MUC-4 dataset, \textbf{S1.1} with few-shot examples on the original dataset, and \textbf{S1.2} with few-shot examples on a modified MUC-4 dataset that mimics speech-style transcripts.
 
+Figure~\ref{fig:s1-variants-bar} demonstrates that few-shot prompting provides clear gains over zero-shot extraction. S1.1 improves slot-level accuracy (OBS, SF1) and reduces hallucination (HR) compared to S1.0, with the strongest effects on entity-related fields. The speech-style variant, S1.2, performs slightly below S1.1 but still maintains most of the few-shot benefits, indicating robustness under noisier inputs.
+
 \begin{figure}[h]
 \centering
 \begin{tikzpicture}
@@ -133,17 +135,13 @@ The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 sl
   \end{axis}
 \end{tikzpicture}
 
-\caption{Per-field extraction performance for S1.1 on the MUC-4 subset ($N{=}100$). The plot highlights substantial variation across fields: structured attributes such as \textit{incidentDate} and \textit{weapon} achieve the highest accuracy, while more open-ended fields like \textit{incidentType} and \textit{incidentLocation} remain challenging. These differences reveal where few-shot prompting is most effective and where additional mechanisms—such as retrieval augmentation or slot-specific prompting—may be needed.}
+\caption{Per-field extraction performance for S1.1 on the MUC-4 subset ($N{=}100$). Structured fields such as \textit{incidentDate} and \textit{weapon} show high accuracy, whereas open-ended categories like \textit{incidentType} and \textit{incidentLocation} remain challenging. The pattern illustrates where few-shot prompting is effective and where additional support mechanisms may be required.}
 \label{fig:s1-perfield-plot}
 \end{figure}
 
-Figure~\ref{fig:s1-variants-bar} shows that adding few-shot examples consistently improves the single-pass strategy. Moving from S1.0 to S1.1 increases OBS from $0.601$ to $0.644$ and SF1 from $0.604$ to $0.642$, while FDA rises from $0.713$ to $0.746$ and HR drops from $0.233$ to $0.180$. The gains are most pronounced in the entity-focused metrics (OBS, SF1, RFA), indicating that few-shot guidance helps the model fill more slots correctly rather than relying on abstention. S1.2, which operates on speech-style transcripts, lags slightly behind S1.1 on OBS and SF1 but achieves the best NES ($0.508$) and the highest RFA ($0.738$), suggesting that it remains robust under noisier inputs and performs particularly well when both system and gold annotations are nonempty.
-
 \paragraph{Per-field behaviour (S1.1).}
 
-
 \texttt{perpetratorOrganization} and \texttt{weapon} are the strongest fields under S1.1, whereas \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain more challenging.
-
 
 \subsection*{Latency}
 

@@ -1,8 +1,6 @@
 \section{Results – Strategy S2: Iterative Single-Field}
 \label{sec:eval-s2}
 
-
-
 The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially, invoking the LLM once per slot. We evaluate three S2 variants: \textbf{S2.0} without few-shot examples on the original MUC-4 dataset, \textbf{S2.1} with few-shot examples on the original dataset, and \textbf{S2.2} with few-shot examples on a modified dataset that mimics speech-style transcripts.
 
 \begin{figure}[H]
@@ -79,11 +77,13 @@ The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially
 \caption{Headline metrics for S2 variants on MUC-4 ($N{=}100$). Few-shot prompting (S2.1) improves most accuracy-oriented metrics (OBS, SF1, RFA) and lowers hallucination rates compared to the zero-shot baseline (S2.0). The speech-style variant (S2.2) performs slightly below S2.1 but remains more stable than S2.0, showing how iterative slot-wise extraction benefits from example-based grounding while still being sensitive to ASR-like noise.}
 \label{fig:s2-variants-bar}
 \end{figure}
-Figure~\ref{fig:s2-variants-bar} shows that few-shot prompting improves both accuracy and the calibration of fill decisions for the iterative strategy. Moving from S2.0 to S2.1 increases OBS from $0.590$ to $0.619$ and SF1 from $0.608$ to $0.639$, while hallucinations drop markedly (HR $0.373 \rightarrow 0.301$) and FDA rises slightly from $0.709$ to $0.718$. This indicates that S2.1 fills more slots correctly and avoids a substantial fraction of spurious extractions. The missing rate increases from $0.226$ to $0.267$, suggesting that the few-shot configuration becomes slightly more conservative: it is more willing to leave a slot empty when uncertain. S2.2, which operates on speech-style inputs, maintains competitive OBS and SF1 (0.595 and 0.631 respectively) and mirrors S2.1’s MR ($0.267$), but exhibits somewhat lower FDA ($0.700$) and higher HR ($0.341$). The high RFA values for S2.1 and S2.2 (0.758 and 0.742) indicate that, when both system and gold fill a field, the content is often correct, although spoken-like transcripts introduce more variability into the decision process.
 
+Figure~\ref{fig:s2-variants-bar} shows that few-shot prompting (S2.1) strengthens the iterative strategy by improving slot-level accuracy and reducing hallucination compared to the zero-shot baseline. The model becomes slightly more conservative—reflected in a higher missing rate—which suggests that examples help it avoid unsupported guesses. The speech-style variant (S2.2) maintains most of these gains, though with somewhat weaker formatting consistency and higher hallucination, indicating that ASR-like noise mainly affects precision rather than overall extraction capability.
 \paragraph{Per-field behaviour (S2.1).}
 
 \texttt{perpetratorOrganization} and \texttt{weapon} are the strongest slots under S2.1, \texttt{perpetratorIndividual} remains difficult, and \texttt{incidentLocation} benefits from per-slot prompting.
+
+Figure ~\ref{fig:s2-perfield-plot} highlights how iterative, field-specific prompting shifts performance across the nine slots. As in other strategies, \texttt{perpetratorOrganization} and \texttt{weapon} achieve the highest averages (0.738 and 0.751), reflecting that organization names and weapons are often expressed with relatively distinctive lexical cues that the model can exploit in a field-focused prompt. The \texttt{incidentLocation} slot benefits noticeably from the single-field set-up, reaching $0.597$, which is higher than in the single-pass baseline. This supports the hypothesis that dedicated instructions per slot help the model to attend more precisely to location mentions, rather than treating them as one of many competing targets in a joint prompt. By contrast, \texttt{incidentDate} remains moderate at $0.550$, and \texttt{perpetratorIndividual} continues to be one of the hardest fields due to sparse and ambiguous references to individuals in the underlying texts. Iterative prompting improves some aspects of locality and grounding, but does not fully overcome the inherent data limitations for this slot.
 
 \begin{figure}[H]
 \centering
@@ -144,8 +144,6 @@ difficulty in categories requiring interpretation or broader context.}
 \label{fig:s2-perfield-plot}
 \end{figure}
 
-
-Table~\ref{tab:s2-perfield} highlights how iterative, field-specific prompting shifts performance across the nine slots. As in other strategies, \texttt{perpetratorOrganization} and \texttt{weapon} achieve the highest averages (0.738 and 0.751), reflecting that organization names and weapons are often expressed with relatively distinctive lexical cues that the model can exploit in a field-focused prompt. The \texttt{incidentLocation} slot benefits noticeably from the single-field set-up, reaching $0.597$, which is higher than in the single-pass baseline. This supports the hypothesis that dedicated instructions per slot help the model to attend more precisely to location mentions, rather than treating them as one of many competing targets in a joint prompt. By contrast, \texttt{incidentDate} remains moderate at $0.550$, and \texttt{perpetratorIndividual} continues to be one of the hardest fields due to sparse and ambiguous references to individuals in the underlying texts. Iterative prompting improves some aspects of locality and grounding, but does not fully overcome the inherent data limitations for this slot.
 
 \subsection*{Latency}
 
