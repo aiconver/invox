@@ -74,8 +74,67 @@ The \textbf{S1: Single-Pass Full Input} configuration extracts all nine MUC-4 sl
   
   \end{axis}
 \end{tikzpicture}
-\caption{Headline metrics for S1 variants on MUC-4 ($N{=}100$).}
+\caption{Performance of S1 strategy variants on the MUC-4 subset ($N{=}100$). The chart compares zero-shot prompting (S1.0), few-shot prompting on clean text (S1.1), and few-shot prompting on speech-style inputs (S1.2). Few-shot prompting improves key metrics such as OBS, SF1, and FDA while lowering HR and MR, with S1.2 maintaining most benefits despite noisier inputs.}
 \label{fig:s1-variants-bar}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}
+  \begin{axis}[
+    width=15cm,
+    height=7cm,
+    ybar,
+    bar width=11pt,
+    ylabel={Average Score},
+    ylabel style={font=\small\bfseries},
+    xlabel={Fields},
+    xlabel style={font=\small\bfseries},
+    symbolic x coords={
+      incidentType,
+      incidentDate,
+      incidentLocation,
+      incidentStage,
+      target,
+      victim,
+      weapon,
+      perpetratorIndividual,
+      perpetratorOrganization,
+    },
+    xtick=data,
+    xticklabel style={font=\scriptsize, rotate=25, anchor=east},
+    ymin=0,
+    ymax=1.0,
+    ytick={0,0.2,0.4,0.6,0.8,1.0},
+    ymajorgrids=true,
+    grid style={line width=0.3pt, draw=gray!30},
+    enlarge x limits=0.05,
+    nodes near coords,
+    nodes near coords style={
+        font=\scriptsize,
+        rotate=90,
+        anchor=west,
+        /pgf/number format/precision=3
+    }
+  ]
+  
+  \addplot[fill=blue!60, draw=blue!80!black] coordinates {
+    (incidentType, 0.510)
+    (incidentDate, 0.760)
+    (incidentLocation, 0.516)
+    (incidentStage, 0.710)
+    (target, 0.592)
+    (victim, 0.563)
+    (weapon, 0.807)
+    (perpetratorIndividual, 0.584)
+    (perpetratorOrganization, 0.752)
+  };
+  
+  \end{axis}
+\end{tikzpicture}
+
+\caption{Per-field extraction performance for S1.1 on the MUC-4 subset ($N{=}100$). The plot highlights substantial variation across fields: structured attributes such as \textit{incidentDate} and \textit{weapon} achieve the highest accuracy, while more open-ended fields like \textit{incidentType} and \textit{incidentLocation} remain challenging. These differences reveal where few-shot prompting is most effective and where additional mechanisms—such as retrieval augmentation or slot-specific prompting—may be needed.}
+\label{fig:s1-perfield-plot}
 \end{figure}
 
 Figure~\ref{fig:s1-variants-bar} shows that adding few-shot examples consistently improves the single-pass strategy. Moving from S1.0 to S1.1 increases OBS from $0.601$ to $0.644$ and SF1 from $0.604$ to $0.642$, while FDA rises from $0.713$ to $0.746$ and HR drops from $0.233$ to $0.180$. The gains are most pronounced in the entity-focused metrics (OBS, SF1, RFA), indicating that few-shot guidance helps the model fill more slots correctly rather than relying on abstention. S1.2, which operates on speech-style transcripts, lags slightly behind S1.1 on OBS and SF1 but achieves the best NES ($0.508$) and the highest RFA ($0.738$), suggesting that it remains robust under noisier inputs and performs particularly well when both system and gold annotations are nonempty.
@@ -83,33 +142,8 @@ Figure~\ref{fig:s1-variants-bar} shows that adding few-shot examples consistentl
 \paragraph{Per-field behaviour (S1.1).}
 
 
-
-\begin{table}[H]
-    \centering
-    \caption{Per-field average scores for S1.1 ($N{=}100$).}
-    \label{tab:s1-perfield}
-    \begin{tabular}{lcc}
-        \toprule
-        Field & Avg.\ Score & \#Docs \\
-        \midrule
-        incidentType & 0.510 & 100 \\
-        incidentDate & 0.760 & 100 \\
-        incidentLocation & 0.516 & 100 \\
-        incidentStage & 0.710 & 100 \\
-        perpetratorIndividual & 0.584 & 100 \\
-        perpetratorOrganization & 0.752 & 100 \\
-        target & 0.592 & 100 \\
-        victim & 0.563 & 100 \\
-        weapon & 0.807 & 100 \\
-        \midrule
-        \textbf{Overall (OBS)} & \textbf{0.644} & \textbf{900 comps} \\
-        \bottomrule
-    \end{tabular}
-\end{table}
-
 \texttt{perpetratorOrganization} and \texttt{weapon} are the strongest fields under S1.1, whereas \texttt{perpetratorIndividual} and \texttt{incidentLocation} remain more challenging.
 
-Table~\ref{tab:s1-perfield} confirms that performance is not uniform across slots. Categorical fields such as \texttt{incidentStage}, \texttt{perpetratorOrganization}, and especially \texttt{weapon} achieve relatively high scores, reflecting their clearer lexical patterns and more constrained label spaces. In contrast, \texttt{perpetratorIndividual} and \texttt{incidentLocation} show lower averages, consistent with their higher ambiguity and sparsity in the underlying texts. Dates are handled comparatively well (average $0.760$ for \texttt{incidentDate}), but the remaining gap to perfect accuracy indicates residual issues with normalization and partial matches.
 
 \subsection*{Latency}
 
@@ -185,6 +219,8 @@ Table~\ref{tab:s1-perfield} confirms that performance is not uniform across slot
 \label{fig:s1-latency-bar}
 \end{figure}
 
+Figure~\ref{fig:s1-perfield-plot} confirms that performance is not uniform across slots. Categorical fields such as \texttt{incidentStage}, \texttt{perpetratorOrganization}, and especially \texttt{weapon} achieve relatively high scores, reflecting their clearer lexical patterns and more constrained label spaces. In contrast, \texttt{perpetratorIndividual} and \texttt{incidentLocation} show lower averages, consistent with their higher ambiguity and sparsity in the underlying texts. Dates are handled comparatively well (average $0.760$ for \texttt{incidentDate}), but the remaining gap to perfect accuracy indicates residual issues with normalization and partial matches.
+
 Figure~\ref{fig:s1-latency-bar} illustrates the latency–quality trade-off within the S1 family. S1.0 is clearly the fastest variant, with a median of around $25$\,s per document and a relatively short tail, but it is also the weakest in terms of accuracy. S1.1 roughly doubles the median latency to about $56$\,s and exhibits a long tail up to approximately $164$\,s, reflecting the additional computation needed to incorporate few-shot context. S1.2 offers an intermediate profile: its median latency ($\sim 49$\,s) and mean latency are lower than S1.1, and the upper tail is substantially shorter (p99 $=86.8$\,s vs.\ $134.9$\,s), making it more attractive in scenarios where robustness to speech-style inputs is required but extreme latency must be avoided.
 
 \subsection*{Cost Analysis (S1: Single-Pass Full Input)}
@@ -223,7 +259,7 @@ Taken together, the three S1 variants illustrate how single-pass extraction beha
 \begin{tikzpicture}
   \begin{axis}[
     width=12cm,
-    height=6cm,
+    height=8cm,
     ybar=0pt,
     bar width=10pt,
     ymin=0, ymax=1.05,
@@ -235,15 +271,19 @@ Taken together, the three S1 variants illustrate how single-pass extraction beha
     legend style={at={(0.5,-0.18)}, anchor=north, legend columns=2, font=\small},
     enlarge x limits=0.20,
     nodes near coords,
-    nodes near coords align={vertical},
+    nodes near coords style={
+      font=\scriptsize,
+      rotate=90,
+      anchor=west,
+    },
   ]
-    % FPR_overall
+
     \addplot coordinates {(S1.0,0.910) (S1.1,0.960) (S1.2,0.930)};
     \addlegendentry{$\mathrm{FPR}_{\text{overall}}$}
 
-    % SC_macro
     \addplot coordinates {(S1.0,0.692) (S1.1,0.724) (S1.2,0.700)};
     \addlegendentry{$\mathrm{SC}_{\text{macro}}$}
+
   \end{axis}
 \end{tikzpicture}
 \caption{Consistency (S1 variants): schema formatting vs.\ input-aware style.}
