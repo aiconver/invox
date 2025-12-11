@@ -20,7 +20,6 @@ Beyond manual prompt design, recent studies explore \emph{automated prompt optim
 \subsubsection{Evaluation Against Requirements}
 
 Table~\ref{tab:eval-prompt-engineering} evaluates the prompt engineering approaches discussed above against requirements R1--R6. Each requirement uses the grading scale defined in Section~2.1.
-
 \begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.5}
@@ -31,7 +30,7 @@ Table~\ref{tab:eval-prompt-engineering} evaluates the prompt engineering approac
 \textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} & \textbf{R6} \\
 \hline
 
-In-context learning (Brown et al.) &
+In-context learning~\cite{brown2020language} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) -- (90:0.4cm)
 arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
@@ -41,7 +40,7 @@ arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
 --- \\
 \hline
 
-Structured prompting (Sun et al.) &
+Structured prompting~\cite{sun2023slot} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) -- (90:0.4cm)
 arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
@@ -52,7 +51,7 @@ arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}} &
 --- \\
 \hline
 
-Schema-guided prompting (Zhang et al.) &
+Schema-guided prompting~\cite{zhang2023sgprompt} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
@@ -61,7 +60,7 @@ Schema-guided prompting (Zhang et al.) &
 --- \\
 \hline
 
-Automated prompt optimization (Peng et al.) &
+Automated prompt optimization~\cite{peng2023prompt} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}} &
 \raisebox{-0.1cm}{\tikz[baseline]{\draw (0,0) circle (0.4cm);}} &
