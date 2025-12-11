@@ -1,12 +1,5 @@
 While single-model prompting can achieve strong results, it often struggles with reliability, transparency, and adaptability in complex tasks. Recent work has therefore explored \emph{multi-agent systems}, where large language models are organized as a cooperating group of agents with different roles. Instead of relying on a single LLM to handle extraction, validation, reasoning, and correction, tasks can be decomposed into smaller subtasks performed by specialized agents.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.5\linewidth]{images/single_vs_multi_model.png}
-    \caption{Comparison of single-model and multi-agent approaches.}
-    \label{fig:single-vs-multi}
-\end{figure}
-
 One of the most prominent examples is \textbf{HuggingGPT}, introduced by Shen et al.\ \cite{shen2023hugginggpt}. In this system, an LLM serves as a controller that interprets user requests, decomposes them into subtasks, and delegates them to external models on the Hugging Face platform. The controller then integrates the results into a final output. Liang et al.\ \cite{liang2023taskmatrix} proposed a similar architecture with \textbf{TaskMatrix.AI}, which connects LLMs to thousands of APIs, enabling each subtask to be handled by the tool best suited for it. These studies conceptualize LLMs not as monolithic solvers but as managers capable of coordinating heterogeneous toolchains.
 
 Multi-agent ideas have also been applied directly to document understanding and extraction. Park et al.\ \cite{park2023generative} propose cooperative generative agents in which one agent extracts candidate entities while another validates or reformats them to fit schema constraints. This separation of responsibilities reduces cognitive load for each model and provides clearer debugging signals, since errors can be traced to a specific agent. Du et al.\ \cite{du2023improving} study multi-agent dialogue in which agents assume distinct roles (e.g., information seeker, verifier, summarizer) to improve factual consistency. Such role-based decomposition can be transferred to template filling: one agent extracts fields, a second checks completeness, and a third revises or corrects outputs.
@@ -15,9 +8,16 @@ Consensus-based multi-agent systems add another reliability mechanism. Wu et al.
 
 Despite these advantages, multi-agent systems also introduce challenges. Coordination overhead increases computational cost and latency, and poorly designed agent interfaces can create cascading errors. Evaluation of cooperation quality remains limited—most benchmarks measure final outputs but not the reliability of inter-agent communication. Multi-agent systems therefore offer greater transparency and robustness, but at the cost of complexity and resource usage.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\linewidth]{images/single_vs_multi_model.png}
+    \caption{Comparison of single-model and multi-agent approaches. Single-model systems are simple and efficient but offer little transparency, while multi-agent systems increase cost and complexity in exchange for greater modularity and interpretability.}
+    \label{fig:single-vs-multi}
+\end{figure}
+
 \subsubsection{Evaluation Against Requirements}
 
-Table~\ref{tab:eval-multi-agent} evaluates the reviewed multi-agent approaches against requirements R1--R6 using the scoring scales defined in Section~2.1.
+Table~\ref{tab:eval-multi-agent} evaluates the discussed multi-agent approaches against requirements R1--R6 using the scoring scales defined in Section~2.1.
 
 \begin{table}[H]
 \centering
@@ -86,10 +86,8 @@ Consensus systems (AutoAgents, Wu et al.) &
 \label{tab:eval-multi-agent}
 \end{table}
 
-\subsubsection{Summary}
+The evaluation reveals that multi-agent approaches offer clear strengths in \textbf{information extraction} (R2), \textbf{transparency} (R3), and \textbf{adaptability} (R5). By distributing responsibilities across specialised agents, intermediate decisions become inspectable, and the system can combine diverse capabilities such as retrieval, validation, and consensus building. Consensus-based systems in particular achieve strong \textbf{consistency} (R1) through aggregation across multiple agent outputs.
 
-Multi-agent systems provide several advantages over single-model prompting, particularly in complex extraction settings. They demonstrate strong performance in \textbf{information extraction} (R2) and show clear strengths in \textbf{transparency} (R3) and \textbf{adaptability} (R5), since responsibilities are divided across specialized agents and intermediate decisions become inspectable. Consensus-based systems achieve particularly high consistency and robustness (R1) by aggregating multiple agent outputs.
+At the same time, all reviewed systems lack integrated \textbf{user correction} mechanisms (R4) and do not report \textbf{usability} or latency characteristics (R6), making their real-world responsiveness unclear. Multi-agent designs also introduce coordination overhead, increasing computational cost and deployment complexity.
 
-However, multi-agent architectures still lack integrated \textbf{user correction} mechanisms (R4), and none report concrete \textbf{usability} or latency metrics (R6). Furthermore, their increased coordination overhead makes them computationally heavier and more complex to deploy.
-
-Overall, multi-agent methods offer promising benefits for reliability, interpretability, and modularity, but also introduce trade-offs in cost, latency, and pipeline complexity. These trade-offs motivate the comparative evaluation in this thesis, where multi-agent strategies are assessed alongside monolithic and hybrid approaches.
+Overall, the table highlights a key trade-off: multi-agent architectures significantly improve reliability, interpretability, and modularity but at the expense of higher cost and complexity. This trade-off directly motivates the architectural decisions in this thesis, where multi-agent strategies are evaluated alongside monolithic and hybrid approaches.

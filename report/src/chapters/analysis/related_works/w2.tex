@@ -2,14 +2,14 @@ Large language models can generate structured outputs, but their reliability str
 
 The ability of LLMs to adapt to new tasks without retraining was first demonstrated through \emph{in-context learning}. Brown et al.\ showed that GPT-3 could perform unseen tasks when given only natural-language instructions and a few examples \cite{brown2020language}. Later, Wei et al.\ documented “emergent abilities,” where large models exhibit strong zero-shot and few-shot performance once surpassing certain scale thresholds \cite{wei2022emergent}. For information extraction, this means that models can often populate structured fields when the prompt clearly specifies the task and provides minimal demonstrations.
 
-Designing effective prompts, however, is non-trivial. Sun et al.\ \cite{sun2023slot} propose structured prompts for speech-based slot filling that incorporate task definitions, slot descriptions, and linearized knowledge, improving robustness to ASR noise. Similarly, Lin et al.\ \cite{lin2021leveraging} show that including slot descriptions directly in prompts improves zero-shot dialogue state tracking by grounding the model in the semantics of each field. These studies highlight how prompts can embed domain knowledge to enhance extraction quality.
+Designing effective prompts, however, is non-trivial. Sun et al.~\cite{sun2023slot} propose structured prompts for speech-based slot filling that incorporate task definitions, slot descriptions, and linearized knowledge, improving robustness to ASR noise. Similarly, Lin et al.~\cite{lin2021leveraging} show that including slot descriptions directly in prompts improves zero-shot dialogue state tracking by grounding the model in the semantics of each field. These studies highlight how prompts can embed domain knowledge to enhance extraction quality.
 
 The choice between zero-shot and few-shot prompting also influences performance. Zero-shot prompts rely solely on schema descriptions and are flexible but less reliable. Few-shot prompting, which augments the prompt with exemplar input–output pairs, improves consistency but increases prompt length and inference latency. Pan et al.\ \cite{pan2023chatgpt} evaluate ChatGPT for dialogue understanding and find that few-shot prompting consistently improves accuracy, albeit with slower responses.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.8\linewidth]{images/zero_shot_vs_few_shot.png}
-    \caption{Zero-shot vs.\ few-shot prompting for template filling.}
+    \includegraphics[width=0.75\linewidth]{images/zero_shot_vs_few_shot.png}
+    \caption{Illustration of zero-shot vs.\ few-shot prompting for template filling: zero-shot uses only task instructions, whereas few-shot adds example pairs that guide the model toward the correct structure, typically improving extraction accuracy.}
     \label{fig:zero-few-shot}
 \end{figure}
 
@@ -75,10 +75,8 @@ Automated prompt optimization (Peng et al.) &
 \label{tab:eval-prompt-engineering}
 \end{table}
 
-\subsubsection{Summary}
+The evaluation shows that prompt engineering provides a flexible and powerful way to adapt LLMs to structured extraction tasks. Zero-shot and few-shot prompting enable template filling without task-specific training, while structured and schema-guided prompts improve consistency and robustness. Automated prompt optimization further shows that prompt quality can be systematically refined.
 
-Prompt engineering provides a flexible and powerful means of adapting LLMs to structured information extraction tasks. Zero-shot and few-shot prompting enable LLMs to populate templates without task-specific training, while structured and schema-guided prompts improve robustness and consistency. Automated prompt optimization further demonstrates that prompt quality can be systematically refined.
+Despite these strengths, prompt engineering alone does not satisfy several core requirements identified in Section~2.1. None of the reviewed approaches support \textbf{transparency} (R3) through evidence tracing or confidence scores, nor do they provide \textbf{user correction} (R4) within the extraction loop. They also lack mechanisms for continuous \textbf{learning and adaptation} (R5), and none report \textbf{usability} measures (R6) such as latency or computational cost. Prompts additionally remain brittle: small phrasing changes can produce different outputs, and schema adherence often requires external validation.
 
-However, prompt engineering alone does not address several core requirements identified in Section~2.1. None of the reviewed approaches provide transparency (R3), user correction (R4), or adaptive learning (R5), and none report latency or usability metrics (R6). Prompts also remain brittle: small variations in phrasing can change outputs significantly, and schema adherence often requires external validation rather than being handled internally.
-
-Overall, while prompt engineering is an essential foundation, it is not sufficient on its own for building reliable, transparent, and adaptive template-filling systems. These limitations motivate the next subsection on multi-agent LLM architectures, which introduce modular structure, delegation, and verification layers to overcome the constraints of single-prompt systems.
+Overall, while prompt engineering is an essential foundation, it remains insufficient for building reliable, transparent, and adaptive template-filling systems. These limitations motivate the next subsection on multi-agent LLM architectures, which introduce modular structure, delegation, and verification layers to overcome the constraints of single-prompt systems.

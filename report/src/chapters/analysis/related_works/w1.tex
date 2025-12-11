@@ -1,4 +1,4 @@
-This subsection reviews \textbf{existing solutions} that address the challenge of extracting structured information from unstructured text and populating predefined templates. These solutions have evolved from rule-based approaches to modern neural and generative methods, each offering different trade-offs in accuracy, robustness, and adaptability.
+This subsection reviews existing solutions that address the challenge of extracting structured information from unstructured text and populating predefined templates. These solutions have evolved from rule-based approaches to modern neural and generative methods, each offering different trade-offs in accuracy, robustness, and adaptability.
 
 Extracting structured information from unstructured text has been a central challenge in natural language processing (NLP) for decades. Early systems were rule-based, using handcrafted grammars, dictionaries, and regular expressions to detect domain-specific patterns \cite{grishman1997information}. These methods worked well in narrow settings but were brittle, required heavy manual effort, and could not easily adapt to new domains.
 
@@ -10,14 +10,15 @@ A major breakthrough came with the transformer architecture \cite{vaswani2017att
 
 \subsubsection{End-to-End Generative Template Filling}
 
-One influential contribution in this direction is the work by \textbf{Du et al.\ (2021)} on \textit{Template Filling with Generative Transformers} \cite{du2021template}. Their framework replaces the traditional two-step pipeline of NER followed by event classification with a single generative system. The model conditions on document tokens and event type markers to generate slot fillers directly. This design captures dependencies across multiple events in one document, avoiding the error propagation typical of pipelines. On the MUC-4 dataset, their approach outperformed both pipeline-based and extractive neural baselines, especially for documents that described multiple events.
+One influential contribution in this direction is the work by Du et al.\ on \textit{Template Filling with Generative Transformers} \cite{du2021template}. Their framework replaces the traditional two-step pipeline of NER followed by event classification with a single generative system. The model conditions on document tokens and event type markers to generate slot fillers directly, capturing dependencies across multiple events within a document and avoiding the error propagation typical of pipelines. On the MUC-4 dataset, their approach outperformed both pipeline-based and extractive neural baselines, particularly for documents that describe multiple events.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.6\linewidth]{images/error_propagation.png}
-    \caption{Error propagation in classical pipelines (left) versus end-to-end generative approaches (right).}
+    \includegraphics[width=0.55\linewidth]{images/error_propagation.png}
+    \caption{Example of error propagation in a classical NLP pipeline: an early mistake in named entity recognition prevents correct relation extraction, leading to incomplete template filling.}
     \label{fig:error-propagation}
 \end{figure}
+
 
 \subsubsection{Speech-Based Template Filling}
 
@@ -29,7 +30,7 @@ LLMs have also been applied to structured generation beyond classical IE. \textb
 
 \subsubsection{Benchmarks and Evaluation}
 
-Benchmarks such as \textbf{MUC-4} \cite{chinchor1992muc}, \textbf{ACE} \cite{doddington2004ace}, and \textbf{CoNLL-2003} \cite{tjong2003introduction} have shaped the development of information extraction systems. More recently, speech-centric datasets such as \textbf{SLURP} \cite{bastianelli2020slurp} support evaluating spoken language understanding. These benchmarks reveal where statistical approaches fail and where transformer-based models excel, but they also show that surface-level metrics like F1 do not capture robustness or consistency.
+Benchmarks such as \textbf{MUC-4} \cite{chinchor1992muc}, \textbf{ACE} \cite{doddington2004ace}, and \textbf{CoNLL-2003} \cite{tjong2003introduction} have shaped the development of information extraction systems (see Section~\ref{sec:eval-dataset} for a detailed description of MUC-4 in the evaluation setup). More recently, speech-centric datasets such as \textbf{SLURP} \cite{bastianelli2020slurp} support evaluating spoken language understanding. These benchmarks show where statistical approaches fail and where transformer-based models excel, but they also highlight that surface-level metrics such as F1 do not capture robustness or consistency.
 
 \subsubsection{Domain-Specific Challenges}
 
@@ -60,7 +61,7 @@ Table~\ref{tab:eval-template-filling} evaluates the discussed solutions against 
 \hline
 \textbf{Solution} & \textbf{R1} & \textbf{R2} & \textbf{R3} & \textbf{R4} & \textbf{R5} & \textbf{R6} \\
 \hline
-Du et al.\ (2021) &
+Du et al.\ \cite{du2021template} &
 \raisebox{0pt}{\tikz[baseline={(0,0)}]{\filldraw[fill=black]
 (0,0) -- (90:0.4cm) arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}}
 &
@@ -74,7 +75,7 @@ Du et al.\ (2021) &
 & --- \\
 \hline
 
-Sun et al.\ (2023) &
+Sun et al.\ \cite{sun2023paper} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
 (0,0) -- (90:0.4cm) arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}}
 &
@@ -89,7 +90,7 @@ Sun et al.\ (2023) &
 & --- \\
 \hline
 
-Chen et al.\ (2025) &
+Chen et al.\ \cite{chen2025paper} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black]
 (0,0) -- (90:0.4cm) arc (90:-150:0.4cm) -- cycle; \draw (0,0) circle (0.4cm);}}
 &
@@ -104,7 +105,7 @@ Chen et al.\ (2025) &
 & --- \\
 \hline
 
-Google LangExtract (2024) &
+Google LangExtract \cite{google2024langextract} &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}}
 &
 \raisebox{-0.1cm}{\tikz[baseline]{\filldraw[fill=black] (0,0) circle (0.4cm);}}
@@ -121,10 +122,8 @@ Google LangExtract (2024) &
 \label{tab:eval-template-filling}
 \end{table}
 
-\subsubsection{Summary}
+The evaluation highlights clear performance patterns across the reviewed systems. All generative approaches demonstrate strong capabilities in \textbf{information extraction} (R2), with Du et al.\ and LangExtract achieving the highest level of extraction robustness. Consistency (R1) is reached at a medium level by most research systems, while LangExtract attains high consistency due to strict schema enforcement and validation.
 
-The evaluation highlights clear performance patterns across the reviewed systems. All generative approaches demonstrate strong capabilities in \textbf{information extraction} (R2), with Du et al.\ and LangExtract achieving the highest level of extraction robustness. Consistency (R1) is achieved at a medium level by most research systems, while LangExtract reaches high consistency due to strict schema enforcement and validation.
-
-However, the analysis also reveals structural limitations shared across all reviewed solutions. None provide \textbf{transparency} (R3) through span-level evidence or confidence scores, and none support \textbf{user correction} (R4) within the extraction loop. Likewise, none implement mechanisms for continuous \textbf{learning and adaptation} (R5) based on user feedback or domain evolution. Finally, none of the works report \textbf{usability metrics} (R6) such as latency or hardware profiles, leaving their real-world responsiveness uncharacterized.
+However, the analysis also reveals structural limitations shared across all reviewed solutions. None provide \textbf{transparency} (R3) through span-level evidence or confidence scores, and none support \textbf{user correction} (R4) within the extraction loop. Likewise, none implement mechanisms for continuous \textbf{learning and adaptation} (R5) based on user feedback or domain changes. Finally, none of the works report \textbf{usability metrics} (R6), such as latency or hardware constraints, leaving their real-world responsiveness unclear.
 
 Overall, while current systems excel in extraction accuracy, they remain monolithic black-box architectures lacking the interactive, modular, and adaptive capabilities required for real-world deployment. These gaps motivate the next subsections on prompt engineering and multi-agent system design, which directly address transparency, correction, adaptability, and robustness.
