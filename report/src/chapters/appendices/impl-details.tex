@@ -8,7 +8,7 @@ function normalizeDate(value: string): string | null;
 
 function normalizeNumber(value: string): number | null;
 
-function validateEnum(value: string, options: string[]): string | null;
+function validateEnum(v: string, o: string[]): string | null;
 
 function joinMultiValue(values: any[]): string | null;
 
@@ -23,16 +23,16 @@ Listing~\ref{lst:ie-types} defines the supporting types used by the IE agent to 
 \begin{lstlisting}[language=Java, caption={Supporting types for the IE agent}, label={lst:ie-types}]
 interface CurrentFieldValue {
   value: any;
-  locked?: boolean;             // If true, field is never overwritten
-  source?: "ai" | "manual";     // Origin of current value
+  locked?: boolean;             
+  source?: "ai" | "manual";     
 }
 
 interface FilledField {
   value: any;
-  changed: boolean;             // Whether value differs from current
-  previousValue?: any;          // Only present if changed=true
+  changed: boolean;             
+  previousValue?: any;          
   source: "ai" | "manual";
-  confidence?: number;          // Optional: model's certainty estimate
+  confidence?: number;         
 }
 \end{lstlisting}
 
@@ -43,22 +43,22 @@ Listing~\ref{lst:ver-api} provides the TypeScript interfaces for the verificatio
 
 \begin{lstlisting}[language=Java, caption={Verification agent API contract}, label={lst:ver-api}]
 interface VerificationInput {
-  candidates: Record<string, FilledField> | Record<string, FilledField>[];
-  transcript: string;           // Combined old + new for context
+  cand: Record<string, FilledField> | Record<string, FilledField>[];
+  transcript: string;           
   fields: FormTemplateField[];
   currentValues?: Record<string, CurrentFieldValue>;
 }
 
 interface VerificationOutput {
   filled: Record<string, FilledField>;
-  confidence: Record<string, number>;   // Calibrated per-field confidence
+  confidence: Record<string, number>;  
   issues?: Array<{
     field: string;
     type: "missing" | "conflict" | "low_conf" | "invalid";
     detail: string;
     action?: "requery" | "clarify" | "manual_review";
   }>;
-  decisions?: Array<{             // Only for ensemble strategies
+  decisions?: Array<{             
     field: string;
     decision: "gpt" | "gemini" | "merge" | "keep_current";
     reason: string;
@@ -73,38 +73,38 @@ Listing~\ref{lst:orchestrator-core} presents the core orchestration logic as imp
 
 \begin{lstlisting}[language=Java, caption={Core orchestration logic of the Invox pipeline}, label={lst:orchestrator-core}]
 class Orchestrator {
-  async processTemplate(input: ProcessingRequest): Promise<FinalTemplate> {
+  async processTemplate(in: ProcessingRequest): Promise<FinalTemplate> {
     // Step 1: Transcription (optional)
-    const transcript = input.audio 
-      ? await stt.transcribe(input.audio)
-      : { transcript: input.text, language: input.lang ?? "en" };
+    const transcript = in.audio 
+      ? await stt.transcribe(in.audio)
+      : { transcript: in.text, language: in.lang ?? "en" };
 
     // Step 2: Retrieval (RAG)
     const examples = await rag.retrieve(
       transcript.transcript,
-      input.fields,
-      input.templateId
+      in.fields,
+      in.templateId
     );
 
     // Step 3: Extraction (strategy-dependent)
     const extraction = await this.runStrategy({
-      strategy: input.strategy,
+      strategy: in.strategy,
       transcript: transcript.transcript,
-      fields: input.fields,
-      currentValues: input.currentValues,
+      fields: in.fields,
+      currentValues: in.currentValues,
       fewShots: examples.examples,
-      ...input.metadata,
+      ...in.metadata,
     });
 
     // Step 4: Formatting (deterministic normalization)
-    const normalized = await cf.normalize(extraction.filled, input.fields);
+    const norm = await cf.normalize(extraction.filled, in.fields);
 
     // Step 5: Verification (completeness + consistency)
     const verified = await ver.verify({
-      candidates: normalized,
+      candidates: norm,
       transcript: transcript.transcript,
-      fields: input.fields,
-      currentValues: input.currentValues,
+      fields: in.fields,
+      currentValues: in.currentValues,
     });
 
     // Step 6: Clarification loop (if needed)
@@ -121,12 +121,12 @@ class Orchestrator {
     };
   }
 
-  private async runStrategy(params: StrategyParams): Promise<IEOutput> {
-    switch (params.strategy) {
-      case "S1": return await singleLlmAllField(params);
-      case "S2": return await singleLlmOneField(params);
-      case "S3": return await dualLlmAllField(params);
-      case "S4": return await multiLlmOneField(params);
+  private async runStrategy(p: StrategyParams): Promise<IEOutput> {
+    switch (p.strategy) {
+      case "S1": return await singleLlmAllField(p);
+      case "S2": return await singleLlmOneField(p);
+      case "S3": return await dualLlmAllField(p);
+      case "S4": return await multiLlmOneField(p);
     }
   }
 }
@@ -154,7 +154,7 @@ export async function singleLlmAllField(
   } = input;
 
   // 1. Combine transcripts
-  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const combTrans = oldText ? `${oldText}\n${newText}` : newText;
   
   // 2. Retrieve few-shot examples
   const fewShots = await getFewShotsFromTranscript(
@@ -183,7 +183,7 @@ export async function singleLlmAllField(
     currentValues
   );
   const verified = await runVerifier(
-    combinedTranscript,
+    combTrans,
     fields,
     filled
   );
@@ -211,11 +211,11 @@ export async function singleLlmOneField(
     transcriptData,
   } = input;
 
-  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const combTrans = oldText ? `${oldText}\n${newText}` : newText;
 
   // Retrieve few-shot examples once
   const fewShots = await getFewShotsFromTranscript(
-    combinedTranscript,
+    combTrans,
     fields,
     3
   );
@@ -261,9 +261,9 @@ export async function dualLlmAllField(
     transcriptData,
   } = input;
 
-  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const combTrans = oldText ? `${oldText}\n${newText}` : newText;
   const fewShots = await getFewShotsFromTranscript(
-    combinedTranscript,
+    combTrans,
     fields,
     3
   );
@@ -296,7 +296,7 @@ export async function dualLlmAllField(
 
   // Consensus verification
   const verified = await runEnsembleVerifier({
-    combinedTranscript,
+    combTrans,
     fields,
     currentValues,
     gpt: gptCandidate,
@@ -328,9 +328,9 @@ export async function multiLlmOneField(
     transcriptData,
   } = input;
 
-  const combinedTranscript = oldText ? `${oldText}\n${newText}` : newText;
+  const combTrans = oldText ? `${oldText}\n${newText}` : newText;
   const fewShots = await getFewShotsFromTranscript(
-    combinedTranscript,
+    combTrans,
     fields,
     3
   );
