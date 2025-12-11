@@ -76,15 +76,7 @@ The \textbf{S2: Iterative Single-Field} strategy fills the template sequentially
   
   \end{axis}
 \end{tikzpicture}
-\caption{Headline metrics for S2 variants on MUC-4 ($N{=}100$). 
-The plot compares three configurations of the iterative extraction strategy: 
-S2.0 (no few-shot, original text), S2.1 (few-shot, original text), and S2.2 (few-shot, 
-speech-style input). Few-shot prompting (S2.1) yields consistent improvements across 
-most accuracy-oriented metrics (OBS, SF1, RFA) while substantially reducing hallucination 
-rates (HR). The speech-style variant (S2.2) performs slightly worse than S2.1 but remains 
-more stable than the zero-shot baseline. These patterns highlight how iterative slot-wise 
-extraction benefits from example-based grounding while revealing sensitivity to input noise 
-introduced by speech-like phrasing.}
+\caption{Headline metrics for S2 variants on MUC-4 ($N{=}100$). Few-shot prompting (S2.1) improves most accuracy-oriented metrics (OBS, SF1, RFA) and lowers hallucination rates compared to the zero-shot baseline (S2.0). The speech-style variant (S2.2) performs slightly below S2.1 but remains more stable than S2.0, showing how iterative slot-wise extraction benefits from example-based grounding while still being sensitive to ASR-like noise.}
 \label{fig:s2-variants-bar}
 \end{figure}
 Figure~\ref{fig:s2-variants-bar} shows that few-shot prompting improves both accuracy and the calibration of fill decisions for the iterative strategy. Moving from S2.0 to S2.1 increases OBS from $0.590$ to $0.619$ and SF1 from $0.608$ to $0.639$, while hallucinations drop markedly (HR $0.373 \rightarrow 0.301$) and FDA rises slightly from $0.709$ to $0.718$. This indicates that S2.1 fills more slots correctly and avoids a substantial fraction of spurious extractions. The missing rate increases from $0.226$ to $0.267$, suggesting that the few-shot configuration becomes slightly more conservative: it is more willing to leave a slot empty when uncertain. S2.2, which operates on speech-style inputs, maintains competitive OBS and SF1 (0.595 and 0.631 respectively) and mirrors S2.1’s MR ($0.267$), but exhibits somewhat lower FDA ($0.700$) and higher HR ($0.341$). The high RFA values for S2.1 and S2.2 (0.758 and 0.742) indicate that, when both system and gold fill a field, the content is often correct, although spoken-like transcripts introduce more variability into the decision process.
@@ -227,15 +219,7 @@ Figure~\ref{fig:s2-latency-bar} shows that all S2 variants are comparatively fas
   
   \end{axis}
 \end{tikzpicture}
-\caption{Latency statistics for S2 variants (seconds). The plot compares the execution time
-distribution of the iterative extraction strategy under three configurations: S2.0
-(no~few-shot), S2.1 (few-shot), and S2.2 (few-shot on speech-style input). Across all
-percentiles, S2.1 exhibits the highest latency due to the additional prompt tokens introduced
-by the few-shot examples, whereas S2.0 remains the fastest. The speech-style variant (S2.2)
-reduces high-percentile latency compared to S2.1, indicating that input complexity affects
-token generation cost less than prompt length. Overall, the comparison highlights the
-trade-off between accuracy gains from few-shot prompting and the increased computational
-overhead inherent to iterative, slot-wise extraction.}
+\caption{Latency statistics for S2 variants (seconds). The plot compares execution times for S2.0 (no few-shot), S2.1 (few-shot), and S2.2 (few-shot with speech-style input). S2.1 shows the highest latency because few-shot prompts increase token processing, while S2.0 remains the fastest. The speech-style variant (S2.2) reduces extreme latencies relative to S2.1, suggesting that prompt length impacts cost more than input complexity. Overall, the results illustrate the trade-off between improved accuracy from few-shot prompting and the computational overhead of iterative, slot-wise extraction.}
 \label{fig:s2-latency-bar}
 \end{figure}
 

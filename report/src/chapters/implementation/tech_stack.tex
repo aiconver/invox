@@ -7,11 +7,11 @@ Implementation of the \textit{Invox} system follows a modular monolith architect
 
 Invox adopts a modular monolith pattern in which the STT, RAG, IE, CF, and VER agents are implemented as cohesive modules within one Node.js service. This yields a unified codebase, consistent versioning, simplified debugging, and low-latency in-process communication. Clear module interfaces maintain separation of concerns despite co-location.
 
-External components are used where the benefits are decisive. \textbf{OpenSearch} provides vector similarity search; a dedicated embedding service generates domain-relevant vectors; and LLM providers (OpenAI, Google) perform model inference. This division allows the core pipeline to remain lightweight while delegating specialized computation to optimized services \cite{opensearch_knn}.
+External components are used where the benefits are decisive. \textbf{OpenSearch} provides vector similarity search; a dedicated embedding service generates domain-relevant vectors; and LLM providers (OpenAI, Google) perform model inference. This division allows the core pipeline to remain lightweight while delegating specialized computation to optimized services.
 
 \subsection*{Containerization and Deployment}
 
-Deployment relies on \textbf{Docker} to ensure reproducibility, isolation, and consistent behavior across environments. Containers encapsulate dependencies, simplify distribution, and enable horizontal scaling by replicating services. \textbf{Docker Compose} orchestrates the multi-service environment, coordinating the main application alongside OpenSearch and auxiliary components \cite{docker_docs}.
+Deployment relies on \textbf{Docker} to ensure reproducibility, isolation, and consistent behavior across environments. Containers encapsulate dependencies, simplify distribution, and enable horizontal scaling by replicating services. \textbf{Docker Compose} orchestrates the multi-service environment, coordinating the main application alongside OpenSearch and auxiliary components.
 
 \subsection*{Backend Implementation}
 
@@ -31,7 +31,7 @@ Persistent storage is managed by \textbf{PostgreSQL}, which offers strong consis
 
 \subsection*{Authentication and Security}
 
-Authentication and authorization are handled by \textbf{Keycloak}, which supports OAuth2 and OpenID Connect \cite{rfc6749,openid_connect}. Role-based policies ensure that only authorized users can submit, review, or modify templates, supporting secure multi-user workflows.
+Authentication and authorization are handled by \textbf{Keycloak}, which supports OAuth2 and OpenID Connect \cite{rfc6749}. Role-based policies ensure that only authorized users can submit, review, or modify templates, supporting secure multi-user workflows.
 
 \subsection*{Architecture Rationale}
 

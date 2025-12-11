@@ -76,16 +76,7 @@ Figure~\ref{fig:s4-variants-bar} shows that per-field consensus behaves markedly
   
   \end{axis}
 \end{tikzpicture}
-\caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$). 
-The figure compares the performance of the multi-LLM per-field strategy under three 
-configurations: S4.0 (no few-shot), S4.1 (few-shot), and S4.2 (few-shot with 
-speech-style input). Few-shot prompting (S4.1) improves most accuracy-related metrics 
-(OBS, SF1, FDA, RFA) but still yields negative EAI values, reflecting inconsistencies 
-in model agreement at the slot level. The speech-style variant (S4.2) remains close to 
-S4.1, suggesting that field-wise consensus helps buffer against noise introduced by 
-ASR-like phrasing. Overall, S4 demonstrates strong schema adherence but shows that 
-per-field aggregation can amplify model disagreement in certain categories.}
-
+\caption{Headline metrics for S4 variants on MUC-4 ($N{=}100$). Few-shot prompting (S4.1) improves most accuracy-oriented metrics (OBS, SF1, FDA, RFA) but still produces negative EAI values, indicating disagreement across models at the slot level. The speech-style variant (S4.2) performs similarly to S4.1, suggesting that per-field consensus mitigates some ASR-related noise. Overall, S4 offers strong schema adherence but also highlights how per-field aggregation can amplify model inconsistencies.}
 \label{fig:s4-variants-bar}
 \end{figure}
 
@@ -147,15 +138,7 @@ Figure ~\ref{fig:s4-perfield-plo} illustrates the asymmetric effects of per-fiel
 
   \end{axis}
 \end{tikzpicture}
-
-\caption{Per-field extraction performance for S4.1 on the MUC-4 subset ($N{=}100$). 
-The multi-LLM per-field strategy shows strong results on structured categories such as 
-\textit{incidentStage}, \textit{weapon}, and \textit{incidentLocation}, but performs noticeably 
-worse on \textit{incidentType} and \textit{incidentDate}. These patterns indicate that while 
-per-field consensus helps stabilize some slots, it also amplifies disagreement or uncertainty 
-in fields that require broader contextual reasoning. Overall, S4.1 provides a mixed profile 
-with clear strengths in schema-aligned attributes and weaknesses in categories involving 
-interpretation or ambiguity.}
+\caption{Per-field extraction performance for S4.1 on the MUC-4 subset ($N{=}100$). The per-field multi-LLM strategy performs well on structured fields such as \textit{incidentStage}, \textit{weapon}, and \textit{incidentLocation}, but struggles on more context-dependent fields like \textit{incidentType} and \textit{incidentDate}. This pattern shows how per-field consensus can stabilize well-defined slots while amplifying uncertainty in categories that require broader reasoning.}
 \label{fig:s4-perfield-plot}
 \end{figure}
 
@@ -230,16 +213,7 @@ interpretation or ambiguity.}
   
   \end{axis}
 \end{tikzpicture}
-\caption{Latency statistics for S4 variants (seconds). 
-The per-field multi-LLM strategy incurs the highest computational cost among all evaluated 
-approaches, with median latencies around 2 minutes and p99 values approaching or exceeding 
-3 minutes. Few-shot prompting (S4.1) slightly reduces extreme latencies compared to the 
-no–few-shot baseline (S4.0), likely due to more stable extraction behavior across models. 
-The speech-style input (S4.2), however, introduces greater variance and higher worst-case 
-latencies. Overall, S4 highlights the trade-off between robustness gained through 
-per-field consensus and the substantial runtime overhead required for multiple coordinated 
-LLM calls.}
-
+\caption{Latency statistics for S4 variants (seconds). The per-field multi-LLM strategy incurs the highest computational cost, with median latencies near 2 minutes and p99 values exceeding 3 minutes. Few-shot prompting (S4.1) slightly reduces extreme latencies compared to S4.0, while the speech-style variant (S4.2) introduces greater variance. Overall, S4 illustrates the trade-off between the robustness gained from per-field consensus and the substantial runtime overhead of coordinating multiple LLM calls.}
 \label{fig:s4-latency-bar}
 \end{figure}
 
