@@ -6,14 +6,14 @@ The user interface implements the human-in-the-loop quality control paradigm est
 \subsection{Authentication and Template Access}
 \label{subsec:ui-authentication}
 
-The system implements role-based access through a centralized authentication interface (Figure~\ref{fig:login-interface}). Users authenticate via Keycloak-managed credentials, which determine which template types they can access. Security personnel see incident reporting templates, while medical staff access patient handover forms. Users cannot create new template schemas through the interface—they can only fill templates assigned to their role.
-
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\linewidth]{images/login_interface.png}
   \caption{INVOX authentication interface with Keycloak integration}
   \label{fig:login-interface}
 \end{figure}
+
+The system implements role-based access through a centralized authentication interface (Figure~\ref{fig:login-interface}). Users authenticate via Keycloak-managed credentials, which determine which template types they can access. Security personnel see incident reporting templates, while medical staff access patient handover forms. Users cannot create new template schemas through the interface—they can only fill templates assigned to their role.
 
 \subsection{Template Filling Interface}
 \label{subsec:ui-template-filling}
@@ -33,9 +33,9 @@ The recording panel provides a "Start" button to initiate audio capture. During 
 
 \subsubsection{Structured Template Form}
 
-The right side displays the template form with fields organized by category (Incident Type, Perpetrator Information, Target, Victim, Weapon). As the system processes audio input, fields are automatically populated based on the extraction results. Each field type renders appropriately: dropdowns for enumerated values, text areas for descriptions, and specialized inputs for dates and numbers. Fields populated by AI extraction are marked with confidence indicators, with low-confidence fields highlighted to direct user attention.
+The right side shows the structured template, with fields grouped by category (Incident Type, Perpetrator, Target, Victim, Weapon). As audio is processed, the system auto-populates the fields using extraction results. Each field uses an appropriate widget—dropdowns for enumerations, text areas for descriptions, and dedicated inputs for dates or numeric values. Confidence indicators mark AI-filled entries, and low-confidence fields are highlighted for review.
 
-Users can directly edit any field value, lock fields to prevent overwriting during subsequent recordings, and review the source of each value (AI-extracted versus manually entered). The form validates inputs against schema constraints before allowing submission.
+Users may edit values at any time, lock fields to protect them during later recordings, and inspect whether a value was extracted or manually entered. Before submission, the form validates all entries against the template schema.
 
 \subsubsection{Interactive Chat Panel}
 
@@ -43,6 +43,4 @@ The chat panel provides real-time feedback during template filling. When the sys
 
 \subsection{Template Export}
 
-Once users complete template review, the interface provides export options in JSON, Excel, and PDF formats through a download button group. All templates are automatically persisted to PostgreSQL upon processing, ensuring data preservation regardless of export actions.
-
-Having established the complete implementation of the Invox system—from backend agent architecture to frontend user interface—the next chapter evaluates this implementation empirically. Chapter~\ref{chap:evaluation} applies the system to the MUC-4 benchmark and measures its performance against the six requirements (R1–R6) established in Chapter~\ref{sec:requirements}. The evaluation compares the four architectural strategies quantitatively, examining their trade-offs in accuracy, cost, latency, and user satisfaction.
+Once users complete template review, the interface provides export options in JSON, Excel, and PDF formats through a download button group. All templates are automatically persisted to PostgreSQL upon processing, ensuring data preservation regardless of export actions. Having established the complete implementation of the Invox system—from backend agent architecture to frontend user interface—the next chapter evaluates this implementation empirically. Chapter~\ref{chap:evaluation} applies the system to the MUC-4 benchmark and measures its performance against the six requirements (R1–R6) established in Chapter~\ref{sec:requirements}. The evaluation compares the four architectural strategies quantitatively, examining their trade-offs in accuracy, cost, latency, and user satisfaction.
