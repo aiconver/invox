@@ -17,59 +17,58 @@ The context diagram (Figure~\ref{fig:c4-context}) positions Invox within its ope
 \begin{figure}[H]
   \centering
   \includegraphics[width=1\linewidth]{images/c4_context.drawio.pdf}
-  \caption{Context diagram showing system boundaries and external actors.}
+  \caption{Context diagram illustrating the system boundary of Invox and its interactions with external actors such as users, authentication services, LLM providers, speech-to-text components, and organizational knowledge sources, highlighting all inputs the system depends on.}
   \label{fig:c4-context}
 \end{figure}
 
 \subsection{Container View: Internal Component Structure}
 \label{subsec:container-view}
 
-The container diagram (Figure~\ref{fig:c4-container}) decomposes Invox into its major internal components and clarifies how requests flow through the system.
+The container diagram (Figure~\ref{fig:c4-container}) outlines Invox’s main components and the flow of requests through the system.
 
-\textbf{Client access.} Users interact with the system via the \emph{API Gateway}, which supports HTTP, HTTPS, or tRPC protocols. This is the only entry point for structured input requests. For raw audio, users may also call the \emph{STT Service} directly to obtain transcribed text.
+\textbf{Client access.} Users interact with Invox via the \emph{API Gateway}, the entry point for all structured requests over HTTP/HTTPS/tRPC. Audio may also be sent directly to the \emph{STT Service} for transcription.
 
-\textbf{STT Service.} The STT service wraps the Whisper model, invokes the external ASR provider, and returns transcribed text enriched with metadata such as confidence scores, timestamps, and language detection. Transcribed text is returned to the client for display or routed back into the pipeline.
+\textbf{STT Service.} Speech-to-text processing is handled by a Whisper-based component that wraps the external ASR provider and returns transcriptions with metadata such as confidence scores and timestamps. Output is either returned to the client or forwarded into the pipeline.
 
-\textbf{RAG Service.} Once the API Gateway accepts a request, it forwards it into the backend pipeline starting with the RAG service. This service embeds the input, queries the \emph{Vector Index}, and enriches the request with semantically relevant examples.
+\textbf{RAG Service.} Once a request enters the backend, the first step is retrieval. The input is embedded and matched against the \emph{Vector Index} to obtain semantically relevant examples that support downstream extraction.
 
-\textbf{IE Service.} Using the enriched context, the IE service constructs prompts and invokes the configured LLM providers. Depending on the strategy (S1–S4), this may involve a single call, slot-wise calls, or multiple model invocations. Results are returned as candidate slot-value pairs.
+\textbf{IE Service.} Using this enriched context, the IE component builds prompts and invokes the configured LLM providers. Depending on the selected strategy (S1–S4), it may perform a single call, slot-wise calls, or multi-model consensus to produce candidate slot–value pairs.
 
-\textbf{CF Service.} The CF service normalizes the extracted values (e.g., dates, entities) and enforces schema constraints to produce a consistent intermediate template.
+\textbf{CF Service.} Extracted values are then normalized and validated. This stage standardizes formats (e.g., dates, entities) and enforces schema constraints to produce a consistent intermediate template.
 
-\textbf{VER Service.} 
-The verification service ensures completeness, consistency, and confidence of the template. It assigns confidence scores, detects conflicts, flags missing fields, and can trigger clarification requests via the API Gateway. Finalized templates, enriched with quality metadata, are stored in both the \emph{Template Repository} and the \emph{Vector Index}. This service is internal-only and not directly accessible to clients.
+\textbf{VER Service.} Verification is performed as a dedicated internal step. It assigns confidence scores, checks completeness and consistency, flags problematic fields, and triggers clarification prompts when needed. Verified templates, along with metadata, are stored in both the \emph{Template Repository} and the \emph{Vector Index}.
 
-\textbf{Data stores.} The system relies on two primary data stores. A \emph{Template Repository} maintains finalized templates that can be retrieved and reused in future interactions, while a \emph{Vector Index} stores dense embeddings to support retrieval-augmented generation and similarity-based lookup of relevant past cases.
+\textbf{Data stores.} Invox uses two storage layers: a \emph{Template Repository} for finalized templates and a \emph{Vector Index} for dense embeddings used during retrieval.
 
-\textbf{End-to-end flow.} After verification, the finalized template is stored, indexed, and routed back through the API Gateway to the client as the official response.
+\textbf{End-to-end flow.} After verification, the template is persisted, indexed, and returned to the client via the API Gateway. Manual edits remain possible before final submission.
 
 \begin{sidewaysfigure}
   \centering
   \includegraphics[width=1\linewidth]{images/c4_container.drawio.pdf}
-  \caption{container diagram showing request flow through internal components and external dependencies.}
+  \caption{Container diagram illustrating how requests move through Invox’s internal services—STT, RAG, IE, CF, and VER—and how these components interact with external dependencies such as LLM providers, storage layers, and the client-facing API Gateway.}
   \label{fig:c4-container}
 \end{sidewaysfigure}
 
 \subsection{Process View: Workflow and Decision Logic}
 \label{subsec:process-view}
 
-The process diagram (Figure~\ref{fig:bpmn}) presents the dynamic execution flow. The workflow follows this structure:
+The process diagram (Figure~\ref{fig:bpmn}) illustrates the dynamic execution flow that connects all stages of the Invox pipeline.
 
-\textbf{Input reception.} User submits audio or text. Audio is processed by the STT service; text requests proceed via the API Gateway into the backend pipeline.
+\textbf{Input reception.} The workflow starts when users submit either audio or text. Audio is routed through the STT service for transcription, while text requests enter through the API Gateway and continue directly into the backend pipeline.
 
-\textbf{Retrieval.} The RAG service queries the vector index and returns top-$k$ examples. If retrieval fails, the system falls back to zero-shot prompting.
+\textbf{Retrieval.} After the initial preprocessing, the RAG service performs a similarity search over the vector index to obtain the top-$k$ relevant examples. If no suitable matches are found, the system automatically reverts to a zero-shot prompting.
 
-\textbf{Extraction.} The IE service invokes the LLM(s) according to the chosen strategy. For multi-model strategies, all responses are collected before proceeding.
+\textbf{Extraction.} With the retrieved examples available, the IE service invokes one or more LLM calls according to the selected strategy. For multi-model or consensus configurations, all model responses are gathered before the pipeline proceeds.
 
-\textbf{Formatting.} CF normalizes extracted values and enforces schema constraints, flagging any that cannot be normalized for manual review.
+\textbf{Formatting.} The next stage involves normalization and schema enforcement. CF standardizes extracted values, validates them against the schema, and flags any elements that cannot be normalized for later user review.
 
-\textbf{Verification.} VER checks consistency, completeness, and confidence. Possible outcomes are: (1) Pass—template is complete and returned; (2) Clarification required—system prompts user and re-executes IE $\rightarrow$ CF $\rightarrow$ VER; (3) Low confidence—template returned with uncertain fields for user review.
+\textbf{Verification.} VER checks the template for consistency, completeness, and confidence. Outcomes include: (1) a verified template returned directly to the user, (2) a clarification loop that requests missing information and re-runs IE $\rightarrow$ CF $\rightarrow$ VER, or (3) a low-confidence output with uncertain fields highlighted for review.
 
-\textbf{Finalization.} Verified templates are stored in the repository, indexed for future retrieval, and returned to the client. Users may still edit fields before final submission.
+\textbf{Finalization.} Once verification is complete, the resulting template is stored in the repository, indexed for future retrieval, and returned to the client. Users may still make manual adjustments before final submission.
 
 \begin{sidewaysfigure}
   \centering
   \includegraphics[width=\linewidth]{images/bpmn_process_flow.pdf}
-  \caption{BPMN diagram showing workflow and decision logic.}
+  \caption{BPMN diagram illustrating the end-to-end workflow of Invox, including input handling, retrieval, extraction, formatting, verification, and the decision logic that governs clarification loops and final template delivery.}
   \label{fig:bpmn}
 \end{sidewaysfigure}

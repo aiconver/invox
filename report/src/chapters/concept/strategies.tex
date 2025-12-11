@@ -90,24 +90,32 @@ Computational cost scales as (number of slots) × (number of models), making thi
 \setlength{\tabcolsep}{10pt}
 \small
 \begin{tabular}{|
->{\centering\arraybackslash}m{2.4cm}|
->{\centering\arraybackslash}m{2cm}|
->{\centering\arraybackslash}m{2cm}|
-c|c|c|}
+>{\centering\arraybackslash}m{2.6cm}|
+>{\centering\arraybackslash}m{1.6cm}|
+>{\centering\arraybackslash}m{1.8cm}|
+>{\centering\arraybackslash}m{1.6cm}|
+>{\centering\arraybackslash}m{1.6cm}|
+>{\centering\arraybackslash}m{1.6cm}|
+}
 \hline
 \textbf{Strategy} & \textbf{LLM Calls} & \textbf{Error Isolation} &
 \textbf{Robustness} & \textbf{Latency} & \textbf{Cost} \\
 \hline
-S1: Single-Pass & 1 & L & L & L & L \\
+
+S1: Single-Pass & 1 & Low & Low & Low & Low \\
 \hline
-S2: Iterative & $n$ (slots) & H & M & M & M \\
+
+S2: Iterative & $n$ (slots) & High & Medium & Medium & Medium \\
 \hline
-S3: Consensus (Full) & $m$ (models) & L & H & M & H \\
+
+S3: Consensus (Full) & $m$ (models) & Low & High & Medium & High \\
 \hline
-S4: Consensus (Slot) & $n \times m$ & H & H & H & H \\
+
+S4: Consensus (Slot-Level) & $n \times m$ & High & High & High & High \\
 \hline
+
 \end{tabular}
-\caption{Comparison of architectural strategies.}
+\caption{Comparison of architectural strategies, showing how different orchestration approaches trade off robustness, latency, and cost depending on the number of LLM calls and the level of error isolation.}
 \label{tab:architectural-strategy-comparison}
 \end{table}
 

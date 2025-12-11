@@ -6,22 +6,21 @@ The modular architecture of \textit{Invox} is organized into five specialized ag
 \begin{figure}[H]
   \centering
   \includegraphics[width=1.0\linewidth]{images/agent_pipeline.drawio.pdf}
-  \caption{Invox’s Five-Agent Pipeline}
+  \caption{Overview of Invox’s five-agent pipeline. The multi-step flow separates transcription, retrieval, extraction, normalization, and user correction into distinct agents. This modular design addresses key limitations of monolithic LLMs by improving extraction robustness, enforcing consistent formatting, enabling transparency through intermediate outputs, and allowing final user edits before submission.}
   \label{fig:agent-pipeline}
 \end{figure}
-
 
 \subsection{Speech-to-Text Agent (STT)}
 \label{subsec:stt-agent}
 
-The STT agent converts spoken language into text using a Whisper-based transcription model \cite{radford2023whisper}. It accepts audio recordings as input and outputs transcribed text along with metadata such as word-level confidence scores, timestamps, and language detection results. As the focus of this work is the mapping from unstructured text to template fields, the STT component remains an adapter rather than the core of the architecture. Textual inputs bypass this stage and enter directly into the RAG agent.
+Invox employs an STT agent that converts spoken language into text using a Whisper-based transcription model~\cite{radford2023whisper}. This STT agent accepts audio recordings as input and outputs transcribed text together with metadata such as word-level confidence scores, timestamps, and language detection results. As the focus of this thesis is the mapping from unstructured text to template fields, the STT component functions as an adapter rather than a core architectural element. Textual inputs bypass this stage and enter directly into the RAG agent.
 
 \textbf{Design considerations.} The STT agent is deliberately shallow to maintain generality. Whisper was selected for its robustness to noise and multilingual support, which are critical in industrial environments where background machinery, accents, and code-switching are common \cite{fathullah2023prompting}. Alternative ASR systems could be substituted without affecting downstream components, provided they produce UTF-8 text output.
 
 \subsection{Retrieval-Augmented Generation Agent (RAG)}
 \label{subsec:rag-agent}
 
-The RAG agent enhances extraction accuracy by retrieving relevant examples from historical data before template filling begins. It accepts the transcribed or typed text as input and queries an indexed corpus—comprising previously completed templates—using semantic similarity search over dense vector embeddings. The agent outputs the top-$k$ most relevant examples, which are passed alongside the user input to the IE agent as few-shot context.
+The RAG agent of Invox enhances extraction accuracy by retrieving relevant examples from historical data before template filling begins. It accepts the transcribed or typed text as input and queries an indexed corpus—comprising previously completed templates—using semantic similarity search over dense vector embeddings. The agent outputs the top-$k$ most relevant examples, which are then passed alongside the user input to the IE agent as few-shot context.
 
 \textbf{Retrieval mechanism.} The RAG agent encodes input text using a pretrained sentence transformer and performs cosine similarity search against stored template embeddings. The system returns $k$ ranked examples (typically $k = 3$–$5$), each containing the original text and its corresponding template completion.
 
@@ -30,49 +29,49 @@ The RAG agent enhances extraction accuracy by retrieving relevant examples from 
 \subsection{Information Extraction Agent (IE)}
 \label{subsec:ie-agent}
 
-The IE agent performs the central task of transforming unstructured text into structured template fields. Its input consists of three components: (1) the free-form text (transcribed or provided directly), (2) the retrieved few-shot examples from the RAG agent, and (3) the target template schema specifying which fields need to be filled. The agent outputs candidate slot-value pairs for all specified fields in the template schema.
+After employing a RAG agent, Invox proceeds with an Information Extraction (IE) stage that transforms unstructured text into structured template fields. Its input consists of three components: (1) the free-form text (transcribed or provided directly), (2) the retrieved few-shot examples from the RAG agent, and (3) the target template schema specifying which fields must be filled. Based on these inputs, the IE agent produces candidate slot–value pairs for all required fields.
 
-The agent operates by prompting a large language model with task-specific instructions and examples. For each field in the template schema, the model attempts to extract relevant information from the input text. If information for a particular field cannot be found in the text, the field is explicitly populated with a null value rather than being omitted. This ensures completeness while maintaining the structured output format.
+Extraction is carried out by prompting a large language model with task-specific instructions and examples. For each field in the schema, the model attempts to locate relevant evidence in the input text; if no evidence is found, the field is explicitly assigned a null value rather than being omitted. This maintains completeness and preserves a consistent output structure.
 
-\textbf{Processing approach:} The agent follows a schema-driven extraction strategy, in which it processes all fields specified in the template schema to ensure comprehensive coverage of the required information structure. Fields are populated in an evidence-based manner, i.e., values are only assigned when there is explicit supporting evidence in the input text, which helps prevent hallucination of unsupported content. When no such evidence is present for a given field, the system performs explicit null handling by marking the field as null, thereby preserving a complete and well-defined output structure.
+\textbf{Processing approach.} The IE stage follows a schema-driven strategy that iterates over all fields specified in the template. Values are assigned only when directly supported by the input text, reducing the risk of hallucinated content. Explicit null handling ensures that missing information is represented transparently.
 
-\textbf{Prompt structure.} The IE agent's prompt consists of four components: (1) task definition specifying the target schema and fields, (2) retrieved few-shot examples demonstrating successful extraction patterns, (3) the current user input text, and (4) output format constraints requiring JSON-structured responses that include all specified fields. This structure ensures consistent output formatting while leveraging the contextual understanding provided by few-shot examples \cite{zhang2023sgptod}.
+\textbf{Prompt structure.} The prompt supplied to the model integrates four components: a task definition describing the schema, retrieved few-shot examples illustrating valid extraction behavior, the user’s input text, and output constraints requiring JSON-formatted responses that include all fields. This structure enhances consistency while leveraging contextual signals from the RAG stage \cite{zhang2023sgptod}.
 
 \subsection{Consistency Formatting Agent (CF)}
 \label{subsec:cf-agent}
 
-The CF agent transforms the raw extracted values from the IE agent into standardized, schema-compliant formats. It accepts the slot-value pairs produced by the IE agent and applies deterministic normalization rules and schema validation to ensure consistency across all template outputs.
+Once candidate values have been extracted, Invox applies a Consistency Formatting (CF) stage that transforms these raw outputs into standardized, schema-compliant formats. This stage takes the slot–value pairs produced by the IE component and enforces uniformity through deterministic normalization and schema validation.
 
-\textbf{Schema validation and normalization:} The agent enforces schema-level constraints by converting extracted values to the appropriate data types (e.g., dates to ISO format, numbers to numerical types) and validating them against the corresponding schema definitions. It then performs value canonicalization using deterministic normalization rules to standardize surface-form variations (for instance, mapping ``Sept.\ 11'' to ``2001-09-11'' or ``USA'' to ``United States''). Domain-specific consistency is further ensured through controlled vocabulary mapping, where extracted terms are mapped to predefined categories for incident types, equipment codes, and other standardized fields. Finally, the agent performs schema compliance checking to verify that all populated values satisfy the template’s structural and semantic requirements, including format constraints and valid value ranges.
+\textbf{Schema validation and normalization.} The system first converts extracted values to the appropriate data types (e.g., dates to ISO format, numbers to numeric types) and validates them against the template’s schema definitions. It then applies canonicalization rules to remove surface-form variation, such as mapping ``Sept.\ 11'' to ``2001-09-11'' or ``USA'' to ``United States.'' Controlled vocabulary mapping ensures domain-level consistency, aligning extracted terms with predefined categories for incident types, equipment codes, and other structured fields. A final schema-compliance check verifies that all values satisfy structural and semantic constraints, including type, format, and admissible ranges.
 
-\textbf{Normalization approach.} The CF agent employs both deterministic transformations and LLM-based resolution for ambiguous cases. Structured data types like dates, numbers, and standard identifiers are normalized using regular expressions and parsing libraries. For ambiguous entities—such as informal location names or context-dependent equipment codes—the agent can prompt an LLM with the original context and domain glossaries to resolve variations. This hybrid approach balances precision with contextual awareness while maintaining deterministic behavior for well-defined formats.
+\textbf{Normalization approach.} This stage combines deterministic transformations with LLM-assisted resolution for ambiguous cases. Structured types such as dates, numbers, and identifiers are normalized using parsing libraries and regular expressions. When ambiguity arises—for instance, informal location names or context-dependent equipment codes—the system can query an LLM using the original text and domain glossaries to propose a canonical interpretation. This hybrid approach maintains determinism for well-defined formats while leveraging contextual reasoning where needed.
 
-\textbf{Design rationale.} By separating normalization from extraction, the system ensures consistent output formatting regardless of input variations while enforcing schema compliance. This addresses requirement R1 (consistency) and allows the IE agent to focus solely on content identification rather than format enforcement \cite{gatt2018survey}. The CF agent also reduces evaluation noise by ensuring that performance comparisons across different extraction strategies are not confounded by formatting inconsistencies.
+\textbf{Design rationale.} Separating normalization from extraction ensures that output formatting remains consistent regardless of input variation, directly addressing R1 (consistency). It also allows the IE stage to focus on content identification rather than format enforcement \cite{gatt2018survey}, and reduces evaluation noise by ensuring that comparisons across extraction methods are not confounded by formatting discrepancies.
 
 \subsection{Verification Agent (VER)}
 \label{subsec:ver-agent}
 
-The VER agent performs comprehensive quality assessment on the structured template produced by the CF agent. It accepts the normalized slot-value pairs as input and generates a fully verified template with confidence scoring, field-level annotations, and interactive clarification capabilities.
+After normalization, Invox performs a verification stage (VER) that conducts comprehensive quality assessment on the structured template produced by the CF component. This stage accepts the normalized slot–value pairs and produces a fully verified template enriched with confidence scoring, field-level annotations, and mechanisms for interactive clarification.
 
-\textbf{Quality assessment components:} The agent incorporates several mechanisms for assessing the reliability of the populated template. It assigns confidence scores to each field based on extraction quality, strength of supporting evidence, and internal consistency metrics. In addition, it produces field-level annotations that document the source evidence, the applied extraction method, and any relevant processing notes, thereby increasing transparency. The system also performs conflict detection to identify internal contradictions or inconsistencies between related fields (for example, conflicting dates or incompatible equipment types). Finally, it executes completeness validation to flag required fields that remain empty or contain insufficient information, enabling targeted review and correction.
+\textbf{Quality assessment components.} Multiple checks contribute to the reliability of the final template. Each field receives a confidence score derived from extraction quality, strength of supporting evidence, and internal consistency metrics. Field-level annotations document evidence sources, applied processing steps, and relevant notes, increasing transparency. Conflict detection identifies contradictions across related fields—for example, incompatible dates or mismatched equipment types—while completeness validation flags required fields that are empty or insufficiently supported, enabling targeted review.
 
-\textbf{Interactive clarification system.} When low-confidence fields, conflicts, or missing required information are detected, the VER agent generates targeted chat messages to solicit user clarification. These messages are context-aware and focus specifically on the uncertain aspects of the template, enabling iterative refinement through user feedback. The system maintains conversation history to provide context for subsequent clarification rounds.
+\textbf{Interactive clarification system.} When low-confidence fields, conflicts, or missing information are detected, the system generates focused clarification prompts for the user. These prompts reference the problematic fields directly and incorporate conversation history to support iterative refinement through user feedback.
 
-\textbf{Final output generation.} The VER agent produces a completed template that includes all quality-related annotations, making it explicit which fields are highly reliable and which require user verification. Alongside the structured data ready for database integration or further processing, the output contains confidence scores for automated quality assessment, evidence references that link extracted values to their originating text spans, and clear indicators highlighting fields that may need user attention.
+\textbf{Final output generation.} The verification stage outputs a completed template that includes the structured data along with quality annotations, confidence scores, evidence references, and indicators for fields requiring user attention. This makes reliability explicit and supports downstream processing or human review.
 
-\textbf{Design rationale.} VER directly supports R3 (transparency) by providing comprehensive field-level annotations and confidence metrics, and R4 (user correction) through its interactive clarification system. By centralizing quality assessment and user interaction in a dedicated agent, the system ensures consistent verification standards while maintaining clear separation from the extraction and normalization processes \cite{park2023generative}.
+\textbf{Design rationale.} Centralizing quality assessment and user interaction in a dedicated verification stage directly supports R3 (transparency) and R4 (user correction). It ensures consistent verification standards while maintaining clean separation from extraction and normalization processes \cite{park2023generative}.
 
 \subsection{Agent Interfaces and Data Flow}
 \label{subsec:agent-interfaces}
 
-Table~\ref{tab:agent-interfaces} summarizes the interface of each agent. By separating their responsibilities and outputs, the architecture supports substitution of different models, logging of intermediate states, and detailed error analysis. Figure~\ref{fig:agent-pipeline} illustrates the sequential data flow through the five agents for both audio and text inputs.
+Table~\ref{tab:agent-interfaces} summarizes the interface of each agent. By separating their responsibilities and outputs, the architecture supports substitution of different models, logging of intermediate states, and detailed error analysis. Figure~\ref{fig:agent-pipeline} illustrates the sequential data flow through the five agents for both audio and text inputs. The next section formalizes four deployment strategies that instantiate this architecture with different orchestration patterns, trading off accuracy, latency, and computational cost.
 
-\begin{table}[h!]
+\begin{table}[H]
 \centering
 \renewcommand{\arraystretch}{1.3}
 \setlength{\tabcolsep}{8pt}
 \small
-\begin{tabular}{|p{2.7cm}|p{5cm}|p{5.3cm}|}
+\begin{tabular}{|p{2cm}|p{5.5cm}|p{5.5cm}|}
 \hline
 \textbf{Agent} & \textbf{Input} & \textbf{Output} \\
 \hline
@@ -102,9 +101,8 @@ Normalized slot--value pairs &
 Verified template with confidence scores, field annotations, and clarification prompts \\
 \hline
 \end{tabular}
-\caption{Invox's agent interfaces and data flow.}
+\caption{Invox's agent interfaces and data flow. The table summarizes how information moves through the five-agent pipeline by showing the expected input and output of each agent. Reading the table top to bottom reveals the transformation path from raw audio to a fully verified template, highlighting how each agent contributes a distinct and on-overlapping function within the overall system.}
 \label{tab:agent-interfaces}
 \end{table}
 
-The next section formalizes four deployment strategies that instantiate this architecture with different orchestration patterns, trading off accuracy, latency, and computational cost.
 
