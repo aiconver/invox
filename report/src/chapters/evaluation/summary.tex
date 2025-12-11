@@ -74,8 +74,6 @@ Figure~\ref{fig:strategy-comparison-bar} shows the main performance metrics. S1.
 \subsection*{Cost Comparison}
 
 Figure~\ref{fig:cost-trend-audio} shows how cost increases with audio duration. All strategies add \$0.006 per minute for Whisper transcription. The base LLM cost varies: S1.1 costs 0.72\textcent, S3.1 costs 1.40\textcent, S2.1 costs 2.18\textcent, and S4.1 costs 4.32\textcent per document (without audio). At 1 minute of audio, S4.1 is 3.7$\times$ more expensive than S1.1.
-
-
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}
@@ -96,18 +94,20 @@ Figure~\ref{fig:cost-trend-audio} shows how cost increases with audio duration. 
     tick label style={font=\footnotesize},
   ]
 
-  \addplot+[thick, mark=*, mark options={solid}, color=blue]  {0.72  + 0.60*x};
+  % Removed "mark=*" from all lines
+  \addplot+[thick, no markers, color=blue]  {0.72  + 0.60*x};
   \addlegendentry{S1.1 (Single-pass)}
 
-  \addplot+[thick, mark=*, mark options={solid}, color=orange] {2.183 + 0.60*x};
+  \addplot+[thick, no markers, color=orange] {2.183 + 0.60*x};
   \addlegendentry{S2.1 (Iterative per-field)}
 
-  \addplot+[thick, mark=*, mark options={solid}, color=green!50!black] {1.395 + 0.60*x};
+  \addplot+[thick, no markers, color=green!50!black] {1.395 + 0.60*x};
   \addlegendentry{S3.1 (Full consensus)}
 
-  \addplot+[thick, mark=*, mark options={solid}, color=red] {4.32  + 0.60*x};
+  \addplot+[thick, no markers, color=red] {4.32  + 0.60*x};
   \addlegendentry{S4.1 (Per-field consensus)}
 
+  % Baseline labels
   \node[anchor=west, font=\tiny] at (axis cs:0.1,0.80) {0.72};
   \node[anchor=west, font=\tiny] at (axis cs:0.1,2.26) {2.18};
   \node[anchor=west, font=\tiny] at (axis cs:0.1,1.47) {1.40};
